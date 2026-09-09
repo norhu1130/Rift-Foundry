@@ -1,0 +1,372 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.lol-build.example/schemas/scenario-profile.schema.json",
+  "title": "LoL Build Recommendation Scenario Profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "patch",
+    "actor",
+    "encounter",
+    "target",
+    "objective_vector",
+    "selection_policy",
+    "verification"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0.0" },
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*_v[1-9][0-9]*$" },
+    "patch": { "$ref": "#/$defs/patchRef" },
+    "actor": { "$ref": "#/$defs/actor" },
+    "encounter": { "$ref": "#/$defs/encounter" },
+    "target": { "$ref": "#/$defs/target" },
+    "objective_vector": { "$ref": "#/$defs/objectiveVector" },
+    "selection_policy": { "$ref": "#/$defs/selectionPolicy" },
+    "exclusions": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "verification": { "$ref": "#/$defs/verification" }
+  },
+  "$defs": {
+    "patchRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["region", "game_patch", "data_lock_ref"],
+      "properties": {
+        "region": { "type": "string", "minLength": 2 },
+        "game_patch": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+(?:\\.[0-9]+)?$" },
+        "data_lock_ref": { "type": "string", "minLength": 1 }
+      }
+    },
+    "actor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "champion_id",
+        "role",
+        "level",
+        "initial_hp",
+        "initial_resource",
+        "cooldowns_ready",
+        "stacks_preloaded",
+        "rotation_profile_ref",
+        "rune_page_ref",
+        "summoner_spell_ids"
+      ],
+      "properties": {
+        "champion_id": { "type": "integer", "minimum": 1 },
+        "role": { "enum": ["TOP", "JUNGLE", "MIDDLE", "BOTTOM", "UTILITY"] },
+        "level": { "type": "integer", "minimum": 1, "maximum": 18 },
+        "initial_hp": { "enum": ["FULL"] },
+        "initial_resource": { "enum": ["FULL", "NOT_APPLICABLE"] },
+        "cooldowns_ready": { "type": "boolean" },
+        "stacks_preloaded": { "type": "boolean" },
+        "rotation_profile_ref": { "type": "string", "minLength": 1 },
+        "rune_page_ref": { "type": "string", "minLength": 1 },
+        "summoner_spell_ids": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 1 },
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true
+        }
+      }
+    },
+    "encounter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "duration_ms",
+        "target_count",
+        "range_model",
+        "execution_model",
+        "cc_profile"
+      ],
+      "properties": {
+        "duration_ms": { "type": "integer", "minimum": 1 },
+        "target_count": { "type": "integer", "const": 1 },
+        "range_model": { "enum": ["STATIONARY_IN_RANGE"] },
+        "execution_model": { "enum": ["DETERMINISTIC_ROTATION"] },
+        "cc_profile": { "$ref": "#/$defs/ccProfile" },
+        "target_defensive_windows": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/targetDefensiveWindow" }
+        },
+        "target_shield_events": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/targetShieldEvent" }
+        }
+      }
+    },
+    "ccProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "events"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*_v[1-9][0-9]*$" },
+        "events": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/ccEvent" }
+        }
+      }
+    },
+    "ccEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "at_ms",
+        "cc_type",
+        "base_duration_ms",
+        "blocked_channels",
+        "mechanic_ref"
+      ],
+      "properties": {
+        "at_ms": { "type": "integer", "minimum": 0 },
+        "cc_type": { "enum": ["BLIND", "STUN", "SLOW", "SILENCE"] },
+        "base_duration_ms": { "type": "integer", "minimum": 1 },
+        "blocked_channels": {
+          "type": "array",
+          "items": { "enum": ["BASIC_ATTACK", "ABILITY", "MOVEMENT", "ITEM_ACTIVE"] },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "mechanic_ref": { "type": "string", "minLength": 1 }
+      }
+    },
+    "targetDefensiveWindow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "start_ms", "end_ms", "incoming_damage_multiplier",
+        "affected_damage_types", "status", "source_ref"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "start_ms": { "type": "integer", "minimum": 0 },
+        "end_ms": { "type": "integer", "minimum": 1 },
+        "incoming_damage_multiplier": { "$ref": "#/$defs/fractionString" },
+        "affected_damage_types": {
+          "type": "array",
+          "items": { "enum": ["PHYSICAL", "MAGIC", "TRUE"] },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "status": { "enum": ["DERIVED_UNVERIFIED", "VERIFIED", "STALE"] },
+        "source_ref": { "type": "string", "minLength": 1 }
+      }
+    },
+    "targetShieldEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "at_ms", "amount", "status", "source_ref"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "at_ms": { "type": "integer", "minimum": 0 },
+        "amount": { "$ref": "#/$defs/decimalString" },
+        "status": { "enum": ["DERIVED_UNVERIFIED", "VERIFIED", "STALE"] },
+        "source_ref": { "type": "string", "minLength": 1 }
+      }
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile_id",
+        "reproduction_recipe",
+        "stat_snapshot",
+        "incoming_damage_mix"
+      ],
+      "properties": {
+        "profile_id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*_v[1-9][0-9]*$" },
+        "reproduction_recipe": { "$ref": "#/$defs/reproductionRecipe" },
+        "stat_snapshot": { "$ref": "#/$defs/statSnapshot" },
+        "incoming_damage_mix": { "$ref": "#/$defs/damageMix" }
+      }
+    },
+    "reproductionRecipe": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["environment", "champion_id", "level", "item_ids", "instructions"],
+      "properties": {
+        "environment": { "enum": ["PRACTICE_TOOL", "CUSTOM_GAME"] },
+        "champion_id": { "type": "integer", "minimum": 1 },
+        "level": { "type": "integer", "minimum": 1, "maximum": 18 },
+        "item_ids": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 1 },
+          "uniqueItems": true
+        },
+        "rune_page_ref": { "type": "string", "minLength": 1 },
+        "instructions": { "type": "array", "items": { "type": "string", "minLength": 1 }, "minItems": 1 }
+      }
+    },
+    "statSnapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "max_hp", "armor", "magic_resistance", "derivation_ref"],
+      "properties": {
+        "status": { "enum": ["DERIVED_UNVERIFIED", "VERIFIED", "STALE"] },
+        "max_hp": { "$ref": "#/$defs/decimalString" },
+        "armor": { "$ref": "#/$defs/decimalString" },
+        "magic_resistance": { "$ref": "#/$defs/decimalString" },
+        "derivation_ref": { "type": "string", "minLength": 1 },
+        "measurement_ref": { "type": ["string", "null"] }
+      }
+    },
+    "damageMix": {
+      "description": "Raw incoming damage proportions. Values MUST sum to 1; enforce with semantic validation.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "physical", "magical", "true", "derivation_ref"],
+      "properties": {
+        "status": { "enum": ["ASSUMED_BENCHMARK", "DERIVED_UNVERIFIED", "VERIFIED", "STALE"] },
+        "physical": { "$ref": "#/$defs/fractionString" },
+        "magical": { "$ref": "#/$defs/fractionString" },
+        "true": { "$ref": "#/$defs/fractionString" },
+        "derivation_ref": { "type": "string", "minLength": 1 }
+      },
+      "x-invariant": "physical + magical + true == 1"
+    },
+    "objectiveVector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["maximize", "minimize", "derived"],
+      "properties": {
+        "maximize": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "DAMAGE_TOTAL_8S",
+              "DAMAGE_FIRST_3S",
+              "PHYSICAL_EHP",
+              "MAGICAL_EHP",
+              "CC_ADJUSTED_UPTIME"
+            ]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "minimize": {
+          "type": "array",
+          "items": { "enum": ["TOTAL_GOLD", "OCCUPIED_SLOTS"] },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "derived": {
+          "type": "array",
+          "items": { "enum": ["KILL_THRESHOLD_MET_3S", "MIXED_DAMAGE_EHP"] },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    },
+    "selectionPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pareto", "kill_gate", "branches"],
+      "properties": {
+        "pareto": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["method", "epsilon_policy_ref"],
+          "properties": {
+            "method": { "const": "EPSILON_PARETO" },
+            "epsilon_policy_ref": { "type": "string", "minLength": 1 }
+          }
+        },
+        "kill_gate": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["metric", "horizon_ms", "applies_to_branches", "fallback"],
+          "properties": {
+            "metric": { "const": "TARGET_DEAD_AT_HORIZON" },
+            "horizon_ms": { "type": "integer", "minimum": 1 },
+            "applies_to_branches": {
+              "type": "array",
+              "items": { "enum": ["DEFAULT", "OFFENSE"] },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "fallback": { "const": "IF_NONE_MEET_GATE_KEEP_ALL_AND_MAXIMIZE_DAMAGE_AT_HORIZON" }
+          }
+        },
+        "branches": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/branchPolicy" },
+          "minItems": 3,
+          "maxItems": 3
+        }
+      }
+    },
+    "branchPolicy": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "rank_by"],
+          "properties": {
+            "id": { "const": "DEFAULT" },
+            "rank_by": { "const": "CHAMPION_PRIMARY_METRIC" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "rank_by"],
+          "properties": {
+            "id": { "const": "OFFENSE" },
+            "rank_by": { "const": "DAMAGE_TOTAL_8S_IMPROVEMENT" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "rank_by", "primary_metric_loss_limit_ref"],
+          "properties": {
+            "id": { "const": "DEFENSE" },
+            "rank_by": { "const": "MIXED_DAMAGE_EHP_IMPROVEMENT" },
+            "primary_metric_loss_limit_ref": { "type": "string", "minLength": 1 }
+          }
+        }
+      ]
+    },
+    "decimalString": {
+      "type": "string",
+      "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$"
+    },
+    "fractionString": {
+      "type": "string",
+      "pattern": "^(?:0(?:\\.[0-9]+)?|1(?:\\.0+)?)$"
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "verified_patch", "evidence_refs"],
+      "properties": {
+        "status": { "enum": ["UNVERIFIED", "VERIFIED", "STALE", "REJECTED"] },
+        "verified_patch": { "type": ["string", "null"] },
+        "evidence_refs": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "VERIFIED" } } },
+          "then": {
+            "properties": {
+              "verified_patch": { "type": "string", "minLength": 1 },
+              "evidence_refs": { "minItems": 1 }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

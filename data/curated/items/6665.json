@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0.0",
+  "id": 6665,
+  "name": "Jak'Sho, The Protean",
+  "patch_version": "16.17.1",
+  "map_id": 11,
+  "cost": { "total": 3200, "combine": 650, "sell_value": 2240 },
+  "stats": {
+    "HP": { "type": "CONSTANT", "value": "350" },
+    "ARMOR": { "type": "CONSTANT", "value": "45" },
+    "MAGIC_RESISTANCE": { "type": "CONSTANT", "value": "45" }
+  },
+  "effects": [],
+  "unsupported_effects": [
+    {
+      "handler": "jaksho_voidborn_resilience_v1",
+      "trigger": "CHAMPION_COMBAT_ELAPSED",
+      "behavior_contract": "After five continuous seconds in champion combat, increase bonus armor and bonus magic resistance by 30 percent until champion combat ends.",
+      "parameters": {
+        "bonus_resistance_multiplier": { "type": "CONSTANT", "value": "0.30" },
+        "combat_threshold_ms": { "type": "CONSTANT", "value": "5000" }
+      },
+      "reason": "A delayed activation tied to champion-combat lifetime requires temporal state unavailable to the v1 evaluator.",
+      "source_refs": [
+        {
+          "locked_path": "data/raw/16.17.1/en_US/item.json",
+          "json_path": "/data/6665/description",
+          "supports": "Five-second threshold, bonus-resistance multiplier, and end-of-combat expiry."
+        },
+        {
+          "locked_path": "data/raw/16.17.1/communitydragon/items.cdtb.bin.json",
+          "json_path": "/Items~16665",
+          "supports": "BonusResistPercentage and MaxStacks raw values."
+        }
+      ]
+    }
+  ],
+  "groups": {
+    "purchase_limit": null,
+    "same_passive": "voidborn_resilience",
+    "shared_cooldown": null
+  },
+  "build_path": [1011, 1031, 1057],
+  "slot_cost": 1,
+  "verification": {
+    "status": "CURATED_UNVERIFIED",
+    "source_refs": [
+      {
+        "locked_path": "data/raw/16.17.1/en_US/item.json",
+        "json_path": "/data/6665",
+        "supports": "Name, cost, build path, stats, and passive description."
+      },
+      {
+        "locked_path": "data/raw/16.17.1/communitydragon/items.cdtb.bin.json",
+        "json_path": "/Items~16665",
+        "supports": "Voidborn Resilience raw parameters."
+      }
+    ],
+    "reviewed_at": "2026-09-06T21:05:52Z",
+    "notes": "Base stats are directly evaluable; the delayed resistance multiplier is isolated as a named temporal exception."
+  }
+}

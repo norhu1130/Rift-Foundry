@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0.0",
+  "id": "synthetic_duel_jax_l13_8s_preview_v1",
+  "game_patch": "16.17.1",
+  "scenario_ref": "duel_jax_l13_8s_vs_teemo_blind_v1",
+  "item_ids": [3111, 3115, 6665],
+  "budgets_by_core": {"1": 4000, "2": 7000, "3": 10000},
+  "actor": {
+    "base_hp": "2200",
+    "base_armor": "75",
+    "base_magic_resistance": "50"
+  },
+  "target": {"kill_threshold_hp": "1753.8"},
+  "damage_mix": {"physical": "0.30", "magical": "0.70", "true": "0"},
+  "rotation_timing": {
+    "reset_first_at_ms": 500,
+    "once_at_ms": 2000
+  },
+  "cc_formula": {
+    "encounter_duration_ms": "8000",
+    "blind_base_duration_ms": "3000",
+    "duration_formula_ref": "synthetic.blind_duration_times_one_minus_single_tenacity.v1"
+  },
+  "selection": {
+    "defense_max_primary_loss_fraction": "0.20"
+  },
+  "blockers": [
+    "STATIC_ITEM_STATS_ONLY",
+    "BLIND_INTERACTIONS_UNVERIFIED",
+    "JAX_PASSIVE_BLIND_INTERACTION_UNVERIFIED",
+    "ATTACK_RESET_TIMING_UNVERIFIED",
+    "BLIND_MISS_EMPOWERED_AND_NTH_HIT_CONSUMPTION_UNVERIFIED"
+  ]
+}

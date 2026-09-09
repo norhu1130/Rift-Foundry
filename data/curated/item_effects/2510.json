@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0.0", "item_id": 2510, "patch_version": "16.17.1",
+  "programs": [{
+    "id": "dusk_dawn_spellblade", "source_label": "PASSIVE:Spellblade", "kind": "PASSIVE",
+    "trigger": "BASIC_ATTACK_HIT", "required_context_flag": "SPELLBLADE_READY", "cooldown_ms": 1500,
+    "operations": [
+      {"kind": "DAMAGE", "target": "TARGET", "damage_type": "MAGIC", "value_expression": {"type": "ADD", "terms": [
+        {"type": "MULTIPLY", "factors": [{"type": "CONSTANT", "value": "0.75"}, {"type": "STAT", "entity": "SELF", "basis": "BASE", "stat": "AD"}]},
+        {"type": "MULTIPLY", "factors": [{"type": "CONSTANT", "value": "0.10"}, {"type": "STAT", "entity": "SELF", "basis": "TOTAL", "stat": "AP"}]}
+      ]}},
+      {"kind": "HEAL", "target": "SELF", "value_expression": {"type": "ADD", "terms": [
+        {"type": "MULTIPLY", "factors": [{"type": "CONSTANT", "value": "0.10"}, {"type": "STAT", "entity": "SELF", "basis": "TOTAL", "stat": "AP"}]},
+        {"type": "MULTIPLY", "factors": [{"type": "CONSTANT", "value": "0.03"}, {"type": "STAT", "entity": "SELF", "basis": "BONUS", "stat": "HP"}]}
+      ]}},
+      {"kind": "NO_OP", "target": "TARGET", "status_or_stat": "REAPPLY_ON_HIT_EFFECTS_ONCE", "value_expression": {"type": "CONSTANT", "value": "1"}}
+    ]
+  }],
+  "verification": {"status": "CURATED_UNVERIFIED", "source_refs": ["data/raw/16.17.1/en_US/item.json#/data/2510", "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/2510"]}
+}

@@ -1,0 +1,223 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.lol-build.example/schemas/champion-profile.schema.json",
+  "title": "Mechanic-keyed champion evaluation profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "id", "patch_version", "champion_id", "display_name",
+    "role_tags", "mechanics", "resource", "range_class", "primary_metric",
+    "level_profile", "rotation", "abilities", "special_rules", "verification"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "id": { "type": "string", "pattern": "^champion_profile_[a-z0-9_]+_v[1-9][0-9]*$" },
+    "patch_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+(?:\\.[0-9]+)?$" },
+    "champion_id": { "type": "integer", "minimum": 1 },
+    "display_name": { "type": "string", "minLength": 1 },
+    "role_tags": {
+      "type": "array",
+      "items": { "enum": ["FIGHTER", "TANK", "MAGE", "MARKSMAN", "ASSASSIN", "SUPPORT"] },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "mechanics": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "SUSTAINED", "BURST", "ON_HIT", "DOT", "UTILITY", "DUELIST",
+          "STACKING", "EXECUTE", "HEAL"
+        ]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "resource": { "enum": ["MANA", "ENERGY", "NONE"] },
+    "range_class": { "enum": ["MELEE", "RANGED"] },
+    "primary_metric": {
+      "enum": ["DAMAGE_TOTAL_8S", "DAMAGE_FIRST_3S", "MIXED_DAMAGE_EHP"]
+    },
+    "level_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level", "spell_ranks", "status", "notes"],
+      "properties": {
+        "level": { "type": "integer", "minimum": 1, "maximum": 18 },
+        "spell_ranks": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["Q", "W", "E", "R"],
+          "properties": {
+            "Q": { "type": "integer", "minimum": 1, "maximum": 5 },
+            "W": { "type": "integer", "minimum": 1, "maximum": 5 },
+            "E": { "type": "integer", "minimum": 1, "maximum": 5 },
+            "R": { "type": "integer", "minimum": 1, "maximum": 3 }
+          }
+        },
+        "status": { "const": "ASSUMED_BENCHMARK" },
+        "notes": { "type": "string", "minLength": 1 }
+      }
+    },
+    "rotation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "duration_ms", "rules", "excluded_actions"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "duration_ms": { "const": 8000 },
+        "rules": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "BASIC_ATTACK_CONTINUOUS_FROM_ATTACK_SPEED",
+              "W_ON_COOLDOWN_ATTACK_RESET",
+              "E_CAST_ONCE",
+              "R_PASSIVE_EVERY_THIRD_ATTACK",
+              "Q_OUTER_EDGE_ONCE",
+              "W_ON_COOLDOWN_ATTACK_RESET_AND_STACK",
+              "E_CONTROL_ONCE",
+              "HEMORRHAGE_STACK_ON_DAMAGING_HIT",
+              "R_AT_FIVE_STACKS"
+            ]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "excluded_actions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["ability_id", "reason"],
+            "properties": {
+              "ability_id": { "type": "string", "minLength": 1 },
+              "reason": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    },
+    "abilities": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/abilityVariant" },
+      "minItems": 1
+    },
+    "special_rules": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "ATTACK_RESET", "EVERY_NTH_BASIC_ATTACK", "BASIC_ATTACK_DODGE",
+          "STACKING_DOT", "MISSING_HEALTH_HEAL", "EXECUTE_THRESHOLD",
+          "PERCENT_ARMOR_PENETRATION", "PASSIVE_STAT_GRANT"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "mechanic_parameters": { "$ref": "#/$defs/mechanicParameters" },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reviewed_at", "notes"],
+      "properties": {
+        "status": { "enum": ["CURATED_UNVERIFIED", "VERIFIED", "STALE", "REJECTED"] },
+        "reviewed_at": { "type": "string", "format": "date-time" },
+        "notes": { "type": "string", "minLength": 1 }
+      }
+    }
+  },
+  "$defs": {
+    "decimalString": { "type": "string", "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$" },
+    "sourceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["locked_path", "json_path", "supports"],
+      "properties": {
+        "locked_path": { "type": "string", "minLength": 1 },
+        "json_path": { "type": "string", "minLength": 1 },
+        "supports": { "type": "string", "minLength": 1 }
+      }
+    },
+    "scaling": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stat", "basis", "coefficient"],
+      "properties": {
+        "stat": { "enum": ["AD", "AP", "TARGET_MAX_HP"] },
+        "basis": { "enum": ["BONUS", "TOTAL", "MAX"] },
+        "coefficient": { "$ref": "#/$defs/decimalString" }
+      }
+    },
+    "abilityVariant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "slot", "damage_type", "base_damage_by_rank", "cooldown_seconds_by_rank",
+        "scalings", "source_refs"
+      ],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
+        "slot": { "enum": ["Q", "W", "E", "R"] },
+        "damage_type": { "enum": ["PHYSICAL", "MAGIC", "TRUE", "NONE"] },
+        "base_damage_by_rank": {
+          "type": "array", "items": { "$ref": "#/$defs/decimalString" }, "minItems": 3, "maxItems": 5
+        },
+        "cooldown_seconds_by_rank": {
+          "type": "array", "items": { "$ref": "#/$defs/decimalString" }, "minItems": 3, "maxItems": 5
+        },
+        "scalings": { "type": "array", "items": { "$ref": "#/$defs/scaling" } },
+        "source_refs": { "type": "array", "items": { "$ref": "#/$defs/sourceRef" }, "minItems": 1 }
+      }
+    },
+    "mechanicParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "stacking_dot": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "max_stacks", "duration_ms", "tick_interval_ms", "level_1_base_per_stack",
+            "level_18_base_per_stack", "bonus_ad_ratio_per_stack", "source_ref"
+          ],
+          "properties": {
+            "max_stacks": { "type": "integer", "minimum": 1 },
+            "duration_ms": { "type": "integer", "minimum": 1 },
+            "tick_interval_ms": { "type": "integer", "minimum": 1 },
+            "level_1_base_per_stack": { "$ref": "#/$defs/decimalString" },
+            "level_18_base_per_stack": { "$ref": "#/$defs/decimalString" },
+            "bonus_ad_ratio_per_stack": { "$ref": "#/$defs/decimalString" },
+            "source_ref": { "type": "string", "minLength": 1 }
+          }
+        },
+        "execute_stack_multiplier": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["damage_increase_per_stack", "max_stacks", "source_ref"],
+          "properties": {
+            "damage_increase_per_stack": { "$ref": "#/$defs/decimalString" },
+            "max_stacks": { "type": "integer", "minimum": 1 },
+            "source_ref": { "type": "string", "minLength": 1 }
+          }
+        },
+        "missing_health_heal": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["fraction_per_champion", "max_targets", "source_ref"],
+          "properties": {
+            "fraction_per_champion": { "$ref": "#/$defs/decimalString" },
+            "max_targets": { "type": "integer", "minimum": 1 },
+            "source_ref": { "type": "string", "minLength": 1 }
+          }
+        },
+        "percent_armor_penetration_by_rank": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/decimalString" },
+          "minItems": 5,
+          "maxItems": 5
+        },
+        "level_13_passive_bonus_ad": { "$ref": "#/$defs/decimalString" }
+      },
+      "minProperties": 1
+    }
+  }
+}

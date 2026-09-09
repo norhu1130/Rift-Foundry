@@ -1,0 +1,225 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.lol-build.example/schemas/item.schema.json",
+  "title": "Curated Summoner's Rift item",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "name",
+    "patch_version",
+    "map_id",
+    "cost",
+    "stats",
+    "effects",
+    "unsupported_effects",
+    "groups",
+    "build_path",
+    "slot_cost",
+    "verification"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "id": { "type": "integer", "minimum": 1 },
+    "name": { "type": "string", "minLength": 1 },
+    "patch_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+(?:\\.[0-9]+)?$" },
+    "map_id": { "const": 11 },
+    "cost": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total", "combine", "sell_value"],
+      "properties": {
+        "total": { "type": "integer", "minimum": 0 },
+        "combine": { "type": "integer", "minimum": 0 },
+        "sell_value": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "stats": {
+      "type": "object",
+      "additionalProperties": { "$ref": "numeric-expression.schema.json" },
+      "propertyNames": {
+        "enum": [
+          "AD",
+          "AP",
+          "HP",
+          "ARMOR",
+          "MAGIC_RESISTANCE",
+          "ATTACK_SPEED",
+          "ABILITY_HASTE",
+          "MOVE_SPEED_FLAT",
+          "MOVE_SPEED_PERCENT",
+          "TENACITY",
+          "CRITICAL_STRIKE_CHANCE",
+          "MANA",
+          "LIFESTEAL"
+        ]
+      }
+    },
+    "effects": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/effect" }
+    },
+    "unsupported_effects": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/namedException" }
+    },
+    "groups": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["purchase_limit", "same_passive", "shared_cooldown"],
+      "properties": {
+        "purchase_limit": { "type": ["string", "null"] },
+        "same_passive": { "type": ["string", "null"] },
+        "shared_cooldown": { "type": ["string", "null"] }
+      }
+    },
+    "build_path": {
+      "type": "array",
+      "items": { "type": "integer", "minimum": 1 },
+      "uniqueItems": false
+    },
+    "slot_cost": { "type": "integer", "const": 1 },
+    "verification": { "$ref": "#/$defs/verification" }
+  },
+  "$defs": {
+    "effect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "trigger",
+        "operation",
+        "value_expression",
+        "condition",
+        "duration_ms",
+        "cooldown_ms",
+        "modifiers"
+      ],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "type": {
+          "enum": [
+            "STAT_CONVERSION",
+            "SHIELD",
+            "DAMAGE_ON_HIT",
+            "PCT_CURRENT_HP_DAMAGE"
+          ]
+        },
+        "trigger": {
+          "enum": ["ALWAYS", "BASIC_ATTACK_HIT", "DAMAGE_WOULD_CROSS_HP_THRESHOLD"]
+        },
+        "operation": {
+          "enum": [
+            "GRANT_BONUS_AD",
+            "GRANT_BONUS_AP",
+            "GRANT_SHIELD",
+            "DEAL_MAGIC_DAMAGE",
+            "DEAL_PHYSICAL_DAMAGE"
+          ]
+        },
+        "value_expression": { "$ref": "numeric-expression.schema.json" },
+        "condition": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["self_hp_below_fraction"],
+              "properties": {
+                "self_hp_below_fraction": {
+                  "type": "string",
+                  "pattern": "^0\\.[0-9]+$"
+                }
+              }
+            }
+          ]
+        },
+        "duration_ms": { "type": ["integer", "null"], "minimum": 1 },
+        "cooldown_ms": { "type": ["integer", "null"], "minimum": 1 },
+        "modifiers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["when", "multiplier"],
+            "properties": {
+              "when": { "enum": ["SELF_IS_RANGED", "SELF_IS_MELEE"] },
+              "multiplier": { "$ref": "numeric-expression.schema.json" }
+            }
+          }
+        }
+      }
+    },
+    "namedException": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "handler",
+        "trigger",
+        "behavior_contract",
+        "parameters",
+        "reason",
+        "source_refs"
+      ],
+      "properties": {
+        "handler": {
+          "enum": [
+            "black_cleaver_carve_v1",
+            "black_cleaver_fervor_v1",
+            "blade_ruined_king_clawing_shadows_v1",
+            "jaksho_voidborn_resilience_v1",
+            "riftmaker_void_corruption_v1"
+          ]
+        },
+        "trigger": {
+          "enum": [
+            "PHYSICAL_DAMAGE_TO_CHAMPION",
+            "BASIC_ATTACK_HIT_CHAMPION",
+            "CHAMPION_COMBAT_ELAPSED",
+            "IN_COMBAT_WITH_CHAMPION"
+          ]
+        },
+        "behavior_contract": { "type": "string", "minLength": 1 },
+        "parameters": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": { "$ref": "numeric-expression.schema.json" },
+          "propertyNames": { "pattern": "^[a-z][a-z0-9_]*$" }
+        },
+        "reason": { "type": "string", "minLength": 1 },
+        "source_refs": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/sourceRef" },
+          "minItems": 1
+        }
+      }
+    },
+    "sourceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["locked_path", "json_path", "supports"],
+      "properties": {
+        "locked_path": { "type": "string", "minLength": 1 },
+        "json_path": { "type": "string", "minLength": 1 },
+        "supports": { "type": "string", "minLength": 1 }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "source_refs", "reviewed_at", "notes"],
+      "properties": {
+        "status": { "enum": ["CURATED_UNVERIFIED", "VERIFIED", "STALE", "REJECTED"] },
+        "source_refs": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/sourceRef" },
+          "minItems": 1
+        },
+        "reviewed_at": { "type": "string", "format": "date-time" },
+        "notes": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

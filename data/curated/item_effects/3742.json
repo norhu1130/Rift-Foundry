@@ -1,0 +1,86 @@
+{
+  "schema_version": "1.0.0",
+  "item_id": 3742,
+  "patch_version": "16.17.1",
+  "programs": [
+    {
+      "id": "dead_mans_plate_shipwrecker_momentum",
+      "source_label": "PASSIVE:Shipwrecker",
+      "kind": "PASSIVE",
+      "trigger": "MOVEMENT_UPDATED",
+      "cooldown_ms": 0,
+      "operations": [
+        {
+          "kind": "GRANT_STAT",
+          "target": "SELF",
+          "value_expression": {"type": "CONSTANT", "value": "20"},
+          "damage_type": null,
+          "duration_ms": null,
+          "status_or_stat": "MOVE_SPEED_FLAT",
+          "decay": "NONE",
+          "multiply_by_targets_hit": false,
+          "context_multiplier": "MOMENTUM_FRACTION",
+          "excludes_primary_target": false,
+          "range_multipliers": {"MELEE": "1", "RANGED": "1"}
+        }
+      ]
+    },
+    {
+      "id": "dead_mans_plate_shipwrecker_hit",
+      "source_label": "PASSIVE:Shipwrecker",
+      "kind": "PASSIVE",
+      "trigger": "BASIC_ATTACK_HIT",
+      "cooldown_ms": 0,
+      "operations": [
+        {
+          "kind": "DAMAGE",
+          "target": "TARGET",
+          "value_expression": {
+            "type": "ADD",
+            "terms": [
+              {"type": "STAT", "entity": "SELF", "basis": "BASE", "stat": "AD"},
+              {"type": "CONSTANT", "value": "40"}
+            ]
+          },
+          "damage_type": "PHYSICAL",
+          "duration_ms": null,
+          "status_or_stat": null,
+          "decay": "NONE",
+          "multiply_by_targets_hit": false,
+          "context_multiplier": "MOMENTUM_FRACTION",
+          "excludes_primary_target": false,
+          "range_multipliers": {"MELEE": "1", "RANGED": "1"}
+        }
+      ]
+    },
+    {
+      "id": "dead_mans_plate_unsinkable",
+      "source_label": "PASSIVE:Unsinkable",
+      "kind": "PASSIVE",
+      "trigger": "ALWAYS",
+      "cooldown_ms": 0,
+      "operations": [
+        {
+          "kind": "GRANT_STAT",
+          "target": "SELF",
+          "value_expression": {"type": "CONSTANT", "value": "0.15"},
+          "damage_type": null,
+          "duration_ms": null,
+          "status_or_stat": "SLOW_RESISTANCE_PERCENT",
+          "decay": "NONE",
+          "multiply_by_targets_hit": false,
+          "context_multiplier": null,
+          "excludes_primary_target": false,
+          "range_multipliers": {"MELEE": "1", "RANGED": "1"}
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "status": "CURATED_UNVERIFIED",
+    "source_refs": [
+      "data/raw/16.17.1/en_US/item.json#/data/3742",
+      "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/3742"
+    ]
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0.0",
+  "id": 3111,
+  "name": "Mercury's Treads",
+  "patch_version": "16.17.1",
+  "map_id": 11,
+  "cost": { "total": 1250, "combine": 550, "sell_value": 875 },
+  "stats": {
+    "MAGIC_RESISTANCE": { "type": "CONSTANT", "value": "20" },
+    "MOVE_SPEED_FLAT": { "type": "CONSTANT", "value": "45" },
+    "TENACITY": { "type": "CONSTANT", "value": "0.30" }
+  },
+  "effects": [],
+  "unsupported_effects": [],
+  "groups": {
+    "purchase_limit": "boots",
+    "same_passive": null,
+    "shared_cooldown": null
+  },
+  "build_path": [1001, 1033],
+  "slot_cost": 1,
+  "verification": {
+    "status": "CURATED_UNVERIFIED",
+    "source_refs": [
+      {
+        "locked_path": "data/raw/16.17.1/en_US/item.json",
+        "json_path": "/data/3111",
+        "supports": "Name, cost, build path, map availability, stats, and displayed tenacity."
+      },
+      {
+        "locked_path": "data/raw/16.17.1/communitydragon/items.cdtb.bin.json",
+        "json_path": "/Items~13111",
+        "supports": "Store availability, item groups, base stat fields, and categories."
+      }
+    ],
+    "reviewed_at": "2026-09-06T20:49:13Z",
+    "notes": "Source transcription is complete; live-client stat and tenacity behavior are not yet measured."
+  }
+}

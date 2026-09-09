@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.1.0",
+  "id": "cc_blind_v1",
+  "game_patch": "16.17.1",
+  "cc_type": "BLIND",
+  "blocked_channels": ["BASIC_ATTACK"],
+  "interactions": {
+    "tenacity_reducible": { "status": "UNVERIFIED", "value": null },
+    "cleanse_removable": { "status": "UNVERIFIED", "value": null },
+    "qss_removable": { "status": "UNVERIFIED", "value": null },
+    "immunity_resistible": { "status": "UNVERIFIED", "value": null },
+    "slow_resistance_applies": { "status": "UNVERIFIED", "value": null }
+  },
+  "verification": {
+    "status": "UNVERIFIED",
+    "verified_patch": null,
+    "last_change_evidence": {
+      "title": "Patch 11.21 notes — Teemo Blinding Dart",
+      "url": "https://www.leagueoflegends.com/en-us/news/game-updates/patch-11-21-notes/",
+      "published_at": "2021-10-19",
+      "supports": "Establishes the last located official numeric change to Blinding Dart cooldown, blind duration, and missile speed. It does not establish any response-channel interaction."
+    },
+    "measurements": [],
+    "notes": "BLOCKED: the locked 16.17.1 client has not been measured. The located patch note and locked static data identify the benchmark effect but do not verify tenacity, Cleanse, QSS, immunity, or slow-resistance interactions. A partial later-change search is not recorded as a completed subsequent_change_scan."
+  }
+}

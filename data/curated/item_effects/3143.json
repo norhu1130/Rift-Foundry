@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0.0", "item_id": 3143, "patch_version": "16.17.1",
+  "programs": [
+    {
+      "id": "randuins_resilience", "source_label": "PASSIVE:Resilience",
+      "kind": "PASSIVE", "trigger": "ALWAYS",
+      "operations": [{
+        "kind": "DAMAGE_MODIFIER", "target": "SELF",
+        "value_expression": {"type": "CONSTANT", "value": "0.70"},
+        "status_or_stat": "CRITICAL_STRIKE_DAMAGE_MULTIPLIER"
+      }]
+    },
+    {
+      "id": "randuins_humility", "source_label": "ACTIVE:Humility",
+      "kind": "ACTIVE", "trigger": "ITEM_ACTIVE_USED", "cooldown_ms": 90000,
+      "operations": [{
+        "kind": "APPLY_STATUS", "target": "NEARBY_ENEMIES",
+        "value_expression": {"type": "CONSTANT", "value": "0.70"},
+        "duration_ms": 2000, "status_or_stat": "CC_SLOW"
+      }]
+    }
+  ],
+  "verification": {"status": "CURATED_UNVERIFIED", "source_refs": [
+    "data/raw/16.17.1/en_US/item.json#/data/3143",
+    "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/3143"
+  ]}
+}

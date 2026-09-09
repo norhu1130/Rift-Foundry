@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.lol-build.example/schemas/numeric-expression.schema.json",
+  "title": "Restricted numeric expression v1",
+  "$ref": "#/$defs/expression",
+  "$defs": {
+    "decimalString": {
+      "type": "string",
+      "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$"
+    },
+    "expression": {
+      "oneOf": [
+        { "$ref": "#/$defs/constant" },
+        { "$ref": "#/$defs/stat" },
+        { "$ref": "#/$defs/add" },
+        { "$ref": "#/$defs/multiply" },
+        { "$ref": "#/$defs/levelCurve" }
+      ]
+    },
+    "constant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "value"],
+      "properties": {
+        "type": { "const": "CONSTANT" },
+        "value": { "$ref": "#/$defs/decimalString" }
+      }
+    },
+    "stat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "entity", "basis", "stat"],
+      "properties": {
+        "type": { "const": "STAT" },
+        "entity": { "enum": ["SELF", "TARGET"] },
+        "basis": { "enum": ["BASE", "BONUS", "TOTAL", "CURRENT", "MAX", "MISSING"] },
+        "stat": {
+          "enum": [
+            "AD",
+            "AP",
+            "HP",
+            "ARMOR",
+            "MAGIC_RESISTANCE",
+            "ATTACK_SPEED",
+            "ABILITY_HASTE",
+            "MANA",
+            "MOVE_SPEED",
+            "HEAL_SHIELD_POWER"
+            , "CRIT_CHANCE"
+          ]
+        }
+      }
+    },
+    "add": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "terms"],
+      "properties": {
+        "type": { "const": "ADD" },
+        "terms": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/expression" },
+          "minItems": 2
+        }
+      }
+    },
+    "multiply": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "factors"],
+      "properties": {
+        "type": { "const": "MULTIPLY" },
+        "factors": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/expression" },
+          "minItems": 2
+        }
+      }
+    },
+    "levelCurve": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "level_entity", "values"],
+      "properties": {
+        "type": { "const": "LEVEL_CURVE" },
+        "level_entity": { "enum": ["SELF", "TARGET"] },
+        "values": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/decimalString" },
+          "minItems": 18,
+          "maxItems": 18
+        }
+      }
+    }
+  }
+}

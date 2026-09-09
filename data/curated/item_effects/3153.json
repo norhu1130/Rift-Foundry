@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0.0",
+  "item_id": 3153,
+  "patch_version": "16.17.1",
+  "programs": [
+    {
+      "id": "blade_ruined_king_mists_edge",
+      "source_label": "PASSIVE:Mist's Edge",
+      "kind": "PASSIVE",
+      "trigger": "BASIC_ATTACK_HIT",
+      "cooldown_ms": 0,
+      "operations": [
+        {
+          "kind": "DAMAGE",
+          "target": "TARGET",
+          "value_expression": {
+            "type": "MULTIPLY",
+            "factors": [
+              {"type": "CONSTANT", "value": "0.06"},
+              {"type": "STAT", "entity": "TARGET", "basis": "CURRENT", "stat": "HP"}
+            ]
+          },
+          "damage_type": "PHYSICAL",
+          "duration_ms": null,
+          "status_or_stat": null,
+          "decay": "NONE",
+          "multiply_by_targets_hit": false,
+          "context_multiplier": null,
+          "excludes_primary_target": false,
+          "range_multipliers": {"MELEE": "1.5", "RANGED": "1"}
+        }
+      ]
+    },
+    {
+      "id": "blade_ruined_king_clawing_shadows",
+      "source_label": "PASSIVE:Clawing Shadows",
+      "kind": "PASSIVE",
+      "trigger": "BASIC_ATTACK_HIT",
+      "cooldown_ms": 15000,
+      "proc_every": 3,
+      "counting_window_ms": 6000,
+      "operations": [
+        {
+          "kind": "APPLY_STATUS",
+          "target": "TARGET",
+          "value_expression": {"type": "CONSTANT", "value": "0.30"},
+          "damage_type": null,
+          "duration_ms": 1000,
+          "status_or_stat": "CC_SLOW",
+          "decay": "NONE",
+          "multiply_by_targets_hit": false,
+          "context_multiplier": null,
+          "excludes_primary_target": false,
+          "range_multipliers": {"MELEE": "1", "RANGED": "0.5"}
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "status": "CURATED_UNVERIFIED",
+    "source_refs": [
+      "data/raw/16.17.1/en_US/item.json#/data/3153",
+      "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/3153"
+    ]
+  }
+}

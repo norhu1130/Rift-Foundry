@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0.0", "item_id": 3145, "patch_version": "16.17.1",
+  "programs": [{
+    "id": "hextech_alternator_revved", "source_label": "PASSIVE:Revved",
+    "kind": "PASSIVE", "trigger": "DAMAGE_TO_CHAMPION", "cooldown_ms": 40000,
+    "operations": [{
+      "kind": "DAMAGE", "target": "TARGET", "damage_type": "MAGIC",
+      "value_expression": {"type": "CONSTANT", "value": "65"}
+    }]
+  }],
+  "verification": {"status": "CURATED_UNVERIFIED", "source_refs": [
+    "data/raw/16.17.1/en_US/item.json#/data/3145",
+    "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/3145"
+  ]}
+}

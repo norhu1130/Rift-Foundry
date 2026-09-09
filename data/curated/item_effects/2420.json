@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0", "item_id": 2420, "patch_version": "16.17.1",
+  "programs": [{
+    "id": "seekers_armguard_time_stop", "source_label": "ACTIVE:Time Stop",
+    "kind": "ACTIVE", "trigger": "ITEM_ACTIVE_USED",
+    "operations": [
+      {
+        "kind": "APPLY_STATUS", "target": "SELF",
+        "value_expression": {"type": "CONSTANT", "value": "1"},
+        "duration_ms": 2500, "status_or_stat": "STASIS"
+      },
+      {
+        "kind": "TRANSFORM_ITEM", "target": "SELF",
+        "value_expression": {"type": "CONSTANT", "value": "2421"},
+        "status_or_stat": "REPLACEMENT_ITEM_ID"
+      }
+    ]
+  }],
+  "verification": {"status": "CURATED_UNVERIFIED", "source_refs": [
+    "data/raw/16.17.1/en_US/item.json#/data/2420",
+    "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/2420"
+  ]}
+}

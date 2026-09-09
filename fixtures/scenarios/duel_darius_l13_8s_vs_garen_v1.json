@@ -1,0 +1,131 @@
+{
+  "schema_version": "1.0.0",
+  "id": "duel_darius_l13_8s_vs_garen_v1",
+  "patch": {
+    "region": "KR",
+    "game_patch": "16.17.1",
+    "data_lock_ref": "patch.lock.json"
+  },
+  "actor": {
+    "champion_id": 122,
+    "role": "TOP",
+    "level": 13,
+    "initial_hp": "FULL",
+    "initial_resource": "FULL",
+    "cooldowns_ready": true,
+    "stacks_preloaded": false,
+    "rotation_profile_ref": "rotation_darius_five_stack_execute_8s_v1",
+    "rune_page_ref": "rune_darius_no_tenacity_or_damage_v1",
+    "summoner_spell_ids": [4, 6]
+  },
+  "encounter": {
+    "duration_ms": 8000,
+    "target_count": 1,
+    "range_model": "STATIONARY_IN_RANGE",
+    "execution_model": "DETERMINISTIC_ROTATION",
+    "cc_profile": {
+      "id": "benchmark_garen_q_silence_v1",
+      "events": [
+        {
+          "at_ms": 500,
+          "cc_type": "SILENCE",
+          "base_duration_ms": 1500,
+          "blocked_channels": ["ABILITY"],
+          "mechanic_ref": "cc_silence_v1"
+        }
+      ]
+    },
+    "target_defensive_windows": [
+      {
+        "id": "garen_w_rank1_damage_reduction",
+        "start_ms": 1000,
+        "end_ms": 5000,
+        "incoming_damage_multiplier": "0.75",
+        "affected_damage_types": ["PHYSICAL", "MAGIC"],
+        "status": "DERIVED_UNVERIFIED",
+        "source_ref": "data/raw/16.17.1/communitydragon/champions/garen.bin.json"
+      }
+    ],
+    "target_shield_events": [
+      {
+        "id": "garen_w_rank1_shield",
+        "at_ms": 1000,
+        "amount": "209",
+        "status": "DERIVED_UNVERIFIED",
+        "source_ref": "docs/scenarios/duel_darius_l13_8s_vs_garen_v1.md"
+      }
+    ]
+  },
+  "target": {
+    "profile_id": "benchmark_garen_l13_stride_phantom_deadmans_v1",
+    "reproduction_recipe": {
+      "environment": "CUSTOM_GAME",
+      "champion_id": 86,
+      "level": 13,
+      "item_ids": [6631, 3046, 3742],
+      "rune_page_ref": "rune_garen_no_hp_or_resistance_v1",
+      "instructions": [
+        "Set Garen to level 13 with Q5, W1, E5, and R2.",
+        "Equip Stridebreaker, Phantom Dancer, and Dead Man's Plate and assume 30 completed W passive resist stacks.",
+        "Start stationary in melee range; Garen Q hits at 500 ms and W activates at 1000 ms."
+      ]
+    },
+    "stat_snapshot": {
+      "status": "DERIVED_UNVERIFIED",
+      "max_hp": "2563.1",
+      "armor": "168.99",
+      "magic_resistance": "78.9725",
+      "derivation_ref": "docs/scenarios/duel_darius_l13_8s_vs_garen_v1.md",
+      "measurement_ref": null
+    },
+    "incoming_damage_mix": {
+      "status": "ASSUMED_BENCHMARK",
+      "physical": "0.75",
+      "magical": "0",
+      "true": "0.25",
+      "derivation_ref": "docs/scenarios/duel_darius_l13_8s_vs_garen_v1.md"
+    }
+  },
+  "objective_vector": {
+    "maximize": [
+      "DAMAGE_TOTAL_8S",
+      "DAMAGE_FIRST_3S",
+      "PHYSICAL_EHP",
+      "MAGICAL_EHP",
+      "CC_ADJUSTED_UPTIME"
+    ],
+    "minimize": ["TOTAL_GOLD", "OCCUPIED_SLOTS"],
+    "derived": ["KILL_THRESHOLD_MET_3S", "MIXED_DAMAGE_EHP"]
+  },
+  "selection_policy": {
+    "pareto": {"method": "EPSILON_PARETO", "epsilon_policy_ref": "epsilon_policy_v1"},
+    "kill_gate": {
+      "metric": "TARGET_DEAD_AT_HORIZON",
+      "horizon_ms": 3000,
+      "applies_to_branches": ["DEFAULT", "OFFENSE"],
+      "fallback": "IF_NONE_MEET_GATE_KEEP_ALL_AND_MAXIMIZE_DAMAGE_AT_HORIZON"
+    },
+    "branches": [
+      {"id": "DEFAULT", "rank_by": "CHAMPION_PRIMARY_METRIC"},
+      {"id": "OFFENSE", "rank_by": "DAMAGE_TOTAL_8S_IMPROVEMENT"},
+      {
+        "id": "DEFENSE",
+        "rank_by": "MIXED_DAMAGE_EHP_IMPROVEMENT",
+        "primary_metric_loss_limit_ref": "darius_defense_loss_limit_v1"
+      }
+    ]
+  },
+  "exclusions": [
+    "MOVEMENT_AND_SPACING",
+    "GAREN_PASSIVE_REGEN",
+    "GAREN_E_ARMOR_SHRED",
+    "MINIONS",
+    "GAME_STATE_ADVANTAGE",
+    "EXECUTION_ERROR"
+  ],
+  "verification": {
+    "status": "UNVERIFIED",
+    "verified_patch": null,
+    "evidence_refs": ["docs/scenarios/duel_darius_l13_8s_vs_garen_v1.md"]
+  }
+}

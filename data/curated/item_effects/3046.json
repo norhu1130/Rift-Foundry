@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0.0",
+  "item_id": 3046,
+  "patch_version": "16.17.1",
+  "programs": [
+    {
+      "id": "phantom_dancer_spectral_waltz",
+      "source_label": "PASSIVE:Spectral Waltz",
+      "kind": "PASSIVE",
+      "trigger": "ALWAYS",
+      "cooldown_ms": 0,
+      "operations": [
+        {
+          "kind": "APPLY_STATUS",
+          "target": "SELF",
+          "value_expression": {"type": "CONSTANT", "value": "1"},
+          "damage_type": null,
+          "duration_ms": null,
+          "status_or_stat": "GHOSTED",
+          "decay": "NONE",
+          "multiply_by_targets_hit": false,
+          "context_multiplier": null,
+          "excludes_primary_target": false,
+          "range_multipliers": {"MELEE": "1", "RANGED": "1"}
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "status": "CURATED_UNVERIFIED",
+    "source_refs": [
+      "data/raw/16.17.1/en_US/item.json#/data/3046",
+      "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/3046"
+    ]
+  }
+}

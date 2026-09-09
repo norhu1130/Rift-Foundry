@@ -1,0 +1,121 @@
+{
+  "schema_version": "1.0.0",
+  "id": "champion_profile_darius_v1",
+  "patch_version": "16.17.1",
+  "champion_id": 122,
+  "display_name": "Darius",
+  "role_tags": ["FIGHTER", "TANK"],
+  "mechanics": ["SUSTAINED", "BURST", "DOT", "DUELIST", "STACKING", "EXECUTE", "HEAL"],
+  "resource": "MANA",
+  "range_class": "MELEE",
+  "primary_metric": "DAMAGE_TOTAL_8S",
+  "level_profile": {
+    "level": 13,
+    "spell_ranks": {"Q": 5, "W": 1, "E": 5, "R": 2},
+    "status": "ASSUMED_BENCHMARK",
+    "notes": "A legal Q5/E5/W1/R2 benchmark chosen for the fixed duel, not a universal skill order."
+  },
+  "rotation": {
+    "id": "rotation_darius_five_stack_execute_8s_v1",
+    "duration_ms": 8000,
+    "rules": [
+      "BASIC_ATTACK_CONTINUOUS_FROM_ATTACK_SPEED",
+      "Q_OUTER_EDGE_ONCE",
+      "W_ON_COOLDOWN_ATTACK_RESET_AND_STACK",
+      "E_CONTROL_ONCE",
+      "HEMORRHAGE_STACK_ON_DAMAGING_HIT",
+      "R_AT_FIVE_STACKS"
+    ],
+    "excluded_actions": []
+  },
+  "abilities": [
+    {
+      "id": "Q_OUTER_DAMAGE",
+      "slot": "Q",
+      "damage_type": "PHYSICAL",
+      "base_damage_by_rank": ["50", "80", "110", "140", "170"],
+      "cooldown_seconds_by_rank": ["9", "8", "7", "6", "5"],
+      "scalings": [{"stat": "AD", "basis": "TOTAL", "coefficient": "1.4"}],
+      "source_refs": [{
+        "locked_path": "data/raw/16.17.1/communitydragon/champions/darius.bin.json",
+        "json_path": "Characters/Darius/Spells/DariusCleaveAbility/DariusCleave.mSpell",
+        "supports": "Outer-edge base damage, total-AD ratio, cooldown, and missing-health healing."
+      }]
+    },
+    {
+      "id": "W_EMPOWERED_ATTACK",
+      "slot": "W",
+      "damage_type": "PHYSICAL",
+      "base_damage_by_rank": ["0", "0", "0", "0", "0"],
+      "cooldown_seconds_by_rank": ["5", "5", "5", "5", "5"],
+      "scalings": [{"stat": "AD", "basis": "TOTAL", "coefficient": "1.4"}],
+      "source_refs": [{
+        "locked_path": "data/raw/16.17.1/communitydragon/champions/darius.bin.json",
+        "json_path": "Characters/Darius/Spells/DariusNoxianTacticsONHAbility/DariusNoxianTacticsONH.mSpell",
+        "supports": "Ranked total-AD ratio, five-second cooldown, slow, and attack-reset tag."
+      }]
+    },
+    {
+      "id": "E_CONTROL",
+      "slot": "E",
+      "damage_type": "NONE",
+      "base_damage_by_rank": ["0", "0", "0", "0", "0"],
+      "cooldown_seconds_by_rank": ["26", "23.5", "21", "18.5", "16"],
+      "scalings": [],
+      "source_refs": [{
+        "locked_path": "data/raw/16.17.1/communitydragon/champions/darius.bin.json",
+        "json_path": "Characters/Darius/Spells/DariusAxeGrabConeAbility/DariusAxeGrabCone.mSpell",
+        "supports": "Cooldown, pull/slow tags, and passive percent armor penetration."
+      }]
+    },
+    {
+      "id": "R_EXECUTE_DAMAGE",
+      "slot": "R",
+      "damage_type": "TRUE",
+      "base_damage_by_rank": ["125", "250", "375"],
+      "cooldown_seconds_by_rank": ["120", "100", "80"],
+      "scalings": [{"stat": "AD", "basis": "BONUS", "coefficient": "0.75"}],
+      "source_refs": [{
+        "locked_path": "data/raw/16.17.1/communitydragon/champions/darius.bin.json",
+        "json_path": "Characters/Darius/Spells/DariusExecuteAbility/DariusExecute.mSpell",
+        "supports": "True-damage base, bonus-AD ratio, cooldown, and 20-percent multiplier per Hemorrhage stack."
+      }]
+    }
+  ],
+  "special_rules": [
+    "ATTACK_RESET",
+    "STACKING_DOT",
+    "MISSING_HEALTH_HEAL",
+    "EXECUTE_THRESHOLD",
+    "PERCENT_ARMOR_PENETRATION",
+    "PASSIVE_STAT_GRANT"
+  ],
+  "mechanic_parameters": {
+    "stacking_dot": {
+      "max_stacks": 5,
+      "duration_ms": 5000,
+      "tick_interval_ms": 1260,
+      "level_1_base_per_stack": "13",
+      "level_18_base_per_stack": "30",
+      "bonus_ad_ratio_per_stack": "0.3",
+      "source_ref": "data/raw/16.17.1/communitydragon/champions/darius.bin.json"
+    },
+    "execute_stack_multiplier": {
+      "damage_increase_per_stack": "0.2",
+      "max_stacks": 5,
+      "source_ref": "data/raw/16.17.1/communitydragon/champions/darius.bin.json"
+    },
+    "missing_health_heal": {
+      "fraction_per_champion": "0.17",
+      "max_targets": 3,
+      "source_ref": "data/raw/16.17.1/communitydragon/champions/darius.bin.json"
+    },
+    "percent_armor_penetration_by_rank": ["0.20", "0.25", "0.30", "0.35", "0.40"],
+    "level_13_passive_bonus_ad": "105"
+  },
+  "verification": {
+    "status": "CURATED_UNVERIFIED",
+    "reviewed_at": "2026-09-07T00:00:00+09:00",
+    "notes": "Locked numeric fields are transcribed, but Hemorrhage tick boundaries, five-stack state transitions, silence ordering, W reset timing, and R execution timing require event-model and client validation."
+  }
+}

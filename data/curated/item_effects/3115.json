@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0.0", "item_id": 3115, "patch_version": "16.17.1",
+  "programs": [{
+    "id": "nashors_tooth_icathian_bite", "source_label": "PASSIVE:Icathian Bite",
+    "kind": "PASSIVE", "trigger": "BASIC_ATTACK_HIT",
+    "operations": [{
+      "kind": "DAMAGE", "target": "TARGET",
+      "value_expression": {"type": "ADD", "terms": [
+        {"type": "CONSTANT", "value": "15"},
+        {"type": "MULTIPLY", "factors": [
+          {"type": "CONSTANT", "value": "0.15"},
+          {"type": "STAT", "entity": "SELF", "basis": "TOTAL", "stat": "AP"}
+        ]}
+      ]},
+      "damage_type": "MAGIC"
+    }]
+  }],
+  "verification": {"status": "CURATED_UNVERIFIED", "source_refs": [
+    "data/raw/16.17.1/en_US/item.json#/data/3115",
+    "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/3115"
+  ]}
+}

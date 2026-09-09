@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <title>Rift Foundry · 빌드 추천</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/app.css">
+  </head>
+  <body class="recommend-mode">
+    <div class="ambient ambient-one"></div>
+    <div class="ambient ambient-two"></div>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Rift Foundry 홈">
+        <span class="brand-mark">RF</span>
+        <span><strong>Rift Foundry</strong><small>OFFLINE BUILD LAB</small></span>
+      </a>
+      <div class="system-state">
+        <span class="pulse"></span>
+        <span>LOCAL ENGINE</span>
+        <span class="patch-badge" id="patchBadge">PATCH —</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <p class="eyebrow">DETERMINISTIC MATCHUP ANALYSIS</p>
+        <h1>감이 아니라, <em>계산으로</em><br>빌드를 고릅니다.</h1>
+        <p class="hero-copy">밴픽의 두 챔피언과 상대 빌드를 지정하세요. 고정된 패치 데이터와 전투 시나리오만으로 1–3코어 경로를 비교합니다.</p>
+        <div class="principles">
+          <span>숫자 생성 LLM 0회</span><span>런타임 외부 호출 0회</span><span>근거 없는 추천 차단</span>
+        </div>
+      </section>
+
+      <section class="workspace panel">
+        <div class="mode-tabs" role="tablist" aria-label="분석 모드">
+          <button class="mode-tab active" data-mode="recommend" role="tab">빌드 추천</button>
+          <button class="mode-tab" data-mode="evaluate" role="tab">현재 빌드 교전</button>
+        </div>
+
+        <div class="status-legend" aria-label="챔피언 구현 상태 범례">
+          <span class="status-curated"><i></i>CURATED · 구현 완료·클라이언트 검증됨</span>
+          <span class="status-modeled_unverified"><i></i>UNVERIFIED · 전체 로테이션 구현·클라이언트 미검증</span>
+          <span class="status-wip"><i></i>WIP · 일부 메커니즘 제외·구현 진행 중</span>
+          <span class="status-todo"><i></i>TODO · 아직 미구현</span>
+        </div>
+
+        <div class="matchup-grid">
+          <article class="participant actor-card">
+            <div class="participant-label"><span>BUILD OWNER</span><b>내 챔피언</b></div>
+            <label class="field-label" for="actorSelect">챔피언</label>
+            <div class="champion-select-wrap">
+              <span class="champion-glyph" id="actorGlyph">D</span>
+              <select id="actorSelect" aria-label="내 챔피언"></select>
+              <span class="champion-status" id="actorStatus"></span>
+            </div>
+            <div class="item-section actor-build-only">
+              <div class="item-heading"><span>현재 보유 아이템</span><small id="actorItemCount">0 / 3</small></div>
+              <div class="selected-items" id="actorItems"></div>
+              <button class="add-item" data-side="actor">＋ 아이템 추가</button>
+            </div>
+          </article>
+
+          <button class="swap-button" id="swapButton" aria-label="챔피언과 아이템 위치 바꾸기">⇄</button>
+
+          <article class="participant opponent-card">
+            <div class="participant-label"><span>OPPOSITION</span><b>상대 챔피언</b></div>
+            <label class="field-label" for="opponentSelect">챔피언</label>
+            <div class="champion-select-wrap">
+              <span class="champion-glyph" id="opponentGlyph">G</span>
+              <select id="opponentSelect" aria-label="상대 챔피언"></select>
+              <span class="champion-status" id="opponentStatus"></span>
+            </div>
+            <div class="item-section">
+              <div class="item-heading"><span>예상 아이템 빌드</span><small id="opponentItemCount">0 / 3</small></div>
+              <div class="selected-items" id="opponentItems"></div>
+              <button class="add-item" data-side="opponent">＋ 아이템 추가</button>
+            </div>
+          </article>
+        </div>
+
+        <details class="team-setup" id="teamSetup">
+          <summary>팀 구성 <span id="teamSummary">1 vs 1</span></summary>
+          <p class="team-note">비워 두면 지정한 두 챔피언만 계산합니다. 팀을 채우면 한타로 계산하며, 아군 딜은 빌드 순위에 포함되지 않습니다.</p>
+          <div class="team-columns">
+            <div class="team-column" id="allyColumn">
+              <h3 class="team-heading">아군 <small>내 챔피언 외 최대 4명</small></h3>
+            </div>
+            <div class="team-column" id="enemyColumn">
+              <h3 class="team-heading">상대 팀 <small>주 상대 외 최대 4명</small></h3>
+            </div>
+          </div>
+        </details>
+
+        <details class="settings">
+          <summary>시나리오 설정 <span>Level 13 · 8초 교전</span></summary>
+          <div class="settings-grid">
+            <label>챔피언 레벨<input id="levelInput" type="number" min="1" max="18" value="13"></label>
+            <label>교전 시간 (초)<input id="durationInput" type="number" min="1" max="60" value="8"></label>
+            <label>초반 판정 (초)<input id="horizonInput" type="number" min="0.1" max="60" step="0.1" value="3"></label>
+          </div>
+        </details>
+
+        <button class="run-button" id="runButton">
+          <span class="button-label">빌드 계산 시작</span><span class="button-arrow">→</span>
+        </button>
+        <p class="run-note" id="runNote">추천은 후보 경로 전체를 계산하므로 수십 초가 걸릴 수 있습니다.</p>
+      </section>
+
+      <section class="results hidden" id="results" aria-live="polite">
+        <div class="result-heading">
+          <div><p class="eyebrow">ANALYSIS OUTPUT</p><h2 id="resultTitle">분석 결과</h2></div>
+          <span class="status-badge" id="resultStatus">—</span>
+        </div>
+        <div id="resultBody"></div>
+        <details class="blocker-panel" id="blockerPanel">
+          <summary><span>검증 상태와 제한</span><b id="blockerCount">0</b></summary>
+          <ul id="blockerList"></ul>
+        </details>
+      </section>
+    </main>
+
+    <dialog id="itemDialog">
+      <form method="dialog" class="dialog-shell">
+        <div class="dialog-header"><div><p class="eyebrow">ITEM CATALOG</p><h2>아이템 선택</h2></div><button class="close-dialog" value="cancel" aria-label="닫기">×</button></div>
+        <input class="item-search" id="itemSearch" type="search" placeholder="아이템 이름 또는 ID 검색" autocomplete="off">
+        <div class="item-results" id="itemResults"></div>
+      </form>
+    </dialog>
+
+    <div class="toast hidden" id="toast" role="alert"></div>
+    <script src="/app.js" defer></script>
+  </body>
+</html>

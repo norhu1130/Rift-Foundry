@@ -1,0 +1,204 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.lol-build.example/schemas/mechanic-fact.schema.json",
+  "title": "Patch-scoped LoL mechanic fact",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "game_patch",
+    "cc_type",
+    "blocked_channels",
+    "interactions",
+    "verification"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.1.0" },
+    "id": { "type": "string", "pattern": "^cc_[a-z][a-z0-9_]*_v[1-9][0-9]*$" },
+    "game_patch": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+(?:\\.[0-9]+)?$" },
+    "cc_type": { "enum": ["BLIND", "STUN", "SLOW", "SILENCE"] },
+    "blocked_channels": {
+      "type": "array",
+      "items": { "enum": ["BASIC_ATTACK", "ABILITY", "MOVEMENT", "ITEM_ACTIVE"] },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "interactions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tenacity_reducible",
+        "cleanse_removable",
+        "qss_removable",
+        "immunity_resistible",
+        "slow_resistance_applies"
+      ],
+      "properties": {
+        "tenacity_reducible": { "$ref": "#/$defs/interactionFact" },
+        "cleanse_removable": { "$ref": "#/$defs/interactionFact" },
+        "qss_removable": { "$ref": "#/$defs/interactionFact" },
+        "immunity_resistible": { "$ref": "#/$defs/interactionFact" },
+        "slow_resistance_applies": { "$ref": "#/$defs/interactionFact" }
+      }
+    },
+    "verification": { "$ref": "#/$defs/verification" }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "verification": {
+            "properties": { "status": { "const": "VERIFIED" } },
+            "required": ["status"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "interactions": {
+            "properties": {
+              "tenacity_reducible": { "$ref": "#/$defs/verifiedInteractionFact" },
+              "cleanse_removable": { "$ref": "#/$defs/verifiedInteractionFact" },
+              "qss_removable": { "$ref": "#/$defs/verifiedInteractionFact" },
+              "immunity_resistible": { "$ref": "#/$defs/verifiedInteractionFact" },
+              "slow_resistance_applies": { "$ref": "#/$defs/verifiedInteractionFact" }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "interactionFact": {
+      "oneOf": [
+        { "$ref": "#/$defs/verifiedInteractionFact" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "value"],
+          "properties": {
+            "status": { "const": "UNVERIFIED" },
+            "value": { "type": "null" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "value"],
+          "properties": {
+            "status": { "const": "STALE" },
+            "value": { "type": "boolean" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "value"],
+          "properties": {
+            "status": { "const": "REJECTED" },
+            "value": { "type": "null" }
+          }
+        }
+      ]
+    },
+    "verifiedInteractionFact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "value"],
+      "properties": {
+        "status": { "const": "VERIFIED" },
+        "value": { "type": "boolean" }
+      }
+    },
+    "sourceEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "url", "published_at", "supports"],
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "url": { "type": "string", "format": "uri", "pattern": "^https://" },
+        "published_at": { "type": "string", "format": "date" },
+        "supports": { "type": "string", "minLength": 1 }
+      }
+    },
+    "changeScan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from_patch_exclusive", "through_patch", "completed_at", "queries", "result"],
+      "properties": {
+        "from_patch_exclusive": { "type": "string", "minLength": 1 },
+        "through_patch": { "type": "string", "minLength": 1 },
+        "completed_at": { "type": "string", "format": "date-time" },
+        "queries": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "result": { "enum": ["NO_RELEVANT_CHANGE_FOUND", "RELEVANT_CHANGE_FOUND"] },
+        "evidence_refs": {
+          "type": "array",
+          "items": { "type": "string", "format": "uri" },
+          "uniqueItems": true
+        }
+      }
+    },
+    "measurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["game_patch", "environment", "procedure_ref", "observed_at", "result_ref"],
+      "properties": {
+        "game_patch": { "type": "string", "minLength": 1 },
+        "environment": { "enum": ["PRACTICE_TOOL", "CUSTOM_GAME"] },
+        "procedure_ref": { "type": "string", "minLength": 1 },
+        "observed_at": { "type": "string", "format": "date-time" },
+        "result_ref": { "type": "string", "minLength": 1 }
+      }
+    },
+    "verification": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "verified_patch", "notes"],
+          "properties": {
+            "status": { "enum": ["UNVERIFIED", "STALE", "REJECTED"] },
+            "verified_patch": { "type": ["string", "null"] },
+            "notes": { "type": "string", "minLength": 1 },
+            "last_change_evidence": { "$ref": "#/$defs/sourceEvidence" },
+            "subsequent_change_scan": { "$ref": "#/$defs/changeScan" },
+            "measurements": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/measurement" }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "verified_patch",
+            "last_change_evidence",
+            "subsequent_change_scan",
+            "measurements",
+            "notes"
+          ],
+          "properties": {
+            "status": { "const": "VERIFIED" },
+            "verified_patch": { "type": "string", "minLength": 1 },
+            "last_change_evidence": { "$ref": "#/$defs/sourceEvidence" },
+            "subsequent_change_scan": { "$ref": "#/$defs/changeScan" },
+            "measurements": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/measurement" },
+              "minItems": 1
+            },
+            "notes": { "type": "string", "minLength": 1 }
+          }
+        }
+      ]
+    }
+  }
+}

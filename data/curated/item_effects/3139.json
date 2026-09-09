@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0", "item_id": 3139, "patch_version": "16.17.1",
+  "programs": [{
+    "id": "mercurial_scimitar_quicksilver", "source_label": "ACTIVE:Quicksilver",
+    "kind": "ACTIVE", "trigger": "ITEM_ACTIVE_USED", "cooldown_ms": 90000,
+    "operations": [
+      {
+        "kind": "REMOVE_STATUS", "target": "SELF",
+        "value_expression": {"type": "CONSTANT", "value": "1"},
+        "status_or_stat": "CROWD_CONTROL_EXCEPT_AIRBORNE"
+      },
+      {
+        "kind": "GRANT_STAT", "target": "SELF",
+        "value_expression": {"type": "CONSTANT", "value": "0.5"},
+        "duration_ms": 2000, "status_or_stat": "MOVE_SPEED_PERCENT"
+      }
+    ]
+  }],
+  "verification": {"status": "CURATED_UNVERIFIED", "source_refs": [
+    "data/raw/16.17.1/en_US/item.json#/data/3139",
+    "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/3139"
+  ]}
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0", "item_id": 3075, "patch_version": "16.17.1",
+  "programs": [{
+    "id": "thornmail_thorns", "source_label": "PASSIVE:Thorns",
+    "kind": "PASSIVE", "trigger": "BASIC_ATTACK_RECEIVED",
+    "operations": [
+      {
+        "kind": "DAMAGE", "target": "TARGET",
+        "value_expression": {"type": "ADD", "terms": [
+          {"type": "CONSTANT", "value": "20"},
+          {"type": "MULTIPLY", "factors": [
+            {"type": "CONSTANT", "value": "0.10"},
+            {"type": "STAT", "entity": "SELF", "basis": "BONUS", "stat": "ARMOR"}
+          ]}
+        ]},
+        "damage_type": "MAGIC"
+      },
+      {
+        "kind": "APPLY_STATUS", "target": "TARGET",
+        "value_expression": {"type": "CONSTANT", "value": "0.40"},
+        "duration_ms": 3000, "status_or_stat": "HEALING_REDUCTION"
+      }
+    ]
+  }],
+  "verification": {"status": "CURATED_UNVERIFIED", "source_refs": [
+    "data/raw/16.17.1/en_US/item.json#/data/3075",
+    "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/3075"
+  ]}
+}

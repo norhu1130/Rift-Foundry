@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0", "item_id": 6694, "patch_version": "16.17.1",
+  "programs": [{
+    "id": "seryldas_grudge_bitter_cold", "source_label": "PASSIVE:Bitter Cold",
+    "kind": "PASSIVE", "trigger": "ABILITY_DAMAGE_TO_CHAMPION",
+    "required_context_flag": "TARGET_BELOW_50_PERCENT_HP",
+    "operations": [{
+      "kind": "APPLY_STATUS", "target": "TARGET",
+      "value_expression": {"type": "CONSTANT", "value": "0.30"},
+      "duration_ms": 1000, "status_or_stat": "CC_SLOW"
+    }]
+  }],
+  "verification": {"status": "CURATED_UNVERIFIED", "source_refs": [
+    "data/raw/16.17.1/en_US/item.json#/data/6694",
+    "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/6694"
+  ]}
+}

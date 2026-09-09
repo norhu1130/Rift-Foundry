@@ -1,0 +1,86 @@
+{
+  "schema_version": "1.0.0",
+  "id": 3071,
+  "name": "Black Cleaver",
+  "patch_version": "16.17.1",
+  "map_id": 11,
+  "cost": { "total": 3000, "combine": 225, "sell_value": 2100 },
+  "stats": {
+    "AD": { "type": "CONSTANT", "value": "45" },
+    "HP": { "type": "CONSTANT", "value": "400" },
+    "ABILITY_HASTE": { "type": "CONSTANT", "value": "20" }
+  },
+  "effects": [],
+  "unsupported_effects": [
+    {
+      "handler": "black_cleaver_carve_v1",
+      "trigger": "PHYSICAL_DAMAGE_TO_CHAMPION",
+      "behavior_contract": "Gain one Carve stack per physical-damage event, refresh the six-second stack lifetime, cap at five stacks, and reduce the damaged champion's armor by six percent per stack.",
+      "parameters": {
+        "armor_reduction_per_stack": { "type": "CONSTANT", "value": "0.06" },
+        "max_stacks": { "type": "CONSTANT", "value": "5" },
+        "stack_lifetime_ms": { "type": "CONSTANT", "value": "6000" }
+      },
+      "reason": "Stack ownership, refresh, expiry, and target debuffs require state that the v1 numeric expression tree intentionally does not model.",
+      "source_refs": [
+        {
+          "locked_path": "data/raw/16.17.1/en_US/item.json",
+          "json_path": "/data/3071/description",
+          "supports": "Carve trigger, per-stack armor reduction, maximum stacks, and duration."
+        },
+        {
+          "locked_path": "data/raw/16.17.1/communitydragon/items.cdtb.bin.json",
+          "json_path": "/Items~13071",
+          "supports": "DebuffDuration, MaxStacks, and ShredPerStack raw values."
+        }
+      ]
+    },
+    {
+      "handler": "black_cleaver_fervor_v1",
+      "trigger": "PHYSICAL_DAMAGE_TO_CHAMPION",
+      "behavior_contract": "Physical damage to a champion grants 20 move speed for two seconds; ranged users receive half of that amount.",
+      "parameters": {
+        "duration_ms": { "type": "CONSTANT", "value": "2000" },
+        "melee_move_speed": { "type": "CONSTANT", "value": "20" },
+        "ranged_multiplier": { "type": "CONSTANT", "value": "0.5" }
+      },
+      "reason": "A timed stat grant with refresh behavior is outside the stateless v1 effect evaluator.",
+      "source_refs": [
+        {
+          "locked_path": "data/raw/16.17.1/en_US/item.json",
+          "json_path": "/data/3071/description",
+          "supports": "Fervor trigger, move-speed amount, duration, and ranged modifier."
+        },
+        {
+          "locked_path": "data/raw/16.17.1/communitydragon/items.cdtb.bin.json",
+          "json_path": "/Items~13071",
+          "supports": "MoveSpeedBonus, MoveSpeedDuration, and RangedMod raw values."
+        }
+      ]
+    }
+  ],
+  "groups": {
+    "purchase_limit": "last_whisper",
+    "same_passive": null,
+    "shared_cooldown": null
+  },
+  "build_path": [3044, 3067, 1037],
+  "slot_cost": 1,
+  "verification": {
+    "status": "CURATED_UNVERIFIED",
+    "source_refs": [
+      {
+        "locked_path": "data/raw/16.17.1/en_US/item.json",
+        "json_path": "/data/3071",
+        "supports": "Name, cost, build path, map availability, displayed stats, and passive text."
+      },
+      {
+        "locked_path": "data/raw/16.17.1/communitydragon/items.cdtb.bin.json",
+        "json_path": "/Items~13071",
+        "supports": "Passive parameters and LastWhisper item-group membership."
+      }
+    ],
+    "reviewed_at": "2026-09-06T21:05:52Z",
+    "notes": "Stateful passives are preserved as named exceptions; group semantics and live stack behavior still require verification."
+  }
+}

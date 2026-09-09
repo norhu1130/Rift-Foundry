@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0.0", "item_id": 3065, "patch_version": "16.17.1",
+  "programs": [{
+    "id": "spirit_visage_boundless_vitality",
+    "source_label": "PASSIVE:Boundless Vitality",
+    "kind": "PASSIVE", "trigger": "ALWAYS",
+    "operations": [
+      {
+        "kind": "GRANT_STAT", "target": "SELF",
+        "value_expression": {"type": "CONSTANT", "value": "0.25"},
+        "status_or_stat": "HEALING_RECEIVED_INCREASE_PERCENT"
+      },
+      {
+        "kind": "GRANT_STAT", "target": "SELF",
+        "value_expression": {"type": "CONSTANT", "value": "0.25"},
+        "status_or_stat": "SHIELD_RECEIVED_INCREASE_PERCENT"
+      }
+    ]
+  }],
+  "verification": {"status": "CURATED_UNVERIFIED", "source_refs": [
+    "data/raw/16.17.1/en_US/item.json#/data/3065",
+    "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/3065"
+  ]}
+}

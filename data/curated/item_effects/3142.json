@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0.0", "item_id": 3142, "patch_version": "16.17.1",
+  "programs": [
+    {
+      "id": "youmuus_haunt", "source_label": "PASSIVE:Haunt",
+      "kind": "PASSIVE", "trigger": "OUT_OF_COMBAT",
+      "required_context_flag": "OUT_OF_COMBAT",
+      "operations": [{
+        "kind": "GRANT_STAT", "target": "SELF",
+        "value_expression": {"type": "CONSTANT", "value": "20"},
+        "status_or_stat": "MOVE_SPEED_FLAT",
+        "range_multipliers": {"MELEE": "1", "RANGED": "0.5"}
+      }]
+    },
+    {
+      "id": "youmuus_wraith_step", "source_label": "ACTIVE:Wraith Step",
+      "kind": "ACTIVE", "trigger": "ITEM_ACTIVE_USED", "cooldown_ms": 45000,
+      "operations": [
+        {
+          "kind": "GRANT_STAT", "target": "SELF",
+          "value_expression": {"type": "CONSTANT", "value": "20"},
+          "status_or_stat": "MOVE_SPEED_FLAT",
+          "range_multipliers": {"MELEE": "1", "RANGED": "0.75"},
+          "range_durations_ms": {"MELEE": 6000, "RANGED": 4000}
+        },
+        {
+          "kind": "APPLY_STATUS", "target": "SELF",
+          "value_expression": {"type": "CONSTANT", "value": "1"},
+          "status_or_stat": "GHOSTED",
+          "range_durations_ms": {"MELEE": 6000, "RANGED": 4000}
+        }
+      ]
+    }
+  ],
+  "verification": {"status": "CURATED_UNVERIFIED", "source_refs": [
+    "data/raw/16.17.1/en_US/item.json#/data/3142",
+    "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/3142"
+  ]}
+}

@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.0.0",
+  "id": 3053,
+  "name": "Sterak's Gage",
+  "patch_version": "16.17.1",
+  "map_id": 11,
+  "cost": { "total": 3200, "combine": 775, "sell_value": 2240 },
+  "stats": {
+    "HP": { "type": "CONSTANT", "value": "400" },
+    "TENACITY": { "type": "CONSTANT", "value": "0.20" }
+  },
+  "effects": [
+    {
+      "id": "the_claws_that_catch",
+      "type": "STAT_CONVERSION",
+      "trigger": "ALWAYS",
+      "operation": "GRANT_BONUS_AD",
+      "value_expression": {
+        "type": "MULTIPLY",
+        "factors": [
+          { "type": "CONSTANT", "value": "0.50" },
+          { "type": "STAT", "entity": "SELF", "basis": "BASE", "stat": "AD" }
+        ]
+      },
+      "condition": null,
+      "duration_ms": null,
+      "cooldown_ms": null,
+      "modifiers": []
+    },
+    {
+      "id": "lifeline",
+      "type": "SHIELD",
+      "trigger": "DAMAGE_WOULD_CROSS_HP_THRESHOLD",
+      "operation": "GRANT_SHIELD",
+      "value_expression": {
+        "type": "MULTIPLY",
+        "factors": [
+          { "type": "CONSTANT", "value": "0.60" },
+          { "type": "STAT", "entity": "SELF", "basis": "BONUS", "stat": "HP" }
+        ]
+      },
+      "condition": { "self_hp_below_fraction": "0.30" },
+      "duration_ms": 4500,
+      "cooldown_ms": 90000,
+      "modifiers": [
+        {
+          "when": "SELF_IS_RANGED",
+          "multiplier": { "type": "CONSTANT", "value": "0.60" }
+        }
+      ]
+    }
+  ],
+  "unsupported_effects": [],
+  "groups": {
+    "purchase_limit": "lifeline_items",
+    "same_passive": "lifeline",
+    "shared_cooldown": "lifeline"
+  },
+  "build_path": [1037, 2021, 1028],
+  "slot_cost": 1,
+  "verification": {
+    "status": "CURATED_UNVERIFIED",
+    "source_refs": [
+      {
+        "locked_path": "data/raw/16.17.1/en_US/item.json",
+        "json_path": "/data/3053",
+        "supports": "Name, cost, build path, map availability, health, displayed tenacity, and passive descriptions."
+      },
+      {
+        "locked_path": "data/raw/16.17.1/communitydragon/items.cdtb.bin.json",
+        "json_path": "/Items~13053",
+        "supports": "AD ratio, shield ratio, threshold, duration, cooldown, ranged modifier, and Lifeline group."
+      }
+    ],
+    "reviewed_at": "2026-09-06T20:49:13Z",
+    "notes": "Raw fields are transcribed without approximation; stat-ID semantics and live behavior still require review."
+  }
+}

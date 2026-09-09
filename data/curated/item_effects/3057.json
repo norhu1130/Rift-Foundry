@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0", "item_id": 3057, "patch_version": "16.17.1",
+  "programs": [{
+    "id": "sheen_spellblade", "source_label": "PASSIVE:Spellblade",
+    "kind": "PASSIVE", "trigger": "BASIC_ATTACK_HIT",
+    "required_context_flag": "SPELLBLADE_READY", "cooldown_ms": 1500,
+    "operations": [{
+      "kind": "DAMAGE", "target": "TARGET",
+      "value_expression": {"type": "STAT", "entity": "SELF", "basis": "BASE", "stat": "AD"},
+      "damage_type": "PHYSICAL"
+    }]
+  }],
+  "verification": {"status": "CURATED_UNVERIFIED", "source_refs": [
+    "data/raw/16.17.1/en_US/item.json#/data/3057",
+    "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/3057"
+  ]}
+}

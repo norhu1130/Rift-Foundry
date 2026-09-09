@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0.0", "item_id": 3100, "patch_version": "16.17.1",
+  "programs": [{
+    "id": "lich_bane_spellblade", "source_label": "PASSIVE:Spellblade",
+    "kind": "PASSIVE", "trigger": "BASIC_ATTACK_HIT",
+    "required_context_flag": "SPELLBLADE_READY", "cooldown_ms": 1500,
+    "operations": [{
+      "kind": "DAMAGE", "target": "TARGET",
+      "value_expression": {"type": "ADD", "terms": [
+        {"type": "MULTIPLY", "factors": [
+          {"type": "CONSTANT", "value": "0.75"},
+          {"type": "STAT", "entity": "SELF", "basis": "BASE", "stat": "AD"}
+        ]},
+        {"type": "MULTIPLY", "factors": [
+          {"type": "CONSTANT", "value": "0.45"},
+          {"type": "STAT", "entity": "SELF", "basis": "TOTAL", "stat": "AP"}
+        ]}
+      ]},
+      "damage_type": "MAGIC"
+    }]
+  }],
+  "verification": {"status": "CURATED_UNVERIFIED", "source_refs": [
+    "data/raw/16.17.1/en_US/item.json#/data/3100",
+    "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/3100"
+  ]}
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0.0", "item_id": 4629, "patch_version": "16.17.1",
+  "programs": [{
+    "id": "cosmic_drive_spelldance", "source_label": "PASSIVE:Spelldance",
+    "kind": "PASSIVE", "trigger": "MAGIC_OR_TRUE_DAMAGE_TO_CHAMPION",
+    "operations": [{
+      "kind": "GRANT_STAT", "target": "SELF",
+      "value_expression": {"type": "CONSTANT", "value": "20"},
+      "duration_ms": 4000, "status_or_stat": "MOVE_SPEED_FLAT"
+    }]
+  }],
+  "verification": {"status": "CURATED_UNVERIFIED", "source_refs": [
+    "data/raw/16.17.1/en_US/item.json#/data/4629",
+    "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/4629"
+  ]}
+}

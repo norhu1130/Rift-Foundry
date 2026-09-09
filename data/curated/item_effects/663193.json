@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0.0", "item_id": 663193, "patch_version": "16.17.1",
+  "programs": [{
+    "id": "gargoyle_stoneplate_unbreakable",
+    "source_label": "ACTIVE:Unbreakable:",
+    "kind": "ACTIVE", "trigger": "ITEM_ACTIVE_USED", "cooldown_ms": 45000,
+    "operations": [
+      {
+        "kind": "SHIELD", "target": "SELF",
+        "value_expression": {"type": "ADD", "terms": [
+          {"type": "CONSTANT", "value": "300"},
+          {"type": "MULTIPLY", "factors": [
+            {"type": "CONSTANT", "value": "0.80"},
+            {"type": "STAT", "entity": "SELF", "basis": "BONUS", "stat": "HP"}
+          ]}
+        ]},
+        "duration_ms": 5000, "decay": "LINEAR"
+      },
+      {
+        "kind": "GRANT_STAT", "target": "SELF",
+        "value_expression": {"type": "CONSTANT", "value": "0.25"},
+        "duration_ms": 5000, "status_or_stat": "SIZE_PERCENT"
+      }
+    ]
+  }],
+  "verification": {"status": "CURATED_UNVERIFIED", "source_refs": [
+    "data/raw/16.17.1/en_US/item.json#/data/663193",
+    "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/663193"
+  ]}
+}

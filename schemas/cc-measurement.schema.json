@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.lol-build.example/schemas/cc-measurement.schema.json",
+  "title": "Patch-scoped CC client measurement",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "id", "status", "game_patch", "environment",
+    "procedure_ref", "source", "target", "cases", "review"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "id": { "type": "string", "minLength": 1 },
+    "status": { "enum": ["PENDING_CLIENT_MEASUREMENT", "COMPLETED"] },
+    "game_patch": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+(?:\\.[0-9]+)?$" },
+    "environment": {
+      "enum": ["PRACTICE_TOOL", "MULTIPLAYER_PRACTICE_TOOL", "CUSTOM_GAME"]
+    },
+    "procedure_ref": { "type": "string", "minLength": 1 },
+    "source": { "$ref": "#/$defs/combatant" },
+    "target": { "$ref": "#/$defs/combatant" },
+    "cases": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/case" },
+      "minItems": 7,
+      "maxItems": 7
+    },
+    "capture_refs": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "observed_at": { "type": "string", "format": "date-time" },
+    "review": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["reviewer", "reviewed_at", "approved", "notes"],
+          "properties": {
+            "reviewer": { "type": "string", "minLength": 1 },
+            "reviewed_at": { "type": "string", "format": "date-time" },
+            "approved": { "const": true },
+            "notes": { "type": "string", "minLength": 1 }
+          }
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "COMPLETED" } } },
+      "then": {
+        "required": ["capture_refs", "observed_at"],
+        "properties": { "review": { "type": "object" } }
+      }
+    }
+  ],
+  "$defs": {
+    "combatant": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["champion"]
+    },
+    "frameObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start_frame", "end_frame", "fps"],
+      "properties": {
+        "start_frame": { "type": "integer", "minimum": 0 },
+        "end_frame": { "type": "integer", "minimum": 1 },
+        "fps": { "type": "integer", "minimum": 30 }
+      }
+    },
+    "booleanObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["outcome"],
+      "properties": { "outcome": { "type": "boolean" } }
+    },
+    "case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "interaction", "observations"],
+      "properties": {
+        "id": { "enum": ["B0", "B1", "B2", "B3", "B4", "B5", "B6"] },
+        "target_override": { "$ref": "#/$defs/combatant" },
+        "setup_notes": { "type": "string", "minLength": 1 },
+        "interaction": {
+          "enum": [
+            "baseline_duration", "tenacity_reducible", "cleanse_removable",
+            "qss_removable", "immunity_resistible", "slow_resistance_applies",
+            "blinded_attack_grants_jax_passive_stack"
+          ]
+        },
+        "observations": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              { "$ref": "#/$defs/frameObservation" },
+              { "$ref": "#/$defs/booleanObservation" }
+            ]
+          },
+          "maxItems": 5
+        }
+      }
+    }
+  }
+}

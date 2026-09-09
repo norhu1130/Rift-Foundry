@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0.0", "item_id": 3140, "patch_version": "16.17.1",
+  "programs": [{
+    "id": "quicksilver_sash_quicksilver", "source_label": "ACTIVE:Quicksilver",
+    "kind": "ACTIVE", "trigger": "ITEM_ACTIVE_USED", "cooldown_ms": 90000,
+    "operations": [{
+      "kind": "REMOVE_STATUS", "target": "SELF",
+      "value_expression": {"type": "CONSTANT", "value": "1"},
+      "status_or_stat": "CROWD_CONTROL_EXCEPT_AIRBORNE"
+    }]
+  }],
+  "verification": {"status": "CURATED_UNVERIFIED", "source_refs": [
+    "data/raw/16.17.1/en_US/item.json#/data/3140",
+    "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/3140"
+  ]}
+}

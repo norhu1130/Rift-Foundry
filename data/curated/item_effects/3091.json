@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0.0", "item_id": 3091, "patch_version": "16.17.1",
+  "programs": [{
+    "id": "wits_end_fray", "source_label": "PASSIVE:Fray",
+    "kind": "PASSIVE", "trigger": "BASIC_ATTACK_HIT",
+    "operations": [{
+      "kind": "DAMAGE", "target": "TARGET",
+      "value_expression": {"type": "CONSTANT", "value": "45"},
+      "damage_type": "MAGIC"
+    }]
+  }],
+  "verification": {"status": "CURATED_UNVERIFIED", "source_refs": [
+    "data/raw/16.17.1/en_US/item.json#/data/3091",
+    "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/3091"
+  ]}
+}

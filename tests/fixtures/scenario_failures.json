@@ -1,0 +1,38 @@
+[
+  {
+    "name": "damage mix sum",
+    "path": ["target", "incoming_damage_mix", "magical"],
+    "value": "0.60",
+    "error": "/target/incoming_damage_mix"
+  },
+  {
+    "name": "CC event after encounter",
+    "path": ["encounter", "cc_profile", "events", 0, "at_ms"],
+    "value": 8000,
+    "error": "/encounter/cc_profile/events/0/at_ms"
+  },
+  {
+    "name": "kill horizon after encounter",
+    "path": ["selection_policy", "kill_gate", "horizon_ms"],
+    "value": 9000,
+    "error": "/selection_policy/kill_gate/horizon_ms"
+  },
+  {
+    "name": "duplicate branch",
+    "path": ["selection_policy", "branches", 1, "id"],
+    "value": "DEFAULT",
+    "error": "/selection_policy/branches"
+  },
+  {
+    "name": "patch mismatch",
+    "path": ["patch", "game_patch"],
+    "value": "16.16.1",
+    "error": "/patch/game_patch"
+  },
+  {
+    "name": "verified snapshot without measurement",
+    "path": ["target", "stat_snapshot", "status"],
+    "value": "VERIFIED",
+    "error": "/target/stat_snapshot/measurement_ref"
+  }
+]

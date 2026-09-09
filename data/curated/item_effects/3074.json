@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0.0", "item_id": 3074, "patch_version": "16.17.1",
+  "programs": [
+    {
+      "id": "ravenous_hydra_cleave", "source_label": "PASSIVE:Cleave",
+      "kind": "PASSIVE", "trigger": "BASIC_ATTACK_HIT",
+      "operations": [{
+        "kind": "DAMAGE", "target": "NEARBY_ENEMIES",
+        "value_expression": {"type": "MULTIPLY", "factors": [
+          {"type": "CONSTANT", "value": "0.40"},
+          {"type": "STAT", "entity": "SELF", "basis": "TOTAL", "stat": "AD"}
+        ]},
+        "damage_type": "PHYSICAL", "excludes_primary_target": true,
+        "range_multipliers": {"MELEE": "1", "RANGED": "0.5"}
+      }]
+    },
+    {
+      "id": "ravenous_hydra_ravenous_crescent",
+      "source_label": "ACTIVE:Ravenous Crescent",
+      "kind": "ACTIVE", "trigger": "ITEM_ACTIVE_USED", "cooldown_ms": 10000,
+      "operations": [{
+        "kind": "DAMAGE", "target": "AREA_ENEMIES",
+        "value_expression": {"type": "MULTIPLY", "factors": [
+          {"type": "CONSTANT", "value": "0.80"},
+          {"type": "STAT", "entity": "SELF", "basis": "TOTAL", "stat": "AD"}
+        ]},
+        "damage_type": "PHYSICAL"
+      }]
+    }
+  ],
+  "verification": {"status": "CURATED_UNVERIFIED", "source_refs": [
+    "data/raw/16.17.1/en_US/item.json#/data/3074",
+    "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/3074"
+  ]}
+}

@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0.0",
+  "source_status": "CALCULATED_GOLDEN",
+  "resistance_multiplier": [
+    { "resistance": "100", "expected": "0.5" },
+    { "resistance": "0", "expected": "1" },
+    { "resistance": "-100", "expected": "1.5" }
+  ],
+  "ability_haste": [
+    {
+      "base_cooldown_seconds": "5",
+      "ability_haste": "0",
+      "expected_cooldown_seconds": "5",
+      "expected_equivalent_reduction": "0"
+    },
+    {
+      "base_cooldown_seconds": "5",
+      "ability_haste": "100",
+      "expected_cooldown_seconds": "2.5",
+      "expected_equivalent_reduction": "0.5"
+    },
+    {
+      "base_cooldown_seconds": "5",
+      "ability_haste": "900",
+      "expected_cooldown_seconds": "0.5",
+      "expected_equivalent_reduction": "0.9"
+    }
+  ],
+  "mixed_ehp": {
+    "health": "1000",
+    "armor": "100",
+    "magic_resistance": "0",
+    "damage_mix": { "physical": "0.5", "magical": "0.5", "true": "0" },
+    "expected_physical_ehp": "2000",
+    "expected_magical_ehp": "1000",
+    "expected_mixed_ehp": "1333.333333333333333333333333"
+  },
+  "client_measurement": {
+    "status": "PENDING",
+    "patch": "16.17.1",
+    "scenario_ref": "fixtures/scenarios/duel_jax_l13_8s_vs_teemo_blind_v1.json",
+    "measurement_ref": null,
+    "blocker": "A human-controlled live client measurement has not been supplied."
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0.0", "item_id": 323107, "patch_version": "16.17.1",
+  "programs": [{
+    "id": "redemption_variant_intervention", "source_label": "ACTIVE:Intervention",
+    "kind": "ACTIVE", "trigger": "ITEM_ACTIVE_USED", "cooldown_ms": 90000,
+    "operations": [
+      {
+        "kind": "HEAL", "target": "AREA_ALLIES", "delay_ms": 2500,
+        "value_expression": {"type": "MULTIPLY", "factors": [
+          {"type": "LEVEL_CURVE", "level_entity": "SELF", "values": [
+            "150", "161.7647058823529411764705882", "173.5294117647058823529411765",
+            "185.2941176470588235294117647", "197.0588235294117647058823529",
+            "208.8235294117647058823529412", "220.5882352941176470588235294",
+            "232.3529411764705882352941176", "244.1176470588235294117647059",
+            "255.8823529411764705882352941", "267.6470588235294117647058824",
+            "279.4117647058823529411764706", "291.1764705882352941176470588",
+            "302.9411764705882352941176471", "314.7058823529411764705882353",
+            "326.4705882352941176470588235", "338.2352941176470588235294118", "350"
+          ]},
+          {"type": "ADD", "terms": [
+            {"type": "CONSTANT", "value": "1"},
+            {"type": "STAT", "entity": "SELF", "basis": "TOTAL", "stat": "HEAL_SHIELD_POWER"}
+          ]}
+        ]}
+      },
+      {
+        "kind": "DAMAGE", "target": "AREA_ENEMIES", "delay_ms": 2500,
+        "value_expression": {"type": "MULTIPLY", "factors": [
+          {"type": "CONSTANT", "value": "0.10"},
+          {"type": "STAT", "entity": "TARGET", "basis": "MAX", "stat": "HP"}
+        ]},
+        "damage_type": "TRUE"
+      }
+    ]
+  }],
+  "verification": {"status": "CURATED_UNVERIFIED", "source_refs": [
+    "data/raw/16.17.1/en_US/item.json#/data/323107",
+    "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/323107"
+  ]}
+}

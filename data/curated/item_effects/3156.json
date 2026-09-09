@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0.0", "item_id": 3156, "patch_version": "16.17.1",
+  "programs": [{
+    "id": "maw_lifeline", "source_label": "PASSIVE:Lifeline",
+    "kind": "PASSIVE", "trigger": "MAGIC_DAMAGE_WOULD_CROSS_HP_THRESHOLD",
+    "required_context_flag": "MAGIC_DAMAGE_WOULD_LOWER_SELF_BELOW_30_PERCENT",
+    "cooldown_ms": 90000,
+    "operations": [
+      {
+        "kind": "SHIELD", "target": "SELF",
+        "value_expression": {"type": "ADD", "terms": [
+          {"type": "CONSTANT", "value": "200"},
+          {"type": "MULTIPLY", "factors": [
+            {"type": "CONSTANT", "value": "1.5"},
+            {"type": "STAT", "entity": "SELF", "basis": "BONUS", "stat": "AD"}
+          ]}
+        ]},
+        "duration_ms": 3000, "absorbs_damage_types": ["MAGIC"],
+        "range_multipliers": {"MELEE": "1", "RANGED": "0.75"}
+      },
+      {
+        "kind": "GRANT_STAT", "target": "SELF",
+        "value_expression": {"type": "CONSTANT", "value": "0.10"},
+        "status_or_stat": "OMNIVAMP_UNTIL_COMBAT_END"
+      }
+    ]
+  }],
+  "verification": {"status": "CURATED_UNVERIFIED", "source_refs": [
+    "data/raw/16.17.1/en_US/item.json#/data/3156",
+    "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/3156"
+  ]}
+}

@@ -1,0 +1,96 @@
+{
+  "schema_version": "1.0.0",
+  "item_id": 6631,
+  "patch_version": "16.17.1",
+  "programs": [
+    {
+      "id": "stridebreaker_cleave",
+      "source_label": "PASSIVE:Cleave",
+      "kind": "PASSIVE",
+      "trigger": "BASIC_ATTACK_HIT",
+      "cooldown_ms": 0,
+      "operations": [
+        {
+          "kind": "DAMAGE",
+          "target": "NEARBY_ENEMIES",
+          "value_expression": {
+            "type": "MULTIPLY",
+            "factors": [
+              {"type": "CONSTANT", "value": "0.4"},
+              {"type": "STAT", "entity": "SELF", "basis": "TOTAL", "stat": "AD"}
+            ]
+          },
+          "damage_type": "PHYSICAL",
+          "duration_ms": null,
+          "status_or_stat": null,
+          "decay": "NONE",
+          "multiply_by_targets_hit": false,
+          "context_multiplier": null,
+          "excludes_primary_target": true,
+          "range_multipliers": {"MELEE": "1", "RANGED": "0.5"}
+        }
+      ]
+    },
+    {
+      "id": "stridebreaker_breaking_shockwave",
+      "source_label": "ACTIVE:Breaking Shockwave",
+      "kind": "ACTIVE",
+      "trigger": "ITEM_ACTIVE_USED",
+      "cooldown_ms": 15000,
+      "operations": [
+        {
+          "kind": "DAMAGE",
+          "target": "TARGET",
+          "value_expression": {
+            "type": "MULTIPLY",
+            "factors": [
+              {"type": "CONSTANT", "value": "0.8"},
+              {"type": "STAT", "entity": "SELF", "basis": "TOTAL", "stat": "AD"}
+            ]
+          },
+          "damage_type": "PHYSICAL",
+          "duration_ms": null,
+          "status_or_stat": null,
+          "decay": "NONE",
+          "multiply_by_targets_hit": false,
+          "context_multiplier": null,
+          "excludes_primary_target": false,
+          "range_multipliers": {"MELEE": "1", "RANGED": "1"}
+        },
+        {
+          "kind": "APPLY_STATUS",
+          "target": "TARGET",
+          "value_expression": {"type": "CONSTANT", "value": "0.35"},
+          "damage_type": null,
+          "duration_ms": 3000,
+          "status_or_stat": "CC_SLOW",
+          "decay": "NONE",
+          "multiply_by_targets_hit": false,
+          "context_multiplier": null,
+          "excludes_primary_target": false,
+          "range_multipliers": {"MELEE": "1", "RANGED": "1"}
+        },
+        {
+          "kind": "GRANT_STAT",
+          "target": "SELF",
+          "value_expression": {"type": "CONSTANT", "value": "0.35"},
+          "damage_type": null,
+          "duration_ms": 3000,
+          "status_or_stat": "MOVE_SPEED_PERCENT",
+          "decay": "LINEAR",
+          "multiply_by_targets_hit": true,
+          "context_multiplier": null,
+          "excludes_primary_target": false,
+          "range_multipliers": {"MELEE": "1", "RANGED": "1"}
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "status": "CURATED_UNVERIFIED",
+    "source_refs": [
+      "data/raw/16.17.1/en_US/item.json#/data/6631",
+      "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/6631"
+    ]
+  }
+}

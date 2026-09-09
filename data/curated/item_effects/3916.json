@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "item_id": 3916,
+  "patch_version": "16.17.1",
+  "programs": [
+    {
+      "id": "oblivion_orb_grievous_wounds",
+      "source_label": "PASSIVE:Grievous Wounds",
+      "kind": "PASSIVE",
+      "trigger": "MAGIC_DAMAGE_TO_CHAMPION",
+      "operations": [
+        {
+          "kind": "APPLY_STATUS",
+          "target": "TARGET",
+          "value_expression": {"type": "CONSTANT", "value": "0.40"},
+          "duration_ms": 3000,
+          "status_or_stat": "HEALING_REDUCTION"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "status": "CURATED_UNVERIFIED",
+    "source_refs": [
+      "data/raw/16.17.1/en_US/item.json#/data/3916",
+      "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/3916"
+    ]
+  }
+}

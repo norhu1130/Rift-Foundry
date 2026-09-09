@@ -1,0 +1,89 @@
+{
+  "schema_version": "1.0.0",
+  "id": 3153,
+  "name": "Blade of The Ruined King",
+  "patch_version": "16.17.1",
+  "map_id": 11,
+  "cost": { "total": 3200, "combine": 725, "sell_value": 2240 },
+  "stats": {
+    "AD": { "type": "CONSTANT", "value": "40" },
+    "ATTACK_SPEED": { "type": "CONSTANT", "value": "0.25" },
+    "LIFESTEAL": { "type": "CONSTANT", "value": "0.10" }
+  },
+  "effects": [
+    {
+      "id": "mist_edge",
+      "type": "PCT_CURRENT_HP_DAMAGE",
+      "trigger": "BASIC_ATTACK_HIT",
+      "operation": "DEAL_PHYSICAL_DAMAGE",
+      "value_expression": {
+        "type": "MULTIPLY",
+        "factors": [
+          { "type": "CONSTANT", "value": "0.06" },
+          { "type": "STAT", "entity": "TARGET", "basis": "CURRENT", "stat": "HP" }
+        ]
+      },
+      "condition": null,
+      "duration_ms": null,
+      "cooldown_ms": null,
+      "modifiers": [
+        {
+          "when": "SELF_IS_MELEE",
+          "multiplier": { "type": "CONSTANT", "value": "1.5" }
+        }
+      ]
+    }
+  ],
+  "unsupported_effects": [
+    {
+      "handler": "blade_ruined_king_clawing_shadows_v1",
+      "trigger": "BASIC_ATTACK_HIT_CHAMPION",
+      "behavior_contract": "The third attack against a champion inside a six-second counting window slows for one second, then the effect enters a 15-second cooldown; ranged users apply a 15 percent slow instead of 30 percent.",
+      "parameters": {
+        "attacks_required": { "type": "CONSTANT", "value": "3" },
+        "counting_window_ms": { "type": "CONSTANT", "value": "6000" },
+        "cooldown_ms": { "type": "CONSTANT", "value": "15000" },
+        "duration_ms": { "type": "CONSTANT", "value": "1000" },
+        "melee_slow_fraction": { "type": "CONSTANT", "value": "0.30" },
+        "ranged_slow_fraction": { "type": "CONSTANT", "value": "0.15" }
+      },
+      "reason": "Counting attacks inside a window and starting a cooldown requires state unavailable to the v1 evaluator.",
+      "source_refs": [
+        {
+          "locked_path": "data/raw/16.17.1/en_US/item.json",
+          "json_path": "/data/3153/description",
+          "supports": "Attack count, slow magnitude, duration, and cooldown text."
+        },
+        {
+          "locked_path": "data/raw/16.17.1/communitydragon/items.cdtb.bin.json",
+          "json_path": "/Items~13153",
+          "supports": "Attack-counter duration, cooldown, movement modifier, ranged modifier, and duration raw values."
+        }
+      ]
+    }
+  ],
+  "groups": {
+    "purchase_limit": null,
+    "same_passive": "mist_edge",
+    "shared_cooldown": null
+  },
+  "build_path": [1053, 1043, 1037],
+  "slot_cost": 1,
+  "verification": {
+    "status": "CURATED_UNVERIFIED",
+    "source_refs": [
+      {
+        "locked_path": "data/raw/16.17.1/en_US/item.json",
+        "json_path": "/data/3153",
+        "supports": "Name, cost, build path, stats, and passive descriptions."
+      },
+      {
+        "locked_path": "data/raw/16.17.1/communitydragon/items.cdtb.bin.json",
+        "json_path": "/Items~13153",
+        "supports": "Current-health ratios and stateful slow parameters."
+      }
+    ],
+    "reviewed_at": "2026-09-06T21:05:52Z",
+    "notes": "Mist's Edge is directly evaluable; Clawing Shadows is isolated behind a named state-machine handler."
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0.0",
+  "id": "cc_blind_16_17_1_measurement_v1",
+  "status": "PENDING_CLIENT_MEASUREMENT",
+  "game_patch": "16.17.1",
+  "environment": "MULTIPLAYER_PRACTICE_TOOL",
+  "procedure_ref": "docs/verification/cc-blind-16.17.1.md",
+  "source": { "champion": "Teemo", "spell_id": "TeemoQ", "rank": 5 },
+  "target": { "champion": "Jax", "level": 13 },
+  "cases": [
+    { "id": "B0", "interaction": "baseline_duration", "observations": [] },
+    {
+      "id": "B1",
+      "interaction": "tenacity_reducible",
+      "setup_notes": "Mercury's Treads item 3111 as the only tenacity source",
+      "observations": []
+    },
+    { "id": "B2", "interaction": "cleanse_removable", "observations": [] },
+    { "id": "B3", "interaction": "qss_removable", "observations": [] },
+    {
+      "id": "B4",
+      "interaction": "immunity_resistible",
+      "target_override": { "champion": "Olaf", "level": 6, "spell_id": "OlafR", "rank": 1 },
+      "setup_notes": "Activate Olaf R before Teemo Q lands; confirm Q damage separately",
+      "observations": []
+    },
+    {
+      "id": "B5",
+      "interaction": "slow_resistance_applies",
+      "setup_notes": "Boots of Swiftness item 3009 as the only slow-resistance source",
+      "observations": []
+    },
+    { "id": "B6", "interaction": "blinded_attack_grants_jax_passive_stack", "observations": [] }
+  ],
+  "review": null
+}

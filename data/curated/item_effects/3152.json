@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0.0", "item_id": 3152, "patch_version": "16.17.1",
+  "programs": [{
+    "id": "rocketbelt_supersonic", "source_label": "ACTIVE:Supersonic",
+    "kind": "ACTIVE", "trigger": "ITEM_ACTIVE_USED", "cooldown_ms": 50000,
+    "operations": [
+      {
+        "kind": "DASH", "target": "SELF",
+        "value_expression": {"type": "CONSTANT", "value": "275"},
+        "status_or_stat": "FORWARD_DISTANCE"
+      },
+      {
+        "kind": "DAMAGE", "target": "TARGET", "damage_type": "MAGIC",
+        "value_expression": {"type": "ADD", "terms": [
+          {"type": "CONSTANT", "value": "100"},
+          {"type": "MULTIPLY", "factors": [
+            {"type": "CONSTANT", "value": "0.10"},
+            {"type": "STAT", "entity": "SELF", "basis": "TOTAL", "stat": "AP"}
+          ]}
+        ]}
+      }
+    ]
+  }],
+  "verification": {"status": "CURATED_UNVERIFIED", "source_refs": [
+    "data/raw/16.17.1/en_US/item.json#/data/3152",
+    "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/3152"
+  ]}
+}

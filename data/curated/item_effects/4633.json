@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0.0", "item_id": 4633, "patch_version": "16.17.1",
+  "programs": [
+    {
+      "id": "riftmaker_void_corruption", "source_label": "PASSIVE:Void Corruption",
+      "kind": "PASSIVE", "trigger": "IN_COMBAT_SECOND_ELAPSED",
+      "stacking": {"max_stacks": 4, "stacks_per_trigger": 1, "duration_ms": 4000},
+      "operations": [{
+        "kind": "GRANT_STAT", "target": "SELF",
+        "value_expression": {"type": "CONSTANT", "value": "0.02"},
+        "duration_ms": 4000, "status_or_stat": "DAMAGE_DEALT_INCREASE_PERCENT",
+        "multiply_by_current_stacks": true
+      }]
+    },
+    {
+      "id": "riftmaker_void_corruption_omnivamp",
+      "source_label": "PASSIVE:Void Corruption",
+      "kind": "PASSIVE", "trigger": "IN_COMBAT_SECOND_ELAPSED",
+      "required_context_flag": "VOID_CORRUPTION_MAX_STACKS",
+      "operations": [{
+        "kind": "GRANT_STAT", "target": "SELF",
+        "value_expression": {"type": "CONSTANT", "value": "0.10"},
+        "duration_ms": 4000, "status_or_stat": "OMNIVAMP_PERCENT",
+        "range_multipliers": {"MELEE": "1", "RANGED": "0.6"}
+      }]
+    },
+    {
+      "id": "riftmaker_void_infusion", "source_label": "PASSIVE:Void Infusion",
+      "kind": "PASSIVE", "trigger": "ALWAYS",
+      "operations": [{
+        "kind": "GRANT_STAT", "target": "SELF",
+        "value_expression": {"type": "MULTIPLY", "factors": [
+          {"type": "CONSTANT", "value": "0.02"},
+          {"type": "STAT", "entity": "SELF", "basis": "BONUS", "stat": "HP"}
+        ]},
+        "status_or_stat": "AP_FLAT"
+      }]
+    }
+  ],
+  "verification": {"status": "CURATED_UNVERIFIED", "source_refs": [
+    "data/raw/16.17.1/en_US/item.json#/data/4633",
+    "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/4633"
+  ]}
+}

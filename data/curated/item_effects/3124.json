@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0.0", "item_id": 3124, "patch_version": "16.17.1",
+  "programs": [
+    {
+      "id": "guinsoos_rageblade_wrath", "source_label": "PASSIVE:Wrath",
+      "kind": "PASSIVE", "trigger": "BASIC_ATTACK_HIT",
+      "operations": [{
+        "kind": "DAMAGE", "target": "TARGET", "damage_type": "MAGIC",
+        "value_expression": {"type": "CONSTANT", "value": "30"}
+      }]
+    },
+    {
+      "id": "guinsoos_seething_strike", "source_label": "PASSIVE:Seething Strike",
+      "kind": "PASSIVE", "trigger": "BASIC_ATTACK_HIT",
+      "stacking": {"max_stacks": 4, "stacks_per_trigger": 1, "duration_ms": 3000},
+      "operations": [{
+        "kind": "GRANT_STAT", "target": "SELF",
+        "value_expression": {"type": "CONSTANT", "value": "0.08"},
+        "duration_ms": 3000, "status_or_stat": "ATTACK_SPEED_PERCENT",
+        "multiply_by_current_stacks": true
+      }]
+    },
+    {
+      "id": "guinsoos_seething_strike_phantom_hit",
+      "source_label": "PASSIVE:Seething Strike", "kind": "PASSIVE",
+      "trigger": "BASIC_ATTACK_HIT", "required_context_flag": "FULLY_STACKED",
+      "proc_every": 3,
+      "operations": [{
+        "kind": "GRANT_STAT", "target": "SELF",
+        "value_expression": {"type": "CONSTANT", "value": "1"},
+        "status_or_stat": "ON_HIT_EXTRA_APPLICATIONS"
+      }]
+    }
+  ],
+  "verification": {"status": "CURATED_UNVERIFIED", "source_refs": [
+    "data/raw/16.17.1/en_US/item.json#/data/3124",
+    "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/3124"
+  ]}
+}

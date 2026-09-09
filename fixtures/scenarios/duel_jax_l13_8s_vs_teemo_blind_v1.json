@@ -1,0 +1,118 @@
+{
+  "schema_version": "1.0.0",
+  "id": "duel_jax_l13_8s_vs_teemo_blind_v1",
+  "patch": {
+    "region": "KR",
+    "game_patch": "16.17.1",
+    "data_lock_ref": "patch.lock.json"
+  },
+  "actor": {
+    "champion_id": 24,
+    "role": "TOP",
+    "level": 13,
+    "initial_hp": "FULL",
+    "initial_resource": "FULL",
+    "cooldowns_ready": true,
+    "stacks_preloaded": false,
+    "rotation_profile_ref": "rotation_jax_sustained_8s_v1",
+    "rune_page_ref": "rune_jax_no_tenacity_v1",
+    "summoner_spell_ids": [4, 1]
+  },
+  "encounter": {
+    "duration_ms": 8000,
+    "target_count": 1,
+    "range_model": "STATIONARY_IN_RANGE",
+    "execution_model": "DETERMINISTIC_ROTATION",
+    "cc_profile": {
+      "id": "benchmark_teemo_blind_rank5_v1",
+      "events": [
+        {
+          "at_ms": 1000,
+          "cc_type": "BLIND",
+          "base_duration_ms": 3000,
+          "blocked_channels": ["BASIC_ATTACK"],
+          "mechanic_ref": "cc_blind_v1"
+        }
+      ]
+    }
+  },
+  "target": {
+    "profile_id": "benchmark_teemo_l13_nashor_wits_v1",
+    "reproduction_recipe": {
+      "environment": "CUSTOM_GAME",
+      "champion_id": 17,
+      "level": 13,
+      "item_ids": [3115, 3091],
+      "rune_page_ref": "rune_teemo_no_hp_or_resistance_v1",
+      "instructions": [
+        "Create a Summoner's Rift custom game with separate Jax and Teemo players.",
+        "Set both champions to level 13 and give Teemo Nashor's Tooth and Wit's End.",
+        "Use rune pages that do not change HP, armor, magic resistance, tenacity, or CC duration.",
+        "At 1000 ms in the recorded window, cast rank-5 Blinding Dart on Jax.",
+        "Keep both champions stationary and in basic-attack range for the eight-second window."
+      ]
+    },
+    "stat_snapshot": {
+      "status": "DERIVED_UNVERIFIED",
+      "max_hp": "1753.8",
+      "armor": "73.275",
+      "magic_resistance": "89.235",
+      "derivation_ref": "docs/scenarios/duel_jax_l13_8s_vs_teemo_blind_v1.md",
+      "measurement_ref": null
+    },
+    "incoming_damage_mix": {
+      "status": "ASSUMED_BENCHMARK",
+      "physical": "0.30",
+      "magical": "0.70",
+      "true": "0",
+      "derivation_ref": "docs/scenarios/duel_jax_l13_8s_vs_teemo_blind_v1.md"
+    }
+  },
+  "objective_vector": {
+    "maximize": [
+      "DAMAGE_TOTAL_8S",
+      "DAMAGE_FIRST_3S",
+      "PHYSICAL_EHP",
+      "MAGICAL_EHP",
+      "CC_ADJUSTED_UPTIME"
+    ],
+    "minimize": ["TOTAL_GOLD", "OCCUPIED_SLOTS"],
+    "derived": ["KILL_THRESHOLD_MET_3S", "MIXED_DAMAGE_EHP"]
+  },
+  "selection_policy": {
+    "pareto": {
+      "method": "EPSILON_PARETO",
+      "epsilon_policy_ref": "epsilon_policy_v1"
+    },
+    "kill_gate": {
+      "metric": "TARGET_DEAD_AT_HORIZON",
+      "horizon_ms": 3000,
+      "applies_to_branches": ["DEFAULT", "OFFENSE"],
+      "fallback": "IF_NONE_MEET_GATE_KEEP_ALL_AND_MAXIMIZE_DAMAGE_AT_HORIZON"
+    },
+    "branches": [
+      { "id": "DEFAULT", "rank_by": "CHAMPION_PRIMARY_METRIC" },
+      { "id": "OFFENSE", "rank_by": "DAMAGE_TOTAL_8S_IMPROVEMENT" },
+      {
+        "id": "DEFENSE",
+        "rank_by": "MIXED_DAMAGE_EHP_IMPROVEMENT",
+        "primary_metric_loss_limit_ref": "jax_defense_loss_limit_v1"
+      }
+    ]
+  },
+  "exclusions": [
+    "ALLY_BUFFS",
+    "OBJECTIVES",
+    "MINIONS",
+    "TERRAIN",
+    "GAME_STATE_ADVANTAGE",
+    "EXECUTION_ERROR"
+  ],
+  "verification": {
+    "status": "UNVERIFIED",
+    "verified_patch": null,
+    "evidence_refs": [
+      "docs/scenarios/duel_jax_l13_8s_vs_teemo_blind_v1.md"
+    ]
+  }
+}

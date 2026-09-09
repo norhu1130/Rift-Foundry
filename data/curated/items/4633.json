@@ -1,0 +1,84 @@
+{
+  "schema_version": "1.0.0",
+  "id": 4633,
+  "name": "Riftmaker",
+  "patch_version": "16.17.1",
+  "map_id": 11,
+  "cost": { "total": 3100, "combine": 950, "sell_value": 2170 },
+  "stats": {
+    "AP": { "type": "CONSTANT", "value": "70" },
+    "HP": { "type": "CONSTANT", "value": "350" },
+    "ABILITY_HASTE": { "type": "CONSTANT", "value": "15" }
+  },
+  "effects": [
+    {
+      "id": "void_infusion",
+      "type": "STAT_CONVERSION",
+      "trigger": "ALWAYS",
+      "operation": "GRANT_BONUS_AP",
+      "value_expression": {
+        "type": "MULTIPLY",
+        "factors": [
+          { "type": "CONSTANT", "value": "0.02" },
+          { "type": "STAT", "entity": "SELF", "basis": "BONUS", "stat": "HP" }
+        ]
+      },
+      "condition": null,
+      "duration_ms": null,
+      "cooldown_ms": null,
+      "modifiers": []
+    }
+  ],
+  "unsupported_effects": [
+    {
+      "handler": "riftmaker_void_corruption_v1",
+      "trigger": "IN_COMBAT_WITH_CHAMPION",
+      "behavior_contract": "Gain two percent increased damage for each elapsed second in champion combat, up to eight percent after four seconds; at maximum stacks gain omnivamp until champion combat ends, with a lower ranged value.",
+      "parameters": {
+        "damage_increase_per_stack": { "type": "CONSTANT", "value": "0.02" },
+        "max_damage_increase": { "type": "CONSTANT", "value": "0.08" },
+        "max_stacks": { "type": "CONSTANT", "value": "4" },
+        "milliseconds_per_stack": { "type": "CONSTANT", "value": "1000" },
+        "melee_omnivamp": { "type": "CONSTANT", "value": "0.10" },
+        "ranged_omnivamp": { "type": "CONSTANT", "value": "0.06" }
+      },
+      "reason": "Elapsed-combat stacks, damage amplification, and max-stack-only omnivamp require temporal state and a derived stat absent from v1.",
+      "source_refs": [
+        {
+          "locked_path": "data/raw/16.17.1/en_US/item.json",
+          "json_path": "/data/4633/description",
+          "supports": "Per-second damage increase, cap, and max-stack omnivamp behavior."
+        },
+        {
+          "locked_path": "data/raw/16.17.1/communitydragon/items.cdtb.bin.json",
+          "json_path": "/Items~14633",
+          "supports": "SecondsInCombat, per-second and maximum damage modifiers, and melee/ranged vamp values."
+        }
+      ]
+    }
+  ],
+  "groups": {
+    "purchase_limit": null,
+    "same_passive": "void_infusion",
+    "shared_cooldown": null
+  },
+  "build_path": [3147, 3108],
+  "slot_cost": 1,
+  "verification": {
+    "status": "CURATED_UNVERIFIED",
+    "source_refs": [
+      {
+        "locked_path": "data/raw/16.17.1/en_US/item.json",
+        "json_path": "/data/4633",
+        "supports": "Name, cost, build path, stats, and passive descriptions."
+      },
+      {
+        "locked_path": "data/raw/16.17.1/communitydragon/items.cdtb.bin.json",
+        "json_path": "/Items~14633",
+        "supports": "Bonus-health conversion and combat-state passive parameters."
+      }
+    ],
+    "reviewed_at": "2026-09-06T21:05:52Z",
+    "notes": "Void Infusion is directly evaluable; Void Corruption remains a named exception until temporal combat state exists."
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0.0", "item_id": 1043, "patch_version": "16.17.1",
+  "programs": [{
+    "id": "recurve_bow_sting", "source_label": "PASSIVE:Sting",
+    "kind": "PASSIVE", "trigger": "BASIC_ATTACK_HIT",
+    "operations": [{
+      "kind": "DAMAGE", "target": "TARGET",
+      "value_expression": {"type": "CONSTANT", "value": "15"},
+      "damage_type": "PHYSICAL"
+    }]
+  }],
+  "verification": {"status": "CURATED_UNVERIFIED", "source_refs": [
+    "data/raw/16.17.1/en_US/item.json#/data/1043",
+    "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/1043"
+  ]}
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0.0", "item_id": 3109, "patch_version": "16.17.1",
+  "programs": [
+    {"id": "knights_vow_sacrifice_redirect", "source_label": "PASSIVE:Sacrifice", "kind": "PASSIVE", "trigger": "WORTHY_ALLY_DAMAGE_RECEIVED", "required_context_flag": "WORTHY_ALLY_NEARBY_AND_SELF_ABOVE_30_PERCENT_HP", "operations": [
+      {"kind": "REDIRECT_DAMAGE", "target": "SELF", "status_or_stat": "WORTHY_ALLY_DAMAGE", "value_expression": {"type": "CONSTANT", "value": "0.14"}},
+      {"kind": "HEAL", "target": "SELF", "context_multiplier": "WORTHY_ALLY_CHAMPION_DAMAGE", "value_expression": {"type": "CONSTANT", "value": "0.12"}}
+    ]},
+    {"id": "knights_vow_pledge", "source_label": "ACTIVE:Pledge", "kind": "ACTIVE", "trigger": "ITEM_ACTIVE_USED", "cooldown_ms": 60000, "operations": [
+      {"kind": "BIND_ALLY", "target": "ALLY_TARGET", "status_or_stat": "WORTHY", "value_expression": {"type": "CONSTANT", "value": "1"}}
+    ]}
+  ],
+  "verification": {"status": "CURATED_UNVERIFIED", "source_refs": ["data/raw/16.17.1/en_US/item.json#/data/3109", "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/3109"]}
+}

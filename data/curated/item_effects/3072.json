@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0.0", "item_id": 3072, "patch_version": "16.17.1",
+  "programs": [{
+    "id": "bloodthirster_ichorshield", "source_label": "PASSIVE:Ichorshield",
+    "kind": "PASSIVE", "trigger": "LIFESTEAL_OVERHEAL",
+    "operations": [{
+      "kind": "SHIELD", "target": "SELF",
+      "value_expression": {"type": "LEVEL_CURVE", "level_entity": "SELF", "values": [
+        "165", "165", "165", "165", "165", "165", "165", "165", "180",
+        "195", "210", "225", "240", "255", "270", "285", "300", "315"
+      ]},
+      "context_multiplier": "OVERHEAL_FRACTION_OF_CAP",
+      "decay": "LINEAR", "decay_delay_ms": 25000
+    }]
+  }],
+  "verification": {"status": "CURATED_UNVERIFIED", "source_refs": [
+    "data/raw/16.17.1/en_US/item.json#/data/3072",
+    "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/3072"
+  ]}
+}

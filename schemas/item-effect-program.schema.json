@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.lol-build.example/schemas/item-effect-program.schema.json",
+  "title": "Executable item effect programs",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "item_id", "patch_version", "programs", "verification"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "item_id": {"type": "integer", "minimum": 1},
+    "patch_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+(?:\\.[0-9]+)?$"},
+    "programs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/program"}
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "source_refs"],
+      "properties": {
+        "status": {"enum": ["CURATED_UNVERIFIED", "VERIFIED", "STALE", "REJECTED"]},
+        "source_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "program": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "source_label", "kind", "trigger", "operations"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+        "source_label": {"type": "string", "pattern": "^(PASSIVE|ACTIVE):.+$"},
+        "kind": {"enum": ["PASSIVE", "ACTIVE"]},
+        "trigger": {
+          "enum": [
+            "ALWAYS", "BASIC_ATTACK_HIT", "BASIC_ATTACK_RECEIVED",
+            "ITEM_ACTIVE_USED", "MOVEMENT_UPDATED",
+            "ABILITY_DAMAGE_TO_CHAMPION", "ABILITY_DAMAGE_TO_UNIT",
+            "MAGIC_OR_TRUE_DAMAGE_TO_CHAMPION", "IN_COMBAT_SECOND_ELAPSED",
+            "DAMAGE_TO_CHAMPION", "ENERGIZED_ATTACK_HIT",
+            "MOVEMENT_OR_ATTACK_PROGRESS",
+            "CHAMPION_TAKEDOWN", "MAGIC_DAMAGE_RECEIVED",
+            "PHYSICAL_DAMAGE_RECEIVED", "ALLY_SUPPORT_DAMAGE_OR_SUMMONER_CAST",
+            "CHAMPION_DAMAGE_RECEIVED", "PASSIVE_REGEN_TICK",
+            "RESOURCE_REGEN_TICK", "BASIC_ATTACK_HIT_MINION",
+            "OUT_OF_COMBAT_HALF_SECOND_ELAPSED",
+            "ABILITY_CAST_WITH_MANA_COST", "MINUTE_ELAPSED",
+            "ABILITY_HIT", "ATTACK_OR_ABILITY_HIT",
+            "CHAMPION_KILL", "CHAMPION_ASSIST", "SELF_DEATH",
+            "MINION_KILL", "DAMAGE_DEALT",
+            "HEAL_OR_SHIELD_ALLY", "IMMOBILIZE_CHAMPION",
+            "DAMAGE_TAKEN_OR_DEALT", "FOURTH_COMBAT_SECOND",
+            "ULTIMATE_CAST", "ENEMY_KILL", "LEVEL_UP",
+            "PHYSICAL_DAMAGE_TO_CHAMPION", "MAGIC_DAMAGE_TO_CHAMPION",
+            "DAMAGE_WOULD_CROSS_HP_THRESHOLD",
+            "MAGIC_DAMAGE_WOULD_CROSS_HP_THRESHOLD", "LETHAL_DAMAGE_TAKEN",
+            "LIFESTEAL_OVERHEAL", "OUT_OF_COMBAT",
+            "WORTHY_ALLY_DAMAGE_RECEIVED", "WORTHY_ALLY_DAMAGE_DEALT"
+            , "SLOW_OR_IMMOBILIZE_CHAMPION", "ENTER_BRUSH", "LARGE_MONSTER_KILL",
+            "JUNGLE_COMPANION_PROGRESS", "DAMAGE_WITH_ULTIMATE",
+            "UNSEEN_ATTACK_HIT", "GROUND_OR_IMMOBILIZE_CHAMPION",
+            "DAMAGE_THRESHOLD_REACHED", "ATTACK_STARTED"
+          ]
+        },
+        "cooldown_ms": {"type": "integer", "minimum": 0},
+        "required_context_flag": {"type": ["string", "null"]},
+        "proc_every": {"type": ["integer", "null"], "minimum": 1},
+        "counting_window_ms": {"type": ["integer", "null"], "minimum": 1},
+        "stacking": {
+          "oneOf": [
+            {"type": "null"},
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["max_stacks", "stacks_per_trigger", "duration_ms"],
+              "properties": {
+                "max_stacks": {"type": "integer", "minimum": 1},
+                "stacks_per_trigger": {"type": "integer", "minimum": 1},
+                "duration_ms": {"type": "integer", "minimum": 1}
+              }
+            }
+          ]
+        },
+        "operations": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/operation"}
+        }
+      }
+    },
+    "operation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "target", "value_expression"],
+      "properties": {
+        "kind": {
+          "enum": [
+            "DAMAGE", "HEAL", "SHIELD", "APPLY_STATUS", "REMOVE_STATUS",
+            "GRANT_STAT", "DAMAGE_MODIFIER", "DASH", "REVIVE",
+            "RESTORE_RESOURCE", "TRANSFORM_ITEM", "EXECUTE",
+            "GRANT_GOLD", "MODIFY_STACKS", "PLACE_WARD", "REVEAL_AREA",
+            "BIND_ALLY", "REDIRECT_DAMAGE", "REDUCE_COOLDOWN", "DELAY_DAMAGE",
+            "MODIFY_MAX_HEALTH", "STEAL_STATS", "NO_OP"
+          ]
+        },
+        "target": {
+          "enum": [
+            "SELF", "TARGET", "ALLY_TARGET", "NEARBY_ENEMIES",
+            "SELF_AND_NEARBY_ALLIES", "AREA_ALLIES", "AREA_ENEMIES"
+          ]
+        },
+        "value_expression": {"$ref": "numeric-expression.schema.json"},
+        "damage_type": {"enum": ["PHYSICAL", "MAGIC", "TRUE", null]},
+        "absorbs_damage_types": {
+          "type": "array", "uniqueItems": true,
+          "items": {"enum": ["PHYSICAL", "MAGIC", "TRUE"]}
+        },
+        "duration_ms": {"type": ["integer", "null"], "minimum": 1},
+        "range_durations_ms": {
+          "type": "object", "additionalProperties": false,
+          "required": ["MELEE", "RANGED"],
+          "properties": {
+            "MELEE": {"type": "integer", "minimum": 1},
+            "RANGED": {"type": "integer", "minimum": 1}
+          }
+        },
+        "delay_ms": {"type": "integer", "minimum": 0},
+        "repeat_interval_ms": {"type": "integer", "minimum": 1},
+        "status_or_stat": {"type": ["string", "null"]},
+        "decay": {"enum": ["NONE", "LINEAR"]},
+        "multiply_by_targets_hit": {"type": "boolean"},
+        "context_multiplier": {"type": ["string", "null"], "pattern": "^[A-Z][A-Z0-9_]*$"},
+        "multiply_by_current_stacks": {"type": "boolean"},
+        "decay_delay_ms": {"type": "integer", "minimum": 0},
+        "excludes_primary_target": {"type": "boolean"},
+        "range_multipliers": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["MELEE", "RANGED"],
+          "properties": {
+            "MELEE": {"type": "string", "pattern": "^[0-9]+(?:\\.[0-9]+)?$"},
+            "RANGED": {"type": "string", "pattern": "^[0-9]+(?:\\.[0-9]+)?$"}
+          }
+        }
+      }
+    }
+  }
+}

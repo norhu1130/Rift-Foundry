@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.0.0",
+  "id": 3115,
+  "name": "Nashor's Tooth",
+  "patch_version": "16.17.1",
+  "map_id": 11,
+  "cost": { "total": 2900, "combine": 500, "sell_value": 2030 },
+  "stats": {
+    "AP": { "type": "CONSTANT", "value": "80" },
+    "ATTACK_SPEED": { "type": "CONSTANT", "value": "0.50" },
+    "ABILITY_HASTE": { "type": "CONSTANT", "value": "15" }
+  },
+  "effects": [
+    {
+      "id": "icathian_bite",
+      "type": "DAMAGE_ON_HIT",
+      "trigger": "BASIC_ATTACK_HIT",
+      "operation": "DEAL_MAGIC_DAMAGE",
+      "value_expression": {
+        "type": "ADD",
+        "terms": [
+          { "type": "CONSTANT", "value": "15" },
+          {
+            "type": "MULTIPLY",
+            "factors": [
+              { "type": "CONSTANT", "value": "0.15" },
+              { "type": "STAT", "entity": "SELF", "basis": "TOTAL", "stat": "AP" }
+            ]
+          }
+        ]
+      },
+      "condition": null,
+      "duration_ms": null,
+      "cooldown_ms": null,
+      "modifiers": []
+    }
+  ],
+  "unsupported_effects": [],
+  "groups": {
+    "purchase_limit": null,
+    "same_passive": "icathian_bite",
+    "shared_cooldown": null
+  },
+  "build_path": [1043, 1026, 3108],
+  "slot_cost": 1,
+  "verification": {
+    "status": "CURATED_UNVERIFIED",
+    "source_refs": [
+      {
+        "locked_path": "data/raw/16.17.1/en_US/item.json",
+        "json_path": "/data/3115",
+        "supports": "Name, cost, build path, map availability, displayed stats, and on-hit description."
+      },
+      {
+        "locked_path": "data/raw/16.17.1/communitydragon/items.cdtb.bin.json",
+        "json_path": "/Items~13115",
+        "supports": "On-hit base damage and total-AP ratio raw values."
+      }
+    ],
+    "reviewed_at": "2026-09-06T21:05:52Z",
+    "notes": "The supported on-hit formula is transcribed exactly; live damage measurement remains pending."
+  }
+}

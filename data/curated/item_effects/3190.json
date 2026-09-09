@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0.0", "item_id": 3190, "patch_version": "16.17.1",
+  "programs": [{
+    "id": "locket_devotion", "source_label": "ACTIVE:Devotion",
+    "kind": "ACTIVE", "trigger": "ITEM_ACTIVE_USED", "cooldown_ms": 90000,
+    "operations": [{
+      "kind": "SHIELD", "target": "SELF_AND_NEARBY_ALLIES",
+      "value_expression": {"type": "LEVEL_CURVE", "level_entity": "SELF", "values": [
+        "290", "290", "290", "290", "290", "290", "290", "290", "297",
+        "304", "311", "318", "325", "332", "339", "346", "353", "360"
+      ]},
+      "duration_ms": 2500, "decay": "LINEAR"
+    }]
+  }],
+  "verification": {"status": "CURATED_UNVERIFIED", "source_refs": [
+    "data/raw/16.17.1/en_US/item.json#/data/3190",
+    "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/3190"
+  ]}
+}

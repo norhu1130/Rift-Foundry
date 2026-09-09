@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0", "item_id": 3089, "patch_version": "16.17.1",
+  "programs": [{
+    "id": "rabadons_deathcap_magical_opus",
+    "source_label": "PASSIVE:Magical Opus",
+    "kind": "PASSIVE", "trigger": "ALWAYS",
+    "operations": [{
+      "kind": "GRANT_STAT", "target": "SELF",
+      "value_expression": {"type": "CONSTANT", "value": "0.30"},
+      "status_or_stat": "TOTAL_AP_INCREASE_PERCENT"
+    }]
+  }],
+  "verification": {"status": "CURATED_UNVERIFIED", "source_refs": [
+    "data/raw/16.17.1/en_US/item.json#/data/3089",
+    "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/3089"
+  ]}
+}

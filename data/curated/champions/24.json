@@ -1,0 +1,102 @@
+{
+  "schema_version": "1.0.0",
+  "id": "champion_profile_jax_v1",
+  "patch_version": "16.17.1",
+  "champion_id": 24,
+  "display_name": "Jax",
+  "role_tags": ["FIGHTER"],
+  "mechanics": ["SUSTAINED", "ON_HIT", "DUELIST"],
+  "resource": "MANA",
+  "range_class": "MELEE",
+  "primary_metric": "DAMAGE_TOTAL_8S",
+  "level_profile": {
+    "level": 13,
+    "spell_ranks": { "Q": 1, "W": 5, "E": 5, "R": 2 },
+    "status": "ASSUMED_BENCHMARK",
+    "notes": "A legal W-then-E benchmark rank allocation for the fixed level-13 scenario; it is policy data, not inferred as the universally optimal order."
+  },
+  "rotation": {
+    "id": "rotation_sustained_melee_onhit_8s_v1",
+    "duration_ms": 8000,
+    "rules": [
+      "BASIC_ATTACK_CONTINUOUS_FROM_ATTACK_SPEED",
+      "W_ON_COOLDOWN_ATTACK_RESET",
+      "E_CAST_ONCE",
+      "R_PASSIVE_EVERY_THIRD_ATTACK"
+    ],
+    "excluded_actions": [
+      { "ability_id": "Q_DAMAGE", "reason": "The benchmark starts stationary and already in basic-attack range." },
+      { "ability_id": "R_ACTIVE_DAMAGE", "reason": "The first rotation slice excludes active defensive-state and multi-target coupling." }
+    ]
+  },
+  "abilities": [
+    {
+      "id": "Q_DAMAGE", "slot": "Q", "damage_type": "PHYSICAL",
+      "base_damage_by_rank": ["65", "105", "145", "185", "225"],
+      "cooldown_seconds_by_rank": ["8", "7.5", "7", "6.5", "6"],
+      "scalings": [{ "stat": "AD", "basis": "BONUS", "coefficient": "1" }],
+      "source_refs": [{
+        "locked_path": "data/raw/16.17.1/communitydragon/champions/jax.bin.json",
+        "json_path": "Characters/Jax/Spells/JaxQAbility/JaxQ.mSpell",
+        "supports": "Playable-rank Damage, cooldown, and TotalDamage bonus-AD coefficient."
+      }]
+    },
+    {
+      "id": "W_DAMAGE", "slot": "W", "damage_type": "MAGIC",
+      "base_damage_by_rank": ["50", "85", "120", "155", "190"],
+      "cooldown_seconds_by_rank": ["7", "6", "5", "4", "3"],
+      "scalings": [{ "stat": "AP", "basis": "TOTAL", "coefficient": "0.6" }],
+      "source_refs": [{
+        "locked_path": "data/raw/16.17.1/communitydragon/champions/jax.bin.json",
+        "json_path": "Characters/Jax/Spells/JaxWAbility/JaxW.mSpell",
+        "supports": "Playable-rank Damage, cooldown, TotalDamage AP coefficient, and attack-reset trait."
+      }]
+    },
+    {
+      "id": "E_DAMAGE", "slot": "E", "damage_type": "MAGIC",
+      "base_damage_by_rank": ["40", "70", "100", "130", "160"],
+      "cooldown_seconds_by_rank": ["17", "15", "13", "11", "9"],
+      "scalings": [
+        { "stat": "AP", "basis": "TOTAL", "coefficient": "0.7" },
+        { "stat": "TARGET_MAX_HP", "basis": "MAX", "coefficient": "0.04" }
+      ],
+      "source_refs": [{
+        "locked_path": "data/raw/16.17.1/communitydragon/champions/jax.bin.json",
+        "json_path": "Characters/Jax/Spells/JaxEAbility/JaxE.mSpell",
+        "supports": "Playable-rank base damage, cooldown, AP ratio, and four-percent target-health damage data."
+      }]
+    },
+    {
+      "id": "R_PASSIVE_DAMAGE", "slot": "R", "damage_type": "MAGIC",
+      "base_damage_by_rank": ["75", "130", "185"],
+      "cooldown_seconds_by_rank": ["0", "0", "0"],
+      "scalings": [{ "stat": "AP", "basis": "TOTAL", "coefficient": "0.6" }],
+      "source_refs": [{
+        "locked_path": "data/raw/16.17.1/communitydragon/champions/jax.bin.json",
+        "json_path": "Characters/Jax/Spells/JaxRAbility/JaxR.mSpell",
+        "supports": "Playable-rank PassiveBaseDamage and OnHitDamage AP coefficient."
+      }, {
+        "locked_path": "data/raw/16.17.1/en_US/champion/Jax.json",
+        "json_path": "data.Jax.spells[JaxR]",
+        "supports": "The passive deals magic damage every third consecutive attack."
+      }]
+    },
+    {
+      "id": "R_ACTIVE_DAMAGE", "slot": "R", "damage_type": "MAGIC",
+      "base_damage_by_rank": ["100", "175", "250"],
+      "cooldown_seconds_by_rank": ["110", "100", "90"],
+      "scalings": [{ "stat": "AP", "basis": "TOTAL", "coefficient": "1" }],
+      "source_refs": [{
+        "locked_path": "data/raw/16.17.1/communitydragon/champions/jax.bin.json",
+        "json_path": "Characters/Jax/Spells/JaxRAbility/JaxR.mSpell",
+        "supports": "Playable-rank SwingDamageBase, cooldown, and SwingDamageTotal AP coefficient."
+      }]
+    }
+  ],
+  "special_rules": ["ATTACK_RESET", "EVERY_NTH_BASIC_ATTACK", "BASIC_ATTACK_DODGE"],
+  "verification": {
+    "status": "CURATED_UNVERIFIED",
+    "reviewed_at": "2026-09-07T00:00:00+09:00",
+    "notes": "Damage and cooldown data are transcribed from the locked snapshot. Per-spell resource costs are intentionally excluded because locked Jax Q mana conflicts with Riot patch 26.12 (65 in the snapshot versus the official change to 50). Rotation timing still requires golden/client validation before VERIFIED promotion."
+  }
+}

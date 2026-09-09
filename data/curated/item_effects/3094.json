@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0.0", "item_id": 3094, "patch_version": "16.17.1",
+  "programs": [{
+    "id": "rapid_firecannon_sharpshooter", "source_label": "PASSIVE:Sharpshooter",
+    "kind": "PASSIVE", "trigger": "ENERGIZED_ATTACK_HIT",
+    "required_context_flag": "ENERGIZED_READY",
+    "operations": [
+      {
+        "kind": "DAMAGE", "target": "TARGET", "damage_type": "MAGIC",
+        "value_expression": {"type": "CONSTANT", "value": "40"}
+      },
+      {
+        "kind": "GRANT_STAT", "target": "SELF",
+        "value_expression": {"type": "CONSTANT", "value": "0.35"},
+        "status_or_stat": "ENERGIZED_ATTACK_RANGE_INCREASE_PERCENT"
+      },
+      {
+        "kind": "GRANT_STAT", "target": "SELF",
+        "value_expression": {"type": "CONSTANT", "value": "150"},
+        "status_or_stat": "ENERGIZED_ATTACK_RANGE_INCREASE_CAP_FLAT"
+      }
+    ]
+  }],
+  "verification": {"status": "CURATED_UNVERIFIED", "source_refs": [
+    "data/raw/16.17.1/en_US/item.json#/data/3094",
+    "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/3094"
+  ]}
+}

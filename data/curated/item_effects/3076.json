@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0", "item_id": 3076, "patch_version": "16.17.1",
+  "programs": [{
+    "id": "bramble_vest_thorns", "source_label": "PASSIVE:Thorns",
+    "kind": "PASSIVE", "trigger": "BASIC_ATTACK_RECEIVED",
+    "operations": [
+      {
+        "kind": "DAMAGE", "target": "TARGET",
+        "value_expression": {"type": "CONSTANT", "value": "10"},
+        "damage_type": "MAGIC"
+      },
+      {
+        "kind": "APPLY_STATUS", "target": "TARGET",
+        "value_expression": {"type": "CONSTANT", "value": "0.40"},
+        "duration_ms": 3000, "status_or_stat": "HEALING_REDUCTION"
+      }
+    ]
+  }],
+  "verification": {"status": "CURATED_UNVERIFIED", "source_refs": [
+    "data/raw/16.17.1/en_US/item.json#/data/3076",
+    "data/raw/16.17.1/communitydragon/items.cdtb.bin.json#/Items~1/3076"
+  ]}
+}
