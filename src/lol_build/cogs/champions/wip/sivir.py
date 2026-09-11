@@ -119,7 +119,7 @@ class SivirCog(ChampionCog):
                 "SIVIR_W_RICOCHET_BOUNCES_REQUIRE_MORE_TARGETS",
                 "SIVIR_W_AND_R_ATTACK_SPEED_NOT_APPLIED_TO_CADENCE",
                 "SIVIR_R_COOLDOWN_REFUNDS_NOT_MODELED",
-                "SIVIR_CRITICAL_STRIKE_NOT_MODELED",
+                "SIVIR_Q_CRITICAL_STRIKE_SCALING_NOT_MODELED",
                 "SIVIR_ROTATION_AND_HIT_TIMING_UNVERIFIED",
             ),
         )
