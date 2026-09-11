@@ -97,6 +97,10 @@ class AntiHealReview:
     candidate_item_id: int | None = None
     passes_branch_gate: bool | None = None
     metric_comparisons: tuple[MetricComparison, ...] = ()
+    #: Best 800-gold healing-reduction component added to the first core.
+    first_back_component_id: int | None = None
+    first_back_healing_prevented: Decimal | None = None
+    first_back_damage_delta: Decimal | None = None
 
 
 @dataclass(frozen=True)

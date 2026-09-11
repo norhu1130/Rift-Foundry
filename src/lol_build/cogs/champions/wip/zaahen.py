@@ -89,6 +89,7 @@ class ZaahenCog(ChampionCog):
             ),
             action(
                 "ZAAHEN_W_DREADED_RETURN_PULL",
+                origin_event_id="ZAAHEN_W_DREADED_RETURN",
                 at_ms=self._W_AT_MS + self._W_PULL_MS,
                 sequence=base + 2,
                 source=context.self_entity,

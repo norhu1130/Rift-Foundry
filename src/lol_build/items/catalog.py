@@ -50,10 +50,14 @@ def _constant(value: int | float) -> dict[str, str]:
     return {"type": "CONSTANT", "value": format(Decimal(str(value)), "f")}
 
 
-def load_complete_item_pool(root: Path) -> tuple[dict[str, Any], ...]:
+def load_complete_item_pool(
+    root: Path, only_ids: frozenset[int] | None = None
+) -> tuple[dict[str, Any], ...]:
     """Load ordinary complete items and boots without a network dependency.
 
     :param root: Project root containing locked Data/CommunityDragon snapshots.
+    :param only_ids: When given, load exactly these items instead, bypassing the
+        complete-item and minimum-cost filters (for evaluation-only components).
     :return: Stable item documents ready for candidate generation.
     """
     raw = json.loads((root / "data/raw/16.17.1/en_US/item.json").read_text(encoding="utf-8"))[
@@ -87,7 +91,10 @@ def load_complete_item_pool(root: Path) -> tuple[dict[str, Any], ...]:
             and not citem.get("specialRecipe")
             and not citem.get("requiredBuffCurrencyName")
         )
-        if not (ordinary_id and available and terminal_or_boot):
+        if only_ids is not None:
+            if item_id not in only_ids:
+                continue
+        elif not (ordinary_id and available and terminal_or_boot):
             continue
         stats = {
             target: _constant(value)

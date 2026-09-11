@@ -1073,6 +1073,64 @@ def generic_cog_build_preview(
         int(item["id"]) for item in items if _applies_healing_reduction(item)
     )
 
+    def _with_first_back_component(review: AntiHealReview, state: _BeamState) -> AntiHealReview:
+        """Attach the best 800-gold healing-reduction component at the first core.
+
+        Healing reduction is usually bought as a cheap component on the first
+        back rather than a completed item. When the opponent heals and the build
+        owns no reduction, each component is added to the first core alone and
+        the one preventing the most healing is reported with its damage change.
+
+        :param review: Review of the branch's completed-item swaps.
+        :param state: Selected build state of that branch.
+        :return: The review, extended with the first-back component check.
+        """
+        from dataclasses import replace
+
+        from lol_build.application.matchup import (
+            ANTI_HEAL_COMPONENT_IDS,
+            MatchupRequest,
+        )
+
+        if review.status == "BRANCH_HAS_HEALING_REDUCTION" or review.opponent_healing <= 0:
+            return review
+        first_core = state.item_ids[:1]
+
+        def evaluate(actor_ids: tuple[int, ...]) -> Any:
+            """Evaluate the first-core duel for one actor item set.
+
+            :param actor_ids: Actor items at the first core.
+            :return: Matchup evaluation of that duel.
+            """
+            return engine.evaluate(
+                MatchupRequest(
+                    request.actor,
+                    request.opponent,
+                    level=request.level,
+                    duration_ms=request.duration_ms,
+                    horizon_ms=request.horizon_ms,
+                    actor_item_ids=actor_ids,
+                    opponent_item_ids=request.opponent_item_ids[:1],
+                )
+            )
+
+        baseline = evaluate(first_core)
+        best: tuple[Decimal, int, Any] | None = None
+        for component_id in sorted(ANTI_HEAL_COMPONENT_IDS):
+            outcome = evaluate((*first_core, component_id))
+            prevented = outcome.timeline.actor_healing_prevented
+            if best is None or prevented > best[0]:
+                best = (prevented, component_id, outcome)
+        if best is None or best[0] <= 0:
+            return review
+        prevented, component_id, outcome = best
+        return replace(
+            review,
+            first_back_component_id=component_id,
+            first_back_healing_prevented=prevented,
+            first_back_damage_delta=outcome.opposing_side_hp_lost - baseline.opposing_side_hp_lost,
+        )
+
     def _anti_heal_review(branch: BranchId, state: _BeamState) -> AntiHealReview:
         """Check the best single-slot swap to a healing-reduction item.
 
@@ -1195,7 +1253,9 @@ def generic_cog_build_preview(
                     metric_by_path[reference.item_ids] if reference is not None else None
                 ),
                 slot_runner_ups=tuple(slot_runner_ups),
-                anti_heal_review=_anti_heal_review(branch, state),
+                anti_heal_review=_with_first_back_component(
+                    _anti_heal_review(branch, state), state
+                ),
             )
     blockers = tuple(
         sorted(
@@ -1382,8 +1442,8 @@ def _stage_noncombat_metrics(
         request.duration_ms,
         request.horizon_ms,
     )
-    actor_items = tuple(engine._items[item_id] for item_id in actor_ids)
-    opponent_items = tuple(engine._items[item_id] for item_id in opponent_ids)
+    actor_items = tuple(engine.item(item_id) for item_id in actor_ids)
+    opponent_items = tuple(engine.item(item_id) for item_id in opponent_ids)
     actor_move = item_engagement_modifiers(
         actor_items,
         actor_context,

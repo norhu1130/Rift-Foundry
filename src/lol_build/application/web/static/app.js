@@ -324,6 +324,14 @@ function renderSlotRunnerUp(slotRunnerUp) {
   return `<details class="slot-runner-up"><summary>2위 후보 · ${escapeHtml(item.name)} (경쟁 ${count}개)</summary><div class="slot-runner-up-body">${icon(item)}<div class="comparison-list">${metricComparisonRows(slotRunnerUp.metric_comparisons)}</div></div></details>`;
 }
 
+function renderFirstBackComponent(review) {
+  if (!review || review.first_back_component_id == null) return "";
+  const item = itemById(review.first_back_component_id) || { name: `Item ${review.first_back_component_id}` };
+  const damage = Number(review.first_back_damage_delta);
+  const signed = damage > 0 ? `+${number(damage)}` : number(damage);
+  return `<div class="anti-heal-review first-back">${icon(item)}<p><b>첫 귀환 치유 감소 부품 · ${escapeHtml(item.name)}</b><small>첫 코어에 더하면 상대 회복 ${number(review.first_back_healing_prevented)} 차단 · 피해 ${signed}</small></p></div>`;
+}
+
 function renderAntiHealReview(review) {
   if (!review) return "";
   const status = antiHealStatusLabels[review.status] || review.status;
@@ -358,7 +366,7 @@ function renderExplanation(branch) {
   const reference = explanation.comparison_item_ids?.length
     ? `<div class="comparison-build"><span>비교안</span><div>${buildPath(explanation.comparison_item_ids)}</div></div>`
     : "";
-  return `<details class="explanation"><summary>왜 이 빌드인가?</summary><div class="explanation-body"><ul class="reason-list">${reasons}</ul><div class="constraint-list">${constraints}</div><h4>아이템별 역할</h4><div class="item-reasons">${contributions}</div>${renderAntiHealReview(explanation.anti_heal_review)}${reference}${comparisons ? `<div class="comparison-list">${comparisons}</div>` : ""}<code>${escapeHtml(explanation.policy_id)}</code></div></details>`;
+  return `<details class="explanation"><summary>왜 이 빌드인가?</summary><div class="explanation-body"><ul class="reason-list">${reasons}</ul><div class="constraint-list">${constraints}</div><h4>아이템별 역할</h4><div class="item-reasons">${contributions}</div>${renderAntiHealReview(explanation.anti_heal_review)}${renderFirstBackComponent(explanation.anti_heal_review)}${reference}${comparisons ? `<div class="comparison-list">${comparisons}</div>` : ""}<code>${escapeHtml(explanation.policy_id)}</code></div></details>`;
 }
 
 function levelModelWarning(data) {

@@ -96,6 +96,8 @@ class MatchupRequest:
         always available, which measurably won item slots on its side effect
         alone (P1-070; see ``TASKS.md``).
     :param pursuit_target_policy: Whether the pursued opponent retreats.
+    :param actor_summoner_spells: Summoner spells the actor brings (``"Ignite"``).
+    :param opponent_summoner_spells: Summoner spells the primary opponent brings.
     """
 
     actor: str | int
@@ -113,6 +115,8 @@ class MatchupRequest:
     team_arrival_spends_dash: bool = False
     active_duty_policy: str = "uncorrelated"
     pursuit_target_policy: str = "range_aware"
+    actor_summoner_spells: tuple[str, ...] = ()
+    opponent_summoner_spells: tuple[str, ...] = ()
 
     @property
     def opponent_specs(self) -> tuple[ParticipantSpec, ...]:
@@ -415,6 +419,61 @@ def _cadence_adjusted_timestamp(
     return actual_cursor + int((required - progress).to_integral_value(rounding=ROUND_CEILING))
 
 
+#: Healing-reduction components evaluated as a first-back purchase.
+ANTI_HEAL_COMPONENT_IDS = frozenset({3076, 3123, 3916})
+
+#: Ignite's verified effect (LoL wiki, Ignite): 40% Grievous Wounds for the
+#: 5-second burn. Its level-scaled true damage ("70 - 525 based on level") has no
+#: per-level formula in the wiki or the locked data, so it is not invented.
+IGNITE_GRIEVOUS_WOUNDS = Decimal("0.40")
+IGNITE_DURATION_MS = 5000
+
+
+def _summoner_spell_events(
+    spells: tuple[str, ...],
+    source: EntityId,
+    target: EntityId,
+    sequence: int,
+) -> tuple[tuple[ActionEvent, ...], tuple[str, ...]]:
+    """Build the modeled summoner-spell events for one participant.
+
+    Summoner spells resolve on the item-active channel: like item actives they
+    are not stopped by silence. Only Ignite is modeled, cast at the start of the
+    encounter, and only its verified Grievous Wounds is applied.
+
+    :param spells: Summoner spells the participant brings.
+    :param source: Participant casting them.
+    :param target: Opponent receiving Ignite.
+    :param sequence: Stable ordering key for the cast.
+    :return: Events and the blockers naming what remains assumed or missing.
+    :raises ValueError: If an unsupported summoner spell is requested.
+    """
+    events: list[ActionEvent] = []
+    blockers: list[str] = []
+    for spell in spells:
+        if spell != "Ignite":
+            raise ValueError(f"unsupported summoner spell: {spell}")
+        events.append(
+            ActionEvent(
+                f"SUMMONER_IGNITE_{source.value}",
+                0,
+                sequence,
+                source,
+                ActionChannel.ITEM_ACTIVE,
+                (
+                    StatusOutput(
+                        target,
+                        "HEALING_REDUCTION",
+                        IGNITE_DURATION_MS,
+                        IGNITE_GRIEVOUS_WOUNDS,
+                    ),
+                ),
+            )
+        )
+        blockers.extend(("IGNITE_DAMAGE_LEVEL_FORMULA_UNVERIFIED", "IGNITE_CAST_TIMING_ASSUMED"))
+    return tuple(events), tuple(blockers)
+
+
 def _with_expected_critical_strikes(
     plan: ActionPlan,
     snapshot: ChampionSnapshot,
@@ -566,6 +625,19 @@ class MatchupEngine:
         self.root = root.resolve()
         self.registry = registry or create_default_registry(self.root)
         self._items: dict[int, dict[str, Any]] = {}
+        # Healing-reduction components (Executioner's Calling, Bramble Vest,
+        # Oblivion Orb) are evaluated as a first-back purchase only; they
+        # never enter complete_items, so the build search cannot pick them.
+        self._component_items: dict[int, dict[str, Any]] = {}
+        for source in load_complete_item_pool(self.root, ANTI_HEAL_COMPONENT_IDS):
+            component = dict(source)
+            effect_path = self.root / "data/curated/item_effects" / f"{component['id']}.json"
+            component["__effect_programs"] = (
+                json.loads(effect_path.read_text(encoding="utf-8"))["programs"]
+                if effect_path.exists()
+                else []
+            )
+            self._component_items[component["id"]] = component
         for source in load_complete_item_pool(self.root):
             item = dict(source)
             effect_path = self.root / "data/curated/item_effects" / f"{item['id']}.json"
@@ -582,6 +654,18 @@ class MatchupEngine:
             if "PASSIVE:Cleave" in labels:
                 item["groups"]["same_passive"] = "HYDRA_CLEAVE"
             self._items[item["id"]] = item
+
+    def item(self, item_id: int) -> dict[str, Any]:
+        """Look up a candidate item or an evaluation-only component.
+
+        :param item_id: Item identifier.
+        :return: Loaded item document with its effect programs.
+        :raises KeyError: If the item is neither a candidate nor a component.
+        """
+        found = self._items.get(item_id) or self._component_items.get(item_id)
+        if found is None:
+            raise KeyError(item_id)
+        return found
 
     @property
     def complete_items(self) -> tuple[dict[str, Any], ...]:
@@ -650,7 +734,7 @@ class MatchupEngine:
         )
         for item_id in item_ids:
             try:
-                item = self._items[item_id]
+                item = self.item(item_id)
             except KeyError as error:
                 raise ValueError(f"unknown or non-complete item: {item_id}") from error
             for stat, expression in item["stats"].items():
@@ -696,7 +780,7 @@ class MatchupEngine:
         health_multiplier = Decimal(1)
         ap_multiplier = Decimal(1)
         for item_id in item_ids:
-            for program in self._items[item_id]["__effect_programs"]:
+            for program in self.item(item_id)["__effect_programs"]:
                 if program["trigger"] != "ALWAYS":
                     continue
                 for operation in program["operations"]:
@@ -725,7 +809,7 @@ class MatchupEngine:
         """
         attack_speed_multiplier = Decimal(1)
         for item_id in item_ids:
-            for program in self._items[item_id]["__effect_programs"]:
+            for program in self.item(item_id)["__effect_programs"]:
                 if program["trigger"] != "ALWAYS":
                     continue
                 for operation in program["operations"]:
@@ -928,6 +1012,38 @@ class MatchupEngine:
             _with_expected_critical_strikes(plan, view.snapshot, view.entity)
             for view, plan in zip(opposing_side, opponent_action_plans, strict=True)
         ]
+        actor_ignite, actor_ignite_blockers = _summoner_spell_events(
+            request.actor_summoner_spells, EntityId.ACTOR, focus_entity, 90_000
+        )
+        if actor_ignite:
+            actor_actions = replace(
+                actor_actions,
+                events=tuple(
+                    sorted(
+                        (*actor_actions.events, *actor_ignite),
+                        key=lambda event: (event.at_ms, event.sequence),
+                    )
+                ),
+                blockers=(*actor_actions.blockers, *actor_ignite_blockers),
+            )
+        primary_ignite, primary_ignite_blockers = _summoner_spell_events(
+            request.opponent_summoner_spells,
+            opposing_side[0].entity,
+            opponent_targets[opposing_side[0].entity],
+            90_001,
+        )
+        if primary_ignite:
+            primary_plan = opponent_action_plans[0]
+            opponent_action_plans[0] = replace(
+                primary_plan,
+                events=tuple(
+                    sorted(
+                        (*primary_plan.events, *primary_ignite),
+                        key=lambda event: (event.at_ms, event.sequence),
+                    )
+                ),
+                blockers=(*primary_plan.blockers, *primary_ignite_blockers),
+            )
         opponent_actions = opponent_action_plans[0]
         opponent_reactions = opponent_reaction_plans[0]
 
@@ -1081,7 +1197,7 @@ class MatchupEngine:
             incoming_events += events
         ally_item_results = [
             compile_item_combat_events(
-                tuple(self._items[item_id] for item_id in spec.item_ids),
+                tuple(self.item(item_id) for item_id in spec.item_ids),
                 events,
                 context,
                 incoming_events,
@@ -1091,14 +1207,14 @@ class MatchupEngine:
             )
         ]
         actor_item_result = compile_item_combat_events(
-            tuple(self._items[item_id] for item_id in request.actor_item_ids),
+            tuple(self.item(item_id) for item_id in request.actor_item_ids),
             actor_events,
             actor_context,
             incoming_events,
         )
         opponent_item_results = [
             compile_item_combat_events(
-                tuple(self._items[item_id] for item_id in spec.item_ids),
+                tuple(self.item(item_id) for item_id in spec.item_ids),
                 events,
                 context,
                 actor_events,
