@@ -203,10 +203,8 @@ class JinxCog(ChampionCog):
         assert isinstance(stats, dict)
         unsupported = {
             "HEAL_SHIELD_POWER",
-            "LIFESTEAL",
             "MANA",
             "MANA_REGEN",
-            "OMNIVAMP",
         } & stats.keys()
         if unsupported:
             return f"JINX_ITEM_STAT_NOT_MODELED:{item['id']}:{','.join(sorted(unsupported))}"

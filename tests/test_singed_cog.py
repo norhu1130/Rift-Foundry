@@ -6,7 +6,7 @@ from pathlib import Path
 from lol_build.cogs import CogMaturity, ControlType, ParticipantContext
 from lol_build.cogs.base import DUEL_CAPABILITIES
 from lol_build.cogs.registry import create_default_registry
-from lol_build.core.timeline import DamageOutput, EntityId, StatModifierOutput
+from lol_build.core.timeline import DamageOutput, EntityId, StatModifierOutput, StatusOutput
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -57,6 +57,16 @@ def test_singed_metadata_poison_ticks_and_fling_root_are_explicit() -> None:
     assert all(isinstance(output, StatModifierOutput) for output in r_outputs)
     e_outputs = _event(plan, "SINGED_E_FLING").outputs
     assert isinstance(e_outputs[0], DamageOutput)
+    ticks = [e for e in plan.events if "Q_POISON_TRAIL_TICK" in e.id]
+    assert all(
+        any(
+            isinstance(output, StatusOutput)
+            and output.status == "HEALING_REDUCTION"
+            and output.magnitude == Decimal("0.40")
+            for output in tick.outputs
+        )
+        for tick in ticks
+    )
 
 
 def test_singed_reaction_plan_exposes_the_e_root() -> None:

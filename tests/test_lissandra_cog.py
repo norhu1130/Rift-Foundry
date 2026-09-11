@@ -7,7 +7,7 @@ from lol_build.cogs import CogMaturity, ControlType, ParticipantContext
 from lol_build.cogs.base import DUEL_CAPABILITIES
 from lol_build.cogs.registry import create_default_registry
 from lol_build.core.combat import DamageType
-from lol_build.core.timeline import DamageOutput, EntityId, HealOutput
+from lol_build.core.timeline import DamageOutput, EntityId, MissingHealthHealOutput
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -63,7 +63,9 @@ def test_lissandra_self_tomb_rotation_is_deterministic_and_haste_sensitive() -> 
 
     assert base == cog.build_action_plan(_context())
     tomb = _event(base, "LISSANDRA_R_FROZEN_TOMB_SELF_CAST")
-    assert any(isinstance(output, HealOutput) for output in tomb.outputs)
+    heal = next(o for o in tomb.outputs if isinstance(o, MissingHealthHealOutput))
+    assert heal.base_amount == Decimal(150)
+    assert heal.missing_health_ratio == Decimal(150) / _context().snapshot.max_hp
     base_q = [event for event in base.events if "Q_ICE_SHARD" in event.id]
     fast_q = [event for event in fast.events if "Q_ICE_SHARD" in event.id]
     assert len(fast_q) > len(base_q)
@@ -111,5 +113,5 @@ def test_lissandra_ap_role_reversal_sustain_and_item_policy_are_honest() -> None
     assert blockers == ("LISSANDRA_R_NOT_REPEATABLE_LANE_SUSTAIN",)
     assert (
         cog.item_candidate_blocker({"id": 2, "stats": {"MANA": {}, "OMNIVAMP": {}}})
-        == "LISSANDRA_ITEM_STAT_NOT_MODELED:2:MANA,OMNIVAMP"
+        == "LISSANDRA_ITEM_STAT_NOT_MODELED:2:MANA"
     )

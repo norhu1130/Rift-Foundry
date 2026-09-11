@@ -184,7 +184,7 @@ def test_illaoi_item_and_lane_policies_reject_unmodeled_channels() -> None:
         illaoi.item_candidate_blocker(
             {"id": 2, "stats": {"ABILITY_HASTE": {}, "MANA": {}, "OMNIVAMP": {}}}
         )
-        == "ILLAOI_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,MANA,OMNIVAMP"
+        == "ILLAOI_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,MANA"
     )
     sustain, blockers = illaoi.lane_sustain_extra_health(
         _context(), duration_ms=30_000, no_damage_delay_ms=5_000

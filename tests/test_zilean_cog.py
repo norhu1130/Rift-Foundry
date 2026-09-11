@@ -6,7 +6,7 @@ from pathlib import Path
 from lol_build.cogs import CogMaturity, ControlType, ParticipantContext
 from lol_build.cogs.base import DUEL_CAPABILITIES
 from lol_build.cogs.registry import create_default_registry
-from lol_build.core.timeline import DamageOutput, DeathPreventionOutput, EntityId, ShieldOutput
+from lol_build.core.timeline import DamageOutput, DeathPreventionOutput, EntityId
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -43,8 +43,8 @@ def _event(plan, event_id: str):
     return next(event for event in plan.events if event.id == event_id)
 
 
-def test_zilean_metadata_shield_death_prevention_and_bomb_stun() -> None:
-    """Require evidence, R's shield and death prevention, and Q's stun."""
+def test_zilean_metadata_revive_and_bomb_stun() -> None:
+    """Require evidence, R's triggered revive, and Q's stun."""
     cog = create_default_registry(ROOT).require_cog("Zilean")
     plan = cog.build_action_plan(_context())
 
@@ -53,8 +53,11 @@ def test_zilean_metadata_shield_death_prevention_and_bomb_stun() -> None:
     assert all((ROOT / ref).is_file() for ref in cog.evidence_refs)
     assert plan == cog.build_action_plan(_context())
     r_outputs = _event(plan, "ZILEAN_R_CHRONOSHIFT").outputs
-    assert isinstance(r_outputs[0], ShieldOutput)
-    assert isinstance(r_outputs[1], DeathPreventionOutput)
+    assert len(r_outputs) == 1
+    revive = r_outputs[0]
+    assert isinstance(revive, DeathPreventionOutput)
+    assert revive.trigger_stasis_ms == 3000
+    assert revive.trigger_heal == Decimal(850)
     q_outputs = _event(plan, "ZILEAN_Q_TIME_BOMB").outputs
     assert isinstance(q_outputs[0], DamageOutput)
     assert q_outputs[0].damage_type.value == "MAGIC"

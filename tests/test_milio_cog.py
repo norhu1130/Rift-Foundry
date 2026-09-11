@@ -105,5 +105,5 @@ def test_milio_role_reversal_sustain_and_unsupported_ally_channels_are_honest() 
     assert "MILIO_R_CLEANSE_AND_TEMPORARY_TENACITY_NOT_MODELED" in plan.blockers
     assert (
         cog.item_candidate_blocker({"id": 2, "stats": {"MANA": {}, "OMNIVAMP": {}}})
-        == "MILIO_ITEM_STAT_NOT_MODELED:2:MANA,OMNIVAMP"
+        == "MILIO_ITEM_STAT_NOT_MODELED:2:MANA"
     )

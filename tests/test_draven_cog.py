@@ -195,5 +195,5 @@ def test_draven_engagement_and_item_policy_preserve_model_boundaries() -> None:
     )
     assert (
         draven.item_candidate_blocker({"id": 2, "stats": {"AP": {}, "LIFESTEAL": {}, "MANA": {}}})
-        == "DRAVEN_ITEM_STAT_NOT_MODELED:2:AP,LIFESTEAL,MANA"
+        == "DRAVEN_ITEM_STAT_NOT_MODELED:2:AP,MANA"
     )

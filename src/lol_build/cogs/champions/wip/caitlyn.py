@@ -104,10 +104,8 @@ class CaitlynCog(ChampionCog):
         unsupported = {
             "ABILITY_HASTE",
             "HEAL_SHIELD_POWER",
-            "LIFESTEAL",
             "MANA",
             "MANA_REGEN",
-            "OMNIVAMP",
         } & stats.keys()
         if unsupported:
             names = ",".join(sorted(unsupported))

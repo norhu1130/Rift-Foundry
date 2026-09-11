@@ -68,6 +68,33 @@ Whether a branch's gate is enabled is not per-champion policy data in the
 generic engine; the same gates apply uniformly to every actor, matching the
 "no matchup- or champion-specific dispatch" rule established in P1-066.
 
+## Healing and healing reduction
+
+The timeline resolves every heal, life steal, omnivamp, regeneration tick, and
+healing reduction (see `docs/timeline-semantics.md`), so a healing-reduction
+item is valued through the same metrics as every other item:
+
+- in a duel `DAMAGE_TOTAL_8S` is built from the opponent's **net** health loss,
+  which already subtracts everything the opponent healed;
+- with allies it isolates the actor's own damage, which would ignore healing
+  entirely, so the healing the actor's own reductions prevented is added to it —
+  preventing a heal removes exactly as much health as dealing that damage.
+
+Two metrics expose this directly: `OPPONENT_HEALING_RECEIVED_8S` (health the
+opposing side restored) and `ACTOR_HEALING_PREVENTED_8S` (healing removed by
+reductions the actor applied), both weighted by core time like every metric.
+
+Every branch also carries an **anti-heal review**
+(`BuildExplanation.anti_heal_review`). When the opposing side healed and the
+selected build has no healing-reduction item, the exhaustively evaluated path
+that swaps exactly one slot for such an item and ranks best under the branch's
+own gate and priorities is reported — whether it passes the gate, and every
+priority and healing metric difference. The review never replaces the selected
+build and never adds a weighted anti-heal bonus: if the swap would win on the
+branch's own metrics it would already have been selected. Its statuses are
+`NO_OPPONENT_HEALING`, `BRANCH_HAS_HEALING_REDUCTION`, `NO_LEGAL_SUBSTITUTION`,
+and `SUBSTITUTION_EVALUATED`.
+
 ## Build progression and conditional readiness
 
 An ordered build is evaluated on an explicit core-completion timeline. Prefix

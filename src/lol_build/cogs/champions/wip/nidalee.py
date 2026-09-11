@@ -12,7 +12,7 @@ from lol_build.cogs.base import (
     ParticipantContext,
     ReactionPlan,
 )
-from lol_build.cogs.mechanics import action, damage, healing
+from lol_build.cogs.mechanics import action, damage, missing_health_healing
 from lol_build.core.combat import DamageType
 from lol_build.core.timeline import (
     ActionChannel,
@@ -115,10 +115,8 @@ class NidaleeCog(ChampionCog):
         unsupported = {
             "CRITICAL_STRIKE_CHANCE",
             "HEAL_SHIELD_POWER",
-            "LIFESTEAL",
             "MANA",
             "MANA_REGEN",
-            "OMNIVAMP",
         } & stats.keys()
         if unsupported:
             return f"NIDALEE_ITEM_STAT_NOT_MODELED:{item['id']}:{','.join(sorted(unsupported))}"
@@ -154,7 +152,19 @@ class NidaleeCog(ChampionCog):
                 sequence=base + 1,
                 source=context.self_entity,
                 channel=ActionChannel.ABILITY,
-                outputs=(healing(context.self_entity, Decimal(150) + Decimal("0.35") * ap),),
+                # MaxHealing doubles TotalHealing at MaxHealThreshold (5%) health;
+                # read linearly: h * (1 + missing / (0.95 * max)).
+                outputs=(
+                    missing_health_healing(
+                        context.self_entity,
+                        min(
+                            Decimal(1),
+                            (Decimal(150) + Decimal("0.35") * ap)
+                            / (Decimal("0.95") * context.snapshot.max_hp),
+                        ),
+                        base_amount=Decimal(150) + Decimal("0.35") * ap,
+                    ),
+                ),
                 requires_living_opponent=False,
             ),
             action(
@@ -223,7 +233,7 @@ class NidaleeCog(ChampionCog):
                 *level_blockers,
                 "NIDALEE_LEVEL13_Q5_E5_W1_AUTO_R3_ORDER_LOCKED_UNVERIFIED",
                 "NIDALEE_JAVELIN_MAXIMUM_DISTANCE_DAMAGE_ASSUMED",
-                "NIDALEE_E_MINIMUM_HEAL_ONLY_MISSING_HEALTH_AMPLIFICATION_NOT_MODELED",
+                "NIDALEE_E_MISSING_HEALTH_AMPLIFICATION_READ_AS_LINEAR",
                 "NIDALEE_HUNTED_TAKEDOWN_EXTRA_MULTIPLIER_NOT_STRUCTURED_IN_LOCKED_BIN",
                 "NIDALEE_TAKEDOWN_BASE_MISSING_HEALTH_SCALING_ASSUMED_TO_DOUBLE",
                 "NIDALEE_COUGAR_EFFECT_ARRAY_RANK3_MAPPING_UNVERIFIED",

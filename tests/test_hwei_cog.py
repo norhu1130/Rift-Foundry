@@ -134,5 +134,5 @@ def test_hwei_item_policy_rejects_unrepresented_resource_channels() -> None:
     )
     assert (
         cog.item_candidate_blocker({"id": 2, "stats": {"MANA": {}, "OMNIVAMP": {}}})
-        == "HWEI_ITEM_STAT_NOT_MODELED:2:MANA,OMNIVAMP"
+        == "HWEI_ITEM_STAT_NOT_MODELED:2:MANA"
     )

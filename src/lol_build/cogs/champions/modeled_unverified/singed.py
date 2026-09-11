@@ -16,7 +16,12 @@ from lol_build.cogs.base import (
 )
 from lol_build.cogs.mechanics import action, crowd_control, damage
 from lol_build.core.combat import DamageType
-from lol_build.core.timeline import ActionChannel, ActionEvent, StatModifierOutput
+from lol_build.core.timeline import (
+    ActionChannel,
+    ActionEvent,
+    StatModifierOutput,
+    StatusOutput,
+)
 
 
 class SingedCog(ChampionCog):
@@ -25,10 +30,12 @@ class SingedCog(ChampionCog):
     Poison Trail is treated as toggled on for the whole encounter and ticks
     at its locked rate, and Fling lands its damage and root. Insanity
     Potion's own stat gain is applied through the two stats this engine's
-    combat math actually consumes; its other stat bonuses and its nearby
-    grievous wounds aura are excluded, since the aura's contact is not
-    guaranteed. Mega Adhesive slows but deals no damage of its own and is
-    excluded for the same reason as Taric's and Zilean's pure-utility spells.
+    combat math actually consumes; its other stat bonuses are excluded.
+    While the potion lasts, every Singed damage instance applies its locked
+    ``GrievousAmount`` (40%) healing reduction for ``GrievousDuration`` (1 s),
+    so the quarter-second poison ticks keep it on the opponent throughout.
+    Mega Adhesive slows but deals no damage of its own and is excluded for
+    the same reason as Taric's and Zilean's pure-utility spells.
     """
 
     maturity = CogMaturity.MODELED_UNVERIFIED
@@ -42,6 +49,7 @@ class SingedCog(ChampionCog):
     _Q_TICK_MS = 250
     _R_AT_MS = 0
     _R_DURATION_MS = 25000
+    _R_GRIEVOUS_MS = 1000
     _E_AT_MS = 900
     _E_ROOT_MS = 2000
 
@@ -65,12 +73,33 @@ class SingedCog(ChampionCog):
                     sequence=base + index,
                     source=context.self_entity,
                     channel=ActionChannel.ABILITY,
-                    outputs=(damage(context.opponent_entity, tick_damage, DamageType.MAGIC),),
+                    outputs=(
+                        damage(context.opponent_entity, tick_damage, DamageType.MAGIC),
+                        *self._grievous_wounds(context, at_ms),
+                    ),
                 )
             )
             index += 1
             at_ms += self._Q_TICK_MS
         return tuple(events)
+
+    def _grievous_wounds(self, context: ParticipantContext, at_ms: int) -> tuple[StatusOutput, ...]:
+        """Apply Insanity Potion's healing reduction to a damage instance.
+
+        :param context: Role-bound Singed and opponent snapshots.
+        :param at_ms: Timestamp of the damage instance.
+        :return: The reduction status while the potion is active, else nothing.
+        """
+        if not self._R_AT_MS <= at_ms < self._R_AT_MS + self._R_DURATION_MS:
+            return ()
+        return (
+            StatusOutput(
+                context.opponent_entity,
+                "HEALING_REDUCTION",
+                self._R_GRIEVOUS_MS,
+                Decimal("0.40"),
+            ),
+        )
 
     def build_action_plan(self, context: ParticipantContext) -> ActionPlan:
         """Build Singed's stat-buff, poison-trail, and fling-root rotation.
@@ -113,6 +142,7 @@ class SingedCog(ChampionCog):
                 outputs=(
                     damage(context.opponent_entity, e_damage, DamageType.MAGIC),
                     crowd_control(context.opponent_entity, "ROOT", duration_ms=self._E_ROOT_MS),
+                    *self._grievous_wounds(context, self._E_AT_MS),
                 ),
             ),
         ]
@@ -129,7 +159,7 @@ class SingedCog(ChampionCog):
                 *level_blockers,
                 *self.verification_blockers(),
                 "SINGED_R_FULL_STAT_BONUS_NOT_MODELED",
-                "SINGED_R_GRIEVOUS_WOUNDS_AURA_NOT_MODELED",
+                "SINGED_R_GRIEVOUS_WOUNDS_BASIC_ATTACKS_NOT_APPLIED",
                 "SINGED_W_MEGA_ADHESIVE_NOT_MODELED",
                 "SINGED_PASSIVE_NOXIOUS_SLIPSTREAM_NOT_MODELED",
                 "SINGED_RESOURCE_COSTS_NOT_EVALUATED",

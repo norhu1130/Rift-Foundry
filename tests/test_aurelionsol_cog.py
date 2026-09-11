@@ -161,7 +161,7 @@ def test_aurelionsol_engagement_sustain_and_item_policy_are_state_honest() -> No
     )
     assert (
         aurelionsol.item_candidate_blocker({"id": 2, "stats": {"MANA": {}, "OMNIVAMP": {}}})
-        == "AURELIONSOL_ITEM_STAT_NOT_MODELED:2:MANA,OMNIVAMP"
+        == "AURELIONSOL_ITEM_STAT_NOT_MODELED:2:MANA"
     )
 
 

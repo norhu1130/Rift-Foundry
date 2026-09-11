@@ -55,9 +55,9 @@ class TeemoCog(ChampionCog):
         """Reject item stats whose effect is absent from this fixed rotation.
 
         Mana and ability haste do not alter the fixed spell schedule, critical
-        strikes are not sampled, and life steal is not resolved by basic
-        ``DamageOutput`` events. Defensive, AP, AD, and attack-speed stats remain
-        eligible because the shared snapshot or this Cog consumes them.
+        strikes are not sampled. Defensive, AP, AD, attack-speed, life steal,
+        and omnivamp stats remain eligible because the shared snapshot, the
+        timeline's vamp resolution, or this Cog consumes them.
 
         :param item: Normalized locked item candidate.
         :return: Champion-scoped blocker code, or ``None`` when representable.
@@ -68,7 +68,6 @@ class TeemoCog(ChampionCog):
             "ABILITY_HASTE",
             "CRITICAL_STRIKE_CHANCE",
             "HEAL_SHIELD_POWER",
-            "LIFESTEAL",
             "MANA",
         } & stats.keys()
         if unsupported:

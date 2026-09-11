@@ -111,5 +111,5 @@ def test_naafiri_role_reversal_reaction_and_item_policy_are_honest() -> None:
     assert blockers == ("NAAFIRI_Q2_HEAL_REQUIRES_BLEEDING_CHAMPION_HIT_AND_MANA",)
     assert (
         cog.item_candidate_blocker({"id": 6, "stats": {"MANA": {}, "OMNIVAMP": {}}})
-        == "NAAFIRI_ITEM_STAT_NOT_MODELED:6:MANA,OMNIVAMP"
+        == "NAAFIRI_ITEM_STAT_NOT_MODELED:6:MANA"
     )

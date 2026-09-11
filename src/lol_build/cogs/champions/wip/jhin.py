@@ -61,10 +61,8 @@ class JhinCog(ChampionCog):
         assert isinstance(stats, dict)
         unsupported = {
             "HEAL_SHIELD_POWER",
-            "LIFESTEAL",
             "MANA",
             "MANA_REGEN",
-            "OMNIVAMP",
         } & stats.keys()
         return (
             f"JHIN_ITEM_STAT_NOT_MODELED:{item['id']}:{','.join(sorted(unsupported))}"

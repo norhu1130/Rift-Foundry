@@ -14,7 +14,7 @@ from lol_build.cogs.base import (
     ParticipantContext,
     ReactionPlan,
 )
-from lol_build.cogs.mechanics import action, damage, healing
+from lol_build.cogs.mechanics import action, damage, missing_health_healing
 from lol_build.core.combat import DamageType
 from lol_build.core.timeline import ActionChannel, ActionEvent, DamageModifierWindow, StatusOutput
 
@@ -184,10 +184,8 @@ class MasterYiCog(ChampionCog):
         assert isinstance(stats, dict)
         unsupported = {
             "HEAL_SHIELD_POWER",
-            "LIFESTEAL",
             "MANA",
             "MANA_REGEN",
-            "OMNIVAMP",
         } & stats.keys()
         if unsupported:
             return f"MASTER_YI_ITEM_STAT_NOT_MODELED:{item['id']}:{','.join(sorted(unsupported))}"
@@ -201,6 +199,13 @@ class MasterYiCog(ChampionCog):
         """
         base = self._sequence_base(context)
         meditate_tick = (Decimal(120) + context.snapshot.ability_power) / Decimal(8)
+        # MaxMissingHealthPercent = 1: each tick grows by up to 100% with missing
+        # health. tick * (1 + missing / max) is tick plus (tick / max) of missing.
+        meditate = missing_health_healing(
+            context.self_entity,
+            meditate_tick / context.snapshot.max_hp,
+            base_amount=meditate_tick,
+        )
         fixed = (
             action(
                 "MASTER_YI_R_HIGHLANDER",
@@ -226,7 +231,7 @@ class MasterYiCog(ChampionCog):
                 sequence=base + 2,
                 source=context.self_entity,
                 channel=ActionChannel.ABILITY,
-                outputs=(healing(context.self_entity, meditate_tick),),
+                outputs=(meditate,),
                 requires_living_opponent=False,
             ),
             action(
@@ -235,7 +240,7 @@ class MasterYiCog(ChampionCog):
                 sequence=base + 3,
                 source=context.self_entity,
                 channel=ActionChannel.ABILITY,
-                outputs=(healing(context.self_entity, meditate_tick),),
+                outputs=(meditate,),
                 requires_living_opponent=False,
             ),
         )
@@ -255,7 +260,7 @@ class MasterYiCog(ChampionCog):
                 "MASTER_YI_Q_CRITICAL_STRIKE_MODELED_AS_EXPECTED_DAMAGE",
                 "MASTER_YI_Q_ON_HIT_EFFECTIVENESS_NOT_MODELED",
                 "MASTER_YI_W_ONE_SECOND_CHANNEL_SELECTED",
-                "MASTER_YI_W_MISSING_HEALTH_HEAL_AMPLIFICATION_NOT_MODELED",
+                "MASTER_YI_W_MISSING_HEALTH_AMPLIFICATION_READ_AS_LINEAR",
                 "MASTER_YI_W_PAUSES_E_AND_R_FOR_ONE_SECOND_ASSUMED",
                 "MASTER_YI_TAKEDOWN_EXTENSIONS_AND_COOLDOWN_REFUNDS_OUTSIDE_DUEL",
                 "MASTER_YI_RESOURCE_COSTS_NOT_MODELED",

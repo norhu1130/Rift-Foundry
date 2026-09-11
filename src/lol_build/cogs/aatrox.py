@@ -13,12 +13,12 @@ from lol_build.cogs.base import (
     ParticipantContext,
     ReactionPlan,
 )
-from lol_build.core.combat import DamageType, apply_resistance
+from lol_build.core.combat import DamageType
 from lol_build.core.timeline import (
     ActionChannel,
     ActionEvent,
     DamageOutput,
-    HealOutput,
+    StatModifierOutput,
     StatusOutput,
 )
 
@@ -74,13 +74,22 @@ class AatroxCog(ChampionCog):
             context.snapshot.level - 1
         ) / Decimal(17)
         passive_raw = context.opponent_snapshot.max_hp * passive_ratio
-        passive_post = apply_resistance(
-            passive_raw,
-            DamageType.MAGIC,
-            armor=context.opponent_snapshot.armor,
-            magic_resistance=context.opponent_snapshot.magic_resistance,
-        ).post_mitigation_damage
+        # Umbral Dash's passive (ESpellVamp 16% plus EVampHPRatio 1.1% per 100
+        # bonus health) heals from all post-mitigation champion damage; the
+        # timeline resolves it from each damage output, amplified by the R bonus.
+        e_vamp = (Decimal("0.16") + Decimal("0.00011") * context.snapshot.bonus_health) * Decimal(
+            "1.35"
+        )
         events: list[ActionEvent] = [
+            ActionEvent(
+                "AATROX_E_UMBRAL_DASH_VAMP",
+                0,
+                sequence + 90,
+                context.self_entity,
+                ActionChannel.PASSIVE,
+                (StatModifierOutput(context.self_entity, "OMNIVAMP", e_vamp, None),),
+                requires_living_opponent=False,
+            ),
             ActionEvent(
                 "AATROX_PASSIVE_ATTACK",
                 200,
@@ -89,21 +98,19 @@ class AatroxCog(ChampionCog):
                 ActionChannel.BASIC_ATTACK,
                 (
                     DamageOutput(context.opponent_entity, total_ad, DamageType.PHYSICAL),
-                    DamageOutput(context.opponent_entity, passive_raw, DamageType.MAGIC),
-                    HealOutput(context.self_entity, passive_post),
+                    # PHealingRatio: the passive heals for 100% of its damage.
+                    DamageOutput(
+                        context.opponent_entity,
+                        passive_raw,
+                        DamageType.MAGIC,
+                        source_heal_ratio=Decimal(1),
+                    ),
                 ),
-            )
+            ),
         ]
         sequence += 1
-        e_heal_ratio = Decimal("0.16") + Decimal("0.00011") * context.snapshot.bonus_health
         for index, (at_ms, factor) in enumerate(zip(q_times, q_factors, strict=True), start=1):
             raw = (Decimal(120) + Decimal("0.90") * total_ad) * factor
-            post = apply_resistance(
-                raw,
-                DamageType.PHYSICAL,
-                armor=context.opponent_snapshot.armor,
-                magic_resistance=context.opponent_snapshot.magic_resistance,
-            ).post_mitigation_damage
             events.append(
                 ActionEvent(
                     f"AATROX_Q{index}_SWEETSPOT",
@@ -113,7 +120,6 @@ class AatroxCog(ChampionCog):
                     ActionChannel.ABILITY,
                     (
                         DamageOutput(context.opponent_entity, raw, DamageType.PHYSICAL),
-                        HealOutput(context.self_entity, post * e_heal_ratio * Decimal("1.35")),
                         StatusOutput(context.opponent_entity, "CC_AIRBORNE", 250),
                     ),
                 )
@@ -139,7 +145,7 @@ class AatroxCog(ChampionCog):
             (
                 "AATROX_FORMULAS_CURATED_UNVERIFIED",
                 "AATROX_Q_SWEETSPOT_ASSUMPTION_UNVERIFIED",
-                "AATROX_E_POST_MITIGATION_HEAL_PRECOMPUTED",
+                "AATROX_E_VAMP_AMPLIFICATION_BY_R_ASSUMED_CONSTANT",
                 "AATROX_R_HEALING_AMPLIFICATION_ASSUMED_ACTIVE",
                 "AATROX_PASSIVE_LEVEL_SCALING_INTERPOLATED_UNVERIFIED",
             ),

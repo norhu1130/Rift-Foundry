@@ -19,6 +19,7 @@ from lol_build.core.timeline import (
     ActionEvent,
     DamageOutput,
     EntityId,
+    MissingHealthHealOutput,
     StatusOutput,
     opponent_sequence_offset,
 )
@@ -26,6 +27,9 @@ from lol_build.core.timeline import (
 
 class DariusCog(ChampionCog):
     """Own Darius's role-neutral rotation and reaction behavior."""
+
+    #: ``DariusCleave`` ``MissingHealthHeal`` (locked 16.17.1 bin): 17 percent.
+    _Q_MISSING_HEALTH_HEAL_PER_CHAMPION = Decimal("0.17")
 
     rotation_model_id = "darius_five_stack_execute_8s_v1"
     recommendation_model_id = "generic_cog_build_preview_v1"
@@ -84,6 +88,19 @@ class DariusCog(ChampionCog):
             at_ms += interval
         events: list[ActionEvent] = []
         for at_ms, name, amount, damage_type in sorted(schedule):
+            outputs: tuple[DamageOutput | MissingHealthHealOutput, ...] = (
+                DamageOutput(context.opponent_entity, amount, damage_type),
+            )
+            if name == "Q":
+                # Decimate's blade restores MissingHealthHeal (17%) of missing
+                # health per champion hit, capped at MissingHealPercent (51%).
+                # The modeled Q is the outer-blade hit on the one opponent it
+                # targets, so exactly one champion stack applies.
+                outputs += (
+                    MissingHealthHealOutput(
+                        context.self_entity, self._Q_MISSING_HEALTH_HEAL_PER_CHAMPION
+                    ),
+                )
             events.append(
                 ActionEvent(
                     f"DARIUS_{name}_{sequence}",
@@ -93,7 +110,7 @@ class DariusCog(ChampionCog):
                     ActionChannel.BASIC_ATTACK
                     if name in {"ATTACK", "W"}
                     else ActionChannel.ABILITY,
-                    (DamageOutput(context.opponent_entity, amount, damage_type),),
+                    outputs,
                 )
             )
             sequence += 1
@@ -103,7 +120,7 @@ class DariusCog(ChampionCog):
             (
                 "DARIUS_COG_FIXED_FIVE_STACK_R_TIMING_UNVERIFIED",
                 "DARIUS_COG_HEMORRHAGE_NOT_EVALUATED",
-                "DARIUS_COG_Q_HEAL_NOT_EVALUATED",
+                "DARIUS_COG_Q_BLADE_HIT_ASSUMED_ONE_CHAMPION",
             ),
         )
 

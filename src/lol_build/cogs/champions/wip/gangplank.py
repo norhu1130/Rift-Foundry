@@ -14,7 +14,13 @@ from lol_build.cogs.base import (
     ParticipantContext,
     ReactionPlan,
 )
-from lol_build.cogs.mechanics import action, crowd_control, damage, healing, movement_speed
+from lol_build.cogs.mechanics import (
+    action,
+    crowd_control,
+    damage,
+    missing_health_healing,
+    movement_speed,
+)
 from lol_build.core.combat import DamageType
 from lol_build.core.timeline import ActionChannel, ActionEvent, RemoveStatusOutput, StatusOutput
 
@@ -25,7 +31,8 @@ class GangplankCog(ChampionCog):
     Parrrley detonates one prepared rank-five keg, resetting Trial by Fire for
     a second empowered attack. Cannon Barrage assumes the opponent remains in
     its unupgraded zone for all twelve tooltip waves. Keg-specific armor ignore
-    and Remove Scurvy's missing-health heal remain explicit engine blockers.
+    remain explicit engine blockers; Remove Scurvy heals its base amount plus
+    ``PercentHeal`` (13%) of the health missing when it resolves.
     """
 
     maturity = CogMaturity.MODELED_UNVERIFIED
@@ -179,10 +186,8 @@ class GangplankCog(ChampionCog):
         unsupported = {
             "CRITICAL_STRIKE_CHANCE",
             "HEAL_SHIELD_POWER",
-            "LIFESTEAL",
             "MANA",
             "MANA_REGEN",
-            "OMNIVAMP",
         } & stats.keys()
         if unsupported:
             names = ",".join(sorted(unsupported))
@@ -243,9 +248,10 @@ class GangplankCog(ChampionCog):
                         context.self_entity,
                         "CROWD_CONTROL_EXCEPT_AIRBORNE",
                     ),
-                    healing(
+                    missing_health_healing(
                         context.self_entity,
-                        Decimal(45) + Decimal("0.90") * context.snapshot.ability_power,
+                        Decimal("0.13"),
+                        base_amount=Decimal(45) + Decimal("0.90") * context.snapshot.ability_power,
                     ),
                 ),
                 requires_living_opponent=False,
@@ -280,7 +286,6 @@ class GangplankCog(ChampionCog):
                 "GANGPLANK_BARREL_PLACEMENT_DECAY_AND_DETONATION_TIMING_ASSUMED",
                 "GANGPLANK_BARREL_CHAIN_AND_ENEMY_DEFUSE_NOT_MODELED",
                 "GANGPLANK_Q_ON_HIT_AND_CRITICAL_STRIKE_NOT_MODELED",
-                "GANGPLANK_W_THIRTEEN_PERCENT_MISSING_HEALTH_HEAL_NOT_MODELED",
                 "GANGPLANK_R_ALL_TWELVE_WAVES_HIT_ASSUMED",
                 "GANGPLANK_R_SHOP_UPGRADES_EXCLUDED",
                 "GANGPLANK_RESOURCE_COSTS_NOT_MODELED",

@@ -23,6 +23,14 @@ const metricLabels = {
   HEARTSTEEL_PROC_COUNT: "강철심장 스택",
   ACTOR_SURVIVAL_MS_8S: "생존 시간",
   DORMANT_CORE_PASSIVE_TIME_MS: "패시브 비활성 시간",
+  OPPONENT_HEALING_RECEIVED_8S: "상대 회복량",
+  ACTOR_HEALING_PREVENTED_8S: "내 치유 감소로 막은 회복량",
+};
+const antiHealStatusLabels = {
+  NO_OPPONENT_HEALING: "상대가 이 교전에서 회복하지 않아 치유 감소가 효과를 낼 대상이 없습니다",
+  BRANCH_HAS_HEALING_REDUCTION: "이 빌드는 이미 치유 감소 아이템을 포함합니다",
+  NO_LEGAL_SUBSTITUTION: "상대가 회복하지만 한 자리를 치유 감소 아이템으로 바꾼 합법 경로가 없습니다",
+  SUBSTITUTION_EVALUATED: "상대가 회복합니다 · 한 자리를 치유 감소 아이템으로 바꾼 최선안을 계산했습니다",
 };
 const statLabels = {
   AD: "공격력", AP: "주문력", HP: "체력", ARMOR: "방어력",
@@ -315,6 +323,22 @@ function renderSlotRunnerUp(slotRunnerUp) {
   return `<details class="slot-runner-up"><summary>2위 후보 · ${escapeHtml(item.name)} (경쟁 ${count}개)</summary><div class="slot-runner-up-body">${icon(item)}<div class="comparison-list">${metricComparisonRows(slotRunnerUp.metric_comparisons)}</div></div></details>`;
 }
 
+function renderAntiHealReview(review) {
+  if (!review) return "";
+  const status = antiHealStatusLabels[review.status] || review.status;
+  const healing = `<small>상대 회복량 ${number(review.opponent_healing)}</small>`;
+  if (review.status === "BRANCH_HAS_HEALING_REDUCTION") {
+    const owned = (review.owned_item_ids || []).map((id) => escapeHtml((itemById(id) || { name: `Item ${id}` }).name)).join(", ");
+    return `<div class="anti-heal-review"><h4>치유 감소 검토</h4><p>${escapeHtml(status)} · ${owned}</p>${healing}</div>`;
+  }
+  if (review.status !== "SUBSTITUTION_EVALUATED") {
+    return `<div class="anti-heal-review"><h4>치유 감소 검토</h4><p>${escapeHtml(status)}</p>${healing}</div>`;
+  }
+  const item = itemById(review.candidate_item_id) || { name: `Item ${review.candidate_item_id}` };
+  const gate = review.passes_branch_gate ? "이 분기 조건 통과" : "이 분기 조건 미달";
+  return `<details class="anti-heal-review"><summary>치유 감소 검토 · ${review.replaced_slot + 1}번째 자리를 ${escapeHtml(item.name)}(으)로 교체 시 · ${gate}</summary><div class="slot-runner-up-body">${icon(item)}<div><p>${escapeHtml(status)}</p><div>${buildPath(review.candidate_item_ids)}</div><div class="comparison-list">${metricComparisonRows(review.metric_comparisons)}</div><small>값은 선택 빌드 − 교체 빌드입니다. 선택은 바뀌지 않으며, 교체 여부는 이 차이로 판단합니다.</small></div></div></details>`;
+}
+
 function renderExplanation(branch) {
   const explanation = branch.explanation;
   if (!explanation) return "";
@@ -333,7 +357,7 @@ function renderExplanation(branch) {
   const reference = explanation.comparison_item_ids?.length
     ? `<div class="comparison-build"><span>비교안</span><div>${buildPath(explanation.comparison_item_ids)}</div></div>`
     : "";
-  return `<details class="explanation"><summary>왜 이 빌드인가?</summary><div class="explanation-body"><ul class="reason-list">${reasons}</ul><div class="constraint-list">${constraints}</div><h4>아이템별 역할</h4><div class="item-reasons">${contributions}</div>${reference}${comparisons ? `<div class="comparison-list">${comparisons}</div>` : ""}<code>${escapeHtml(explanation.policy_id)}</code></div></details>`;
+  return `<details class="explanation"><summary>왜 이 빌드인가?</summary><div class="explanation-body"><ul class="reason-list">${reasons}</ul><div class="constraint-list">${constraints}</div><h4>아이템별 역할</h4><div class="item-reasons">${contributions}</div>${renderAntiHealReview(explanation.anti_heal_review)}${reference}${comparisons ? `<div class="comparison-list">${comparisons}</div>` : ""}<code>${escapeHtml(explanation.policy_id)}</code></div></details>`;
 }
 
 function renderRecommendation(data) {

@@ -107,5 +107,5 @@ def test_nautilus_role_reversal_and_item_policy_are_honest() -> None:
     assert "NAUTILUS_W_REQUIRES_SHIELD_TO_PERSIST_FOR_ATTACK_DOT" in plan.blockers
     assert (
         cog.item_candidate_blocker({"id": 8, "stats": {"MANA": {}, "OMNIVAMP": {}}})
-        == "NAUTILUS_ITEM_STAT_NOT_MODELED:8:MANA,OMNIVAMP"
+        == "NAUTILUS_ITEM_STAT_NOT_MODELED:8:MANA"
     )

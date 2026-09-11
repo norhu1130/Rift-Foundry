@@ -14,7 +14,7 @@ from lol_build.cogs.base import (
     ParticipantContext,
     ReactionPlan,
 )
-from lol_build.cogs.mechanics import action, crowd_control, damage, healing
+from lol_build.cogs.mechanics import action, crowd_control, damage
 from lol_build.core.combat import (
     DamageType,
     ResistanceModifiers,
@@ -112,10 +112,8 @@ class WarwickCog(ChampionCog):
             "ABILITY_HASTE",
             "CRITICAL_STRIKE_CHANCE",
             "HEAL_SHIELD_POWER",
-            "LIFESTEAL",
             "MANA",
             "MANA_REGEN",
-            "OMNIVAMP",
         } & stats.keys()
         if unsupported:
             names = ",".join(sorted(unsupported))
@@ -165,7 +163,7 @@ class WarwickCog(ChampionCog):
         return tuple(events)
 
     def _ultimate_events(self, context: ParticipantContext) -> tuple[ActionEvent, ...]:
-        """Create three Infinite Duress hits and precomputed healing.
+        """Create three Infinite Duress hits that heal for their own damage.
 
         :param context: Role-bound snapshots supplying damage and mitigation.
         :return: Three ability-channel events across the 1.5-second channel.
@@ -175,16 +173,22 @@ class WarwickCog(ChampionCog):
         spell_damage = (
             Decimal(350) + Decimal("1.67") * context.snapshot.bonus_attack_damage
         ) / Decimal(3)
-        heal_per_hit = self._post_mitigation_magic(
-            context,
-            spell_damage + passive_damage,
-        )
         events: list[ActionEvent] = []
         for index, at_ms in enumerate((300, 800, 1300), start=1):
             outputs = [
-                damage(context.opponent_entity, spell_damage, DamageType.MAGIC),
-                damage(context.opponent_entity, passive_damage, DamageType.MAGIC),
-                healing(context.self_entity, heal_per_hit),
+                # Infinite Duress heals for 100% of the damage it deals.
+                damage(
+                    context.opponent_entity,
+                    spell_damage,
+                    DamageType.MAGIC,
+                    source_heal_ratio=Decimal(1),
+                ),
+                damage(
+                    context.opponent_entity,
+                    passive_damage,
+                    DamageType.MAGIC,
+                    source_heal_ratio=Decimal(1),
+                ),
             ]
             if index == 1:
                 outputs.append(
@@ -219,7 +223,6 @@ class WarwickCog(ChampionCog):
             + context.snapshot.ability_power
             + Decimal("0.10") * context.opponent_snapshot.max_hp
         )
-        q_heal = Decimal("0.75") * self._post_mitigation_magic(context, q_damage)
         fixed_events = (
             action(
                 "WARWICK_W_BLOOD_HUNT_ACTIVE",
@@ -246,9 +249,19 @@ class WarwickCog(ChampionCog):
                 source=context.self_entity,
                 channel=ActionChannel.ABILITY,
                 outputs=(
-                    damage(context.opponent_entity, q_damage, DamageType.MAGIC),
-                    damage(context.opponent_entity, passive_damage, DamageType.MAGIC),
-                    healing(context.self_entity, q_heal),
+                    # Rank-five LifestealPercent: the bite heals 75% of its damage.
+                    damage(
+                        context.opponent_entity,
+                        q_damage,
+                        DamageType.MAGIC,
+                        source_heal_ratio=Decimal("0.75"),
+                    ),
+                    damage(
+                        context.opponent_entity,
+                        passive_damage,
+                        DamageType.MAGIC,
+                        source_heal_ratio=Decimal("0.75"),
+                    ),
                 ),
             ),
             action(
@@ -282,7 +295,6 @@ class WarwickCog(ChampionCog):
                 "WARWICK_W_TARGET_HEALTH_THRESHOLDS_NOT_MODELED",
                 "WARWICK_W_CHAMPION_DAMAGE_MOVEMENT_BREAK_NOT_MODELED",
                 "WARWICK_Q_HOLD_FOLLOW_GEOMETRY_NOT_MODELED",
-                "WARWICK_Q_R_HEAL_PRECOMPUTED_BEFORE_RUNTIME_TARGET_MODIFIERS",
                 "WARWICK_R_COLLISION_AND_MOVE_SPEED_RANGE_NOT_MODELED",
                 "WARWICK_R_CHANNEL_INTERRUPTION_PARTIALLY_MODELED",
                 "WARWICK_E_RECAST_TIMING_ASSUMED",

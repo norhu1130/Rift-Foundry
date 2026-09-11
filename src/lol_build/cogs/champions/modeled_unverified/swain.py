@@ -14,7 +14,7 @@ from lol_build.cogs.base import (
     ParticipantContext,
     ReactionPlan,
 )
-from lol_build.cogs.mechanics import action, crowd_control, damage
+from lol_build.cogs.mechanics import action, crowd_control, damage, healing
 from lol_build.core.combat import DamageType
 from lol_build.core.timeline import ActionChannel, ActionEvent, StatModifierOutput
 
@@ -24,10 +24,12 @@ class SwainCog(ChampionCog):
 
     Death's Hand lands its single-bolt hit, Vision of Empire strikes after
     its long-range cast delay, and Nevermove's pull lands its root and
-    secondary damage. Demonic Ascension is applied as three half-second
-    drain ticks rather than a full channel with its Demonflare recast, since
-    the recast depends on a separate Demon Power resource this fixture does
-    not track. Q's extra-bolt bonus at maximum range is excluded.
+    secondary damage. Demonic Ascension drains every ``TimeBetweenTicks``
+    (0.5 s) at half its per-second ``DamagePerSecond`` and ``HealingCalc``
+    rates, for the ``DemonPowerMax / DemonPowerDegen`` (5 s) it lasts before
+    Demon Power runs dry. Refilling Demon Power from champion hits and the
+    Demonflare recast are excluded. Q's extra-bolt bonus at maximum range is
+    excluded.
     """
 
     maturity = CogMaturity.MODELED_UNVERIFIED
@@ -46,16 +48,22 @@ class SwainCog(ChampionCog):
     _W_SLOW_MS = 1500
     _R_AT_MS = 2900
     _R_TICK_MS = 500
-    _R_TICK_COUNT = 3
+    _R_TICK_COUNT = 10
 
     def _r_events(self, context: ParticipantContext) -> tuple[ActionEvent, ...]:
-        """Schedule Demonic Ascension's half-second drain ticks.
+        """Schedule Demonic Ascension's half-second drain-and-heal ticks.
 
         :param context: Role-bound Swain and opponent snapshots.
         :return: Evenly spaced drain-tick events.
         """
         base = self._sequence_base(context) + 300
-        tick = Decimal(25) + Decimal("0.04") * context.snapshot.ability_power
+        per_tick = Decimal(self._R_TICK_MS) / Decimal(1000)
+        tick = (Decimal(25) + Decimal("0.04") * context.snapshot.ability_power) * per_tick
+        heal = (
+            Decimal(30)
+            + Decimal("0.05") * context.snapshot.ability_power
+            + Decimal("0.015") * context.snapshot.bonus_health
+        ) * per_tick
         events: list[ActionEvent] = []
         for index in range(self._R_TICK_COUNT):
             at_ms = self._R_AT_MS + self._R_TICK_MS * index
@@ -68,7 +76,10 @@ class SwainCog(ChampionCog):
                     sequence=base + index,
                     source=context.self_entity,
                     channel=ActionChannel.ABILITY,
-                    outputs=(damage(context.opponent_entity, tick, DamageType.MAGIC),),
+                    outputs=(
+                        damage(context.opponent_entity, tick, DamageType.MAGIC),
+                        healing(context.self_entity, heal),
+                    ),
                 )
             )
         return tuple(events)
@@ -132,7 +143,9 @@ class SwainCog(ChampionCog):
             blockers=(
                 *level_blockers,
                 *self.verification_blockers(),
-                "SWAIN_R_DEMONFLARE_AND_DEMON_POWER_NOT_MODELED",
+                "SWAIN_R_DEMONFLARE_NOT_MODELED",
+                "SWAIN_R_DURATION_ASSUMES_NO_DEMON_POWER_REFILL",
+                "SWAIN_R_HEAL_HEALTH_STAT_READ_AS_BONUS_HEALTH",
                 "SWAIN_Q_MAX_RANGE_EXTRA_BOLT_NOT_MODELED",
                 "SWAIN_PASSIVE_RAVENOUS_FLOCK_NOT_MODELED",
                 "SWAIN_RESOURCE_COSTS_NOT_EVALUATED",

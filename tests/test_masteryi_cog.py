@@ -6,7 +6,7 @@ from pathlib import Path
 from lol_build.cogs import CogMaturity, ControlType, ParticipantContext
 from lol_build.cogs.base import DUEL_CAPABILITIES
 from lol_build.cogs.registry import create_default_registry
-from lol_build.core.timeline import DamageOutput, EntityId, HealOutput
+from lol_build.core.timeline import DamageOutput, EntityId, MissingHealthHealOutput
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -44,8 +44,14 @@ def test_master_yi_metadata_attacks_and_meditate_are_complete() -> None:
     assert plan == cog.build_action_plan(_context())
     assert any("DOUBLE_STRIKE" in event.id for event in plan.events)
     assert len([event for event in plan.events if "W_MEDITATE_TICK" in event.id]) == 2
+    tick = (Decimal(120) + _context().snapshot.ability_power) / Decimal(8)
     assert all(
-        any(isinstance(output, HealOutput) for output in event.outputs)
+        event.outputs
+        == (
+            MissingHealthHealOutput(
+                EntityId.ACTOR, tick / _context().snapshot.max_hp, base_amount=tick
+            ),
+        )
         for event in plan.events
         if "W_MEDITATE_TICK" in event.id
     )
@@ -91,5 +97,5 @@ def test_master_yi_role_reversal_sustain_and_item_policy_are_honest() -> None:
     assert blockers == ("MASTER_YI_W_REQUIRES_MANA_AND_MISSING_HEALTH_STATE",)
     assert (
         cog.item_candidate_blocker({"id": 2, "stats": {"MANA": {}, "OMNIVAMP": {}}})
-        == "MASTER_YI_ITEM_STAT_NOT_MODELED:2:MANA,OMNIVAMP"
+        == "MASTER_YI_ITEM_STAT_NOT_MODELED:2:MANA"
     )

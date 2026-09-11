@@ -102,5 +102,5 @@ def test_morgana_role_reversal_sustain_and_item_policy_are_honest() -> None:
     assert blockers == ("MORGANA_PASSIVE_REQUIRES_POST_MITIGATION_CHAMPION_DAMAGE",)
     assert (
         cog.item_candidate_blocker({"id": 5, "stats": {"MANA": {}, "OMNIVAMP": {}}})
-        == "MORGANA_ITEM_STAT_NOT_MODELED:5:MANA,OMNIVAMP"
+        == "MORGANA_ITEM_STAT_NOT_MODELED:5:MANA"
     )

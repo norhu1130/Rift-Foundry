@@ -14,7 +14,7 @@ from lol_build.cogs.base import (
     ParticipantContext,
     ReactionPlan,
 )
-from lol_build.cogs.mechanics import action, crowd_control, damage, healing
+from lol_build.cogs.mechanics import action, crowd_control, damage
 from lol_build.core.combat import (
     DamageType,
     ResistanceModifiers,
@@ -125,10 +125,8 @@ class FiddlesticksCog(ChampionCog):
         unsupported = {
             "CRITICAL_STRIKE_CHANCE",
             "HEAL_SHIELD_POWER",
-            "LIFESTEAL",
             "MANA",
             "MANA_REGEN",
-            "OMNIVAMP",
         } & stats.keys()
         if unsupported:
             names = ",".join(sorted(unsupported))
@@ -267,16 +265,15 @@ class FiddlesticksCog(ChampionCog):
 
         Eight ordinary ticks use the locked four-ticks-per-second cadence. The
         final event also applies the rank-five missing-health damage primitive.
-        Healing from ordinary ticks is based on their precomputed
-        post-mitigation damage; final missing-health healing cannot yet be
-        causally linked by the common event contract.
+        Ordinary ticks heal for rank-five ``VampPercentage`` (55%) of the damage
+        they deal; final missing-health healing cannot yet be causally linked
+        because missing-health damage outputs carry no heal ratio.
 
         :param context: Role-bound snapshots supplying AP, MR, and penetration.
         :return: Channel marker and eight drain tick events.
         """
         sequence = self._sequence_base(context) + 200
         tick_damage = (Decimal(180) + Decimal("0.45") * context.snapshot.ability_power) / Decimal(4)
-        tick_heal = Decimal("0.55") * self._post_mitigation_magic(context, tick_damage)
         events = [
             action(
                 "FIDDLESTICKS_W_BOUNTIFUL_HARVEST_START",
@@ -295,8 +292,12 @@ class FiddlesticksCog(ChampionCog):
         ]
         for tick_index in range(1, 9):
             outputs = [
-                damage(context.opponent_entity, tick_damage, DamageType.MAGIC),
-                healing(context.self_entity, tick_heal),
+                damage(
+                    context.opponent_entity,
+                    tick_damage,
+                    DamageType.MAGIC,
+                    source_heal_ratio=Decimal("0.55"),
+                ),
             ]
             if tick_index == 8:
                 outputs.append(
@@ -378,7 +379,6 @@ class FiddlesticksCog(ChampionCog):
                 "FIDDLESTICKS_W_FULL_CHANNEL_AND_TARGET_STAY_ASSUMED",
                 "FIDDLESTICKS_W_CHANNEL_CANCELLATION_CAUSALITY_NOT_MODELED",
                 "FIDDLESTICKS_W_FINAL_MISSING_HEALTH_HEAL_NOT_CAUSALLY_MODELED",
-                "FIDDLESTICKS_W_PRECOMPUTED_HEAL_IGNORES_RUNTIME_DAMAGE_MODIFIERS",
                 "FIDDLESTICKS_W_SUCCESSFUL_CHANNEL_COOLDOWN_REFUND_NOT_SCHEDULED",
                 "FIDDLESTICKS_MULTI_TARGET_DAMAGE_AND_HEALING_NOT_MODELED",
                 "FIDDLESTICKS_CAST_ATTACK_AND_PROJECTILE_TIMING_UNVERIFIED",

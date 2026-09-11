@@ -142,5 +142,5 @@ def test_irelia_role_reversal_and_item_policy_remain_honest() -> None:
     )
     assert (
         cog.item_candidate_blocker({"id": 2, "stats": {"MANA": {}, "LIFESTEAL": {}}})
-        == "IRELIA_ITEM_STAT_NOT_MODELED:2:LIFESTEAL,MANA"
+        == "IRELIA_ITEM_STAT_NOT_MODELED:2:MANA"
     )

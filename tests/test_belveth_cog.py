@@ -10,7 +10,7 @@ from lol_build.cogs.base import DUEL_CAPABILITIES
 from lol_build.cogs.champions.wip.belveth import BelvethCog
 from lol_build.cogs.champions.wip.teemo import TeemoCog
 from lol_build.core.combat import DamageType
-from lol_build.core.timeline import ActionChannel, EntityId, HealOutput
+from lol_build.core.timeline import ActionChannel, EntityId
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -115,7 +115,9 @@ def test_belveth_rotation_is_deterministic_and_anchors_locked_formulas() -> None
     assert q.outputs[0].amount == Decimal(20) + Decimal("1.05") * context.snapshot.attack_damage
     assert w.outputs[0].amount == Decimal(230)
     assert e.outputs[0].amount == Decimal(18) + Decimal("0.12") * context.snapshot.attack_damage
-    assert isinstance(e.outputs[1], HealOutput)
+    # Rank-five BonusLifeSteal heals from each strike's resolved damage.
+    assert e.outputs[0].source_heal_ratio == Decimal("0.40")
+    assert len(e.outputs) == 1
     assert second_attack.outputs[1].damage_type is DamageType.TRUE
     assert second_attack.outputs[1].amount == Decimal(13)
     assert "BELVETH_R_CORAL_ACTIVE_AND_CURRENT_HP_EXECUTE_NOT_MODELED" in first.blockers
@@ -234,5 +236,5 @@ def test_belveth_item_policy_accepts_only_represented_stat_channels() -> None:
         belveth.item_candidate_blocker(
             {"id": 2, "stats": {"AP": {}, "CRITICAL_STRIKE_CHANCE": {}, "LIFESTEAL": {}}}
         )
-        == "BELVETH_ITEM_STAT_NOT_MODELED:2:AP,CRITICAL_STRIKE_CHANCE,LIFESTEAL"
+        == "BELVETH_ITEM_STAT_NOT_MODELED:2:AP,CRITICAL_STRIKE_CHANCE"
     )

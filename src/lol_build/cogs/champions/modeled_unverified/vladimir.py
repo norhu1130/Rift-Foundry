@@ -14,7 +14,7 @@ from lol_build.cogs.base import (
 )
 from lol_build.cogs.mechanics import action, damage, healing
 from lol_build.core.combat import DamageType
-from lol_build.core.timeline import ActionChannel, ActionEvent
+from lol_build.core.timeline import ActionChannel, ActionEvent, StatModifierOutput
 
 
 class VladimirCog(ChampionCog):
@@ -22,10 +22,11 @@ class VladimirCog(ChampionCog):
 
     Transfusion casts its base (non-empowered) hit and self-heal, Sanguine
     Pool deals its emerge damage, Tides of Blood resolves at its full-channel
-    maximum, and Hemoplague lands its area burst. Q's empowered second cast
-    within the buff window, Hemoplague's damage amplification debuff and
-    bonus lifesteal, and the health costs Vladimir pays for W and E are
-    excluded rather than guessed.
+    maximum, and Hemoplague infects the opponent for its locked ``Duration``
+    (4 s), raising the damage it takes by ``DamageAmp`` (10%), then detonates
+    and heals Vladimir for ``VampPercentFirstChamp`` (100%) of the damage it
+    deals. Q's empowered second cast within the buff window and the health
+    costs Vladimir pays for W and E are excluded rather than guessed.
     """
 
     maturity = CogMaturity.MODELED_UNVERIFIED
@@ -41,6 +42,7 @@ class VladimirCog(ChampionCog):
     _E_CHANNEL_MS = 1500
     _Q_AT_MS = 2600
     _R_AT_MS = 3200
+    _R_INFECTION_MS = 4000
 
     def build_action_plan(self, context: ParticipantContext) -> ActionPlan:
         """Build Vladimir's pool, channel, drain, and plague-burst rotation.
@@ -92,9 +94,34 @@ class VladimirCog(ChampionCog):
                 sequence=base + 3,
                 source=context.self_entity,
                 channel=ActionChannel.ABILITY,
-                outputs=(damage(context.opponent_entity, r_damage, DamageType.MAGIC),),
+                outputs=(
+                    StatModifierOutput(
+                        context.opponent_entity,
+                        "DAMAGE_TAKEN_INCREASE_PERCENT",
+                        Decimal("0.10"),
+                        self._R_INFECTION_MS,
+                    ),
+                ),
             ),
         ]
+        if context.duration_ms >= self._R_AT_MS + self._R_INFECTION_MS:
+            fixed.append(
+                action(
+                    "VLADIMIR_R_HEMOPLAGUE_DETONATION",
+                    at_ms=self._R_AT_MS + self._R_INFECTION_MS,
+                    sequence=base + 4,
+                    source=context.self_entity,
+                    channel=ActionChannel.ABILITY,
+                    outputs=(
+                        damage(
+                            context.opponent_entity,
+                            r_damage,
+                            DamageType.MAGIC,
+                            source_heal_ratio=Decimal(1),
+                        ),
+                    ),
+                )
+            )
         events = (*fixed, *self._basic_attack_events(context))
         level_blockers = (
             ()
@@ -108,7 +135,7 @@ class VladimirCog(ChampionCog):
                 *level_blockers,
                 *self.verification_blockers(),
                 "VLADIMIR_Q_EMPOWERED_SECOND_CAST_NOT_MODELED",
-                "VLADIMIR_R_DAMAGE_AMP_AND_LIFESTEAL_NOT_MODELED",
+                "VLADIMIR_R_ADDITIONAL_CHAMPION_VAMP_REQUIRES_MORE_TARGETS",
                 "VLADIMIR_HEALTH_COST_ABILITIES_NOT_EVALUATED",
                 "VLADIMIR_PASSIVE_CRIMSON_PACT_NOT_MODELED",
                 "VLADIMIR_RESOURCE_COSTS_NOT_EVALUATED",

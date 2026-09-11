@@ -180,5 +180,5 @@ def test_caitlyn_reaction_and_item_policy_preserve_model_boundaries() -> None:
     )
     assert (
         caitlyn.item_candidate_blocker({"id": 2, "stats": {"ABILITY_HASTE": {}, "LIFESTEAL": {}}})
-        == "CAITLYN_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,LIFESTEAL"
+        == "CAITLYN_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE"
     )

@@ -13,7 +13,13 @@ from lol_build.cogs.base import (
     ParticipantContext,
     ReactionPlan,
 )
-from lol_build.cogs.mechanics import action, crowd_control, damage, healing, shielding
+from lol_build.cogs.mechanics import (
+    action,
+    crowd_control,
+    damage,
+    missing_health_healing,
+    shielding,
+)
 from lol_build.core.combat import DamageType
 from lol_build.core.timeline import ActionChannel, ActionEvent
 
@@ -93,8 +99,9 @@ class VolibearCog(ChampionCog):
         """Reject item stats whose value this fixed rotation cannot represent.
 
         Ability haste cannot reschedule the fixed spell policy, mana is not
-        consumed, and critical strike, life steal, omnivamp, and heal/shield
-        power need output attribution absent from the current snapshot contract.
+        consumed, and critical strike and heal/shield power need output
+        attribution absent from the current snapshot contract. Life steal and
+        omnivamp are resolved by the shared timeline from each damage output.
 
         :param item: Normalized item candidate from the locked catalog.
         :return: Champion-scoped blocker code, or ``None`` when representable.
@@ -105,9 +112,7 @@ class VolibearCog(ChampionCog):
             "ABILITY_HASTE",
             "CRITICAL_STRIKE_CHANCE",
             "HEAL_SHIELD_POWER",
-            "LIFESTEAL",
             "MANA",
-            "OMNIVAMP",
         } & stats.keys()
         if unsupported:
             names = ",".join(sorted(unsupported))
@@ -165,9 +170,8 @@ class VolibearCog(ChampionCog):
     def build_action_plan(self, context: ParticipantContext) -> ActionPlan:
         """Build the locked Q5/W5/E1/R2 action and sustain sequence.
 
-        W2 restores its verified flat rank-five heal. Its additional missing-
-        health component cannot be evaluated by the fixed ``HealOutput`` type,
-        so that component remains excluded and explicitly blocked.
+        W2 restores its rank-five ``BaseHeal`` plus ``HealPercent`` (20%) of the
+        health missing when the bite resolves.
 
         :param context: Role-bound combat snapshots for Volibear and the opponent.
         :return: Deterministic damage, healing, and control events with blockers.
@@ -247,7 +251,9 @@ class VolibearCog(ChampionCog):
                 channel=ActionChannel.ABILITY,
                 outputs=(
                     damage(context.opponent_entity, w2_damage, DamageType.PHYSICAL),
-                    healing(context.self_entity, Decimal(80)),
+                    missing_health_healing(
+                        context.self_entity, Decimal("0.20"), base_amount=Decimal(80)
+                    ),
                 ),
             ),
         )
@@ -272,7 +278,6 @@ class VolibearCog(ChampionCog):
                 "VOLIBEAR_R_BONUS_HEALTH_NOT_EVALUATED",
                 "VOLIBEAR_E_HIT_AND_SELF_SHIELD_ASSUMED",
                 "VOLIBEAR_W_MARK_TARGET_CONTINUITY_ASSUMED",
-                "VOLIBEAR_W2_MISSING_HEALTH_HEAL_NOT_EVALUATED",
                 "VOLIBEAR_W_ON_HIT_ITEM_EFFECTS_NOT_EVALUATED",
                 "VOLIBEAR_PASSIVE_STACK_TIMING_UNVERIFIED",
                 "VOLIBEAR_RESOURCE_COSTS_NOT_EVALUATED",

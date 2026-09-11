@@ -6,7 +6,7 @@ from pathlib import Path
 from lol_build.cogs import CogMaturity, ControlType, ParticipantContext
 from lol_build.cogs.base import DUEL_CAPABILITIES
 from lol_build.cogs.registry import create_default_registry
-from lol_build.core.timeline import DamageOutput, EntityId
+from lol_build.core.timeline import DamageOutput, EntityId, HealOutput
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -42,6 +42,8 @@ def test_sona_metadata_hymn_and_crescendo_stun_are_explicit() -> None:
     assert cog.capabilities == DUEL_CAPABILITIES
     assert all((ROOT / ref).is_file() for ref in cog.evidence_refs)
     assert plan == cog.build_action_plan(_context())
+    heal = next(event for event in plan.events if event.id == "SONA_W_ARIA_OF_PERSEVERANCE")
+    assert heal.outputs == (HealOutput(EntityId.ACTOR, Decimal(60)),)
     for event in plan.events:
         for output in event.outputs:
             if isinstance(output, DamageOutput) and event.channel.value == "ABILITY":

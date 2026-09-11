@@ -224,5 +224,5 @@ def test_anivia_item_policy_accepts_haste_and_blocks_unrepresented_stats() -> No
     )
     assert (
         anivia.item_candidate_blocker({"id": 2, "stats": {"MANA": {}, "OMNIVAMP": {}}})
-        == "ANIVIA_ITEM_STAT_NOT_MODELED:2:MANA,OMNIVAMP"
+        == "ANIVIA_ITEM_STAT_NOT_MODELED:2:MANA"
     )

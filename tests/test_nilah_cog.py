@@ -55,7 +55,10 @@ def test_nilah_metadata_rotation_and_evidence_are_explicit() -> None:
     assert plan == cog.build_action_plan(_context())
     assert len([event for event in plan.events if "SLIPSTREAM_CHARGE" in event.id]) == 2
     assert len([event for event in plan.events if "APOTHEOSIS_SPIN" in event.id]) == 4
-    assert "NILAH_R_POST_MITIGATION_HEAL_AND_OVERHEAL_SHIELD_NOT_MODELED" in plan.blockers
+    assert "NILAH_R_AND_Q_OVERHEAL_SHIELD_NOT_MODELED" in plan.blockers
+    spins = [event for event in plan.events if "APOTHEOSIS_SPIN" in event.id]
+    # ChampHealingPercent: 20% plus 10% of (zero, unitemized) crit chance.
+    assert all(spin.outputs[0].source_heal_ratio == Decimal("0.20") for spin in spins)
 
 
 def test_nilah_critical_scaling_and_output_penetration_are_connected() -> None:
@@ -107,5 +110,5 @@ def test_nilah_role_reversal_reactions_engagement_and_policy_are_honest() -> Non
     assert blockers == ("NILAH_Q_SUSTAIN_REQUIRES_CHAMPION_DAMAGE_AND_CURRENT_HEALTH",)
     assert (
         cog.item_candidate_blocker({"id": 10, "stats": {"LIFESTEAL": {}, "MANA": {}}})
-        == "NILAH_ITEM_STAT_NOT_MODELED:10:LIFESTEAL,MANA"
+        == "NILAH_ITEM_STAT_NOT_MODELED:10:MANA"
     )

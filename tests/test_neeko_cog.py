@@ -105,5 +105,5 @@ def test_neeko_role_reversal_and_item_policy_are_honest() -> None:
     assert "NEEKO_W_STEALTH_AND_CLONE_TARGET_DECEPTION_NOT_MODELED" in plan.blockers
     assert (
         cog.item_candidate_blocker({"id": 9, "stats": {"MANA": {}, "OMNIVAMP": {}}})
-        == "NEEKO_ITEM_STAT_NOT_MODELED:9:MANA,OMNIVAMP"
+        == "NEEKO_ITEM_STAT_NOT_MODELED:9:MANA"
     )

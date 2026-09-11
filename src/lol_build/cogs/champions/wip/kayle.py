@@ -12,7 +12,7 @@ from lol_build.cogs.base import (
     ParticipantContext,
     ReactionPlan,
 )
-from lol_build.cogs.mechanics import action, damage, movement_speed
+from lol_build.cogs.mechanics import action, damage, healing, movement_speed
 from lol_build.core.combat import DamageType
 from lol_build.core.timeline import ActionChannel, ActionEvent, StatusOutput
 
@@ -54,10 +54,8 @@ class KayleCog(ChampionCog):
         assert isinstance(stats, dict)
         unsupported = {
             "HEAL_SHIELD_POWER",
-            "LIFESTEAL",
             "MANA",
             "MANA_REGEN",
-            "OMNIVAMP",
         } & stats.keys()
         return (
             f"KAYLE_ITEM_STAT_NOT_MODELED:{item['id']}:{','.join(sorted(unsupported))}"
@@ -125,7 +123,12 @@ class KayleCog(ChampionCog):
                 sequence=base + 1,
                 source=context.self_entity,
                 channel=ActionChannel.ABILITY,
-                outputs=(movement_speed(context.self_entity, Decimal("40"), duration_ms=2000),),
+                outputs=(
+                    movement_speed(context.self_entity, Decimal("40"), duration_ms=2000),
+                    # Rank-one TotalHeal: Heal plus 25% ability power.
+                    healing(context.self_entity, Decimal(55) + Decimal("0.25") * ap),
+                ),
+                requires_living_opponent=False,
             ),
             action(
                 "KAYLE_E_STARFIRE_SPELLBLADE",
@@ -175,7 +178,7 @@ class KayleCog(ChampionCog):
                 "KAYLE_LEVEL13_Q5_W1_E5_R2_POLICY_UNVERIFIED",
                 "KAYLE_PASSIVE_STACK_ENTRY_FIXED_TO_EXALTED",
                 "KAYLE_Q_ARMOR_MAGIC_RESISTANCE_SHRED_NOT_MODELED",
-                "KAYLE_W_HEAL_AND_ALLY_TARGET_NOT_MODELED",
+                "KAYLE_W_ALLY_TARGET_REQUIRES_ALLIES",
                 "KAYLE_E_MISSING_HEALTH_DAMAGE_AND_ATTACK_RESET_NOT_MODELED",
                 "KAYLE_R_SELF_TARGET_AND_LANDING_DAMAGE_ASSUMED",
                 "KAYLE_R_ALLY_TARGET_SELECTION_NOT_MODELED",

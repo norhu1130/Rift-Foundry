@@ -14,7 +14,7 @@ from lol_build.cogs.base import (
     ParticipantContext,
     ReactionPlan,
 )
-from lol_build.cogs.mechanics import action, crowd_control, damage
+from lol_build.cogs.mechanics import action, crowd_control, damage, healing
 from lol_build.core.combat import DamageType
 from lol_build.core.timeline import ActionChannel, ActionEvent
 
@@ -23,9 +23,10 @@ class SonaCog(ChampionCog):
     """Model Sona's Q5/R2/W3/E3 level-thirteen duel fixture.
 
     Hymn of Valor lands its cast damage, and Crescendo lands its damage and
-    stun. Aria of Perseverance and Song of Celerity heal, shield, and speed
-    Sona and her allies with no damage of their own, so this fixture
-    correctly contributes nothing from them. Power Chord's rotating
+    stun. Aria of Perseverance heals Sona for its locked rank-three
+    ``TotalHeal`` (``BaseHeal`` plus ``HealRatio`` of ability power); its
+    second heal target and the aura shield only reach allies, which a duel
+    has none of. Song of Celerity is pure movement utility. Power Chord's rotating
     empowered-attack passive is excluded rather than guessed, since which
     variant is active depends on which ability was cast most recently.
     """
@@ -41,6 +42,7 @@ class SonaCog(ChampionCog):
     _Q_AT_MS = 0
     _R_AT_MS = 900
     _R_STUN_MS = 1500
+    _W_AT_MS = 1800
 
     def build_action_plan(self, context: ParticipantContext) -> ActionPlan:
         """Build Sona's aura-hymn and crescendo-stun rotation.
@@ -51,6 +53,7 @@ class SonaCog(ChampionCog):
         base = self._sequence_base(context)
         q_damage = Decimal(190) + Decimal("0.4") * context.snapshot.ability_power
         r_damage = Decimal(250) + Decimal("0.5") * context.snapshot.ability_power
+        w_heal = Decimal(60) + Decimal("0.30") * context.snapshot.ability_power
         fixed = [
             action(
                 "SONA_Q_HYMN_OF_VALOR",
@@ -71,6 +74,15 @@ class SonaCog(ChampionCog):
                     crowd_control(context.opponent_entity, "STUN", duration_ms=self._R_STUN_MS),
                 ),
             ),
+            action(
+                "SONA_W_ARIA_OF_PERSEVERANCE",
+                at_ms=self._W_AT_MS,
+                sequence=base + 2,
+                source=context.self_entity,
+                channel=ActionChannel.ABILITY,
+                outputs=(healing(context.self_entity, w_heal),),
+                requires_living_opponent=False,
+            ),
         ]
         events = (*fixed, *self._basic_attack_events(context))
         level_blockers = (
@@ -85,6 +97,7 @@ class SonaCog(ChampionCog):
                 *level_blockers,
                 *self.verification_blockers(),
                 "SONA_PASSIVE_POWER_CHORD_NOT_MODELED",
+                "SONA_W_ALLY_HEAL_AND_AURA_SHIELD_REQUIRE_ALLIES",
                 "SONA_Q_ON_HIT_AURA_NOT_MODELED",
                 "SONA_RESOURCE_COSTS_NOT_EVALUATED",
                 "SONA_ROTATION_AND_HIT_TIMING_UNVERIFIED",

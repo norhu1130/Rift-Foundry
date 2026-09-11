@@ -15,7 +15,7 @@ from lol_build.cogs.base import (
     ParticipantContext,
     ReactionPlan,
 )
-from lol_build.cogs.mechanics import action, crowd_control, damage, healing
+from lol_build.cogs.mechanics import action, crowd_control, damage, missing_health_healing
 from lol_build.core.combat import DamageType
 from lol_build.core.timeline import ActionChannel, ActionEvent, DamageModifierWindow
 
@@ -161,10 +161,8 @@ class LissandraCog(ChampionCog):
         unsupported = {
             "CRITICAL_STRIKE_CHANCE",
             "HEAL_SHIELD_POWER",
-            "LIFESTEAL",
             "MANA",
             "MANA_REGEN",
-            "OMNIVAMP",
         } & stats.keys()
         if unsupported:
             names = ",".join(sorted(unsupported))
@@ -221,7 +219,13 @@ class LissandraCog(ChampionCog):
                         Decimal(250) + Decimal("0.75") * ap,
                         DamageType.MAGIC,
                     ),
-                    healing(context.self_entity, Decimal(150) + Decimal("0.55") * ap),
+                    # HealAmount grows by up to 100% (SelfCastMissingHPRatio) with
+                    # missing health: h * (1 + missing / max).
+                    missing_health_healing(
+                        context.self_entity,
+                        (Decimal(150) + Decimal("0.55") * ap) / context.snapshot.max_hp,
+                        base_amount=Decimal(150) + Decimal("0.55") * ap,
+                    ),
                     crowd_control(
                         context.opponent_entity,
                         "SLOW",
@@ -244,8 +248,7 @@ class LissandraCog(ChampionCog):
                 *level_blockers,
                 "LISSANDRA_LEVEL13_Q5_W5_E1_R2_ORDER_UNVERIFIED",
                 "LISSANDRA_E_HITS_TARGET_BEFORE_RECAST_ASSUMED",
-                "LISSANDRA_R_SELF_CAST_MINIMUM_HEAL_ONLY",
-                "LISSANDRA_R_MISSING_HEALTH_HEAL_AMPLIFICATION_NOT_MODELED",
+                "LISSANDRA_R_MISSING_HEALTH_AMPLIFICATION_READ_AS_LINEAR",
                 "LISSANDRA_R_AURA_HITS_NEARBY_TARGET_ONCE_ASSUMED",
                 "LISSANDRA_ENEMY_CAST_R_VARIANT_OUTSIDE_SELECTED_FIXTURE",
                 "LISSANDRA_PASSIVE_THRALL_REQUIRES_TAKEDOWN_AND_IS_NOT_MODELED",

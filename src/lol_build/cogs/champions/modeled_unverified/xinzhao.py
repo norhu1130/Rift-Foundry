@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from decimal import Decimal
 
 from lol_build.cogs.base import (
@@ -14,7 +15,7 @@ from lol_build.cogs.base import (
     ParticipantContext,
     ReactionPlan,
 )
-from lol_build.cogs.mechanics import action, crowd_control, damage
+from lol_build.cogs.mechanics import action, crowd_control, damage, healing
 from lol_build.core.combat import DamageType
 from lol_build.core.timeline import (
     ActionChannel,
@@ -36,6 +37,12 @@ class XinZhaoCog(ChampionCog):
     projectile-source distinctions this engine does not track, and one
     unresolved secondary coefficient on the flat damage term is left out
     rather than presented as a verified number.
+
+    Determination makes every third attack — the empowered Three Talon Strikes
+    included — deal bonus physical damage and heal Xin Zhao, using the locked
+    ``XinZhaoP`` level breakpoints: ``TotalDamage`` (45% AD plus 15% AP at
+    level 13) and ``TotalHealing`` (``HealHPRatio`` 5% of maximum health plus
+    ``HealAPRatio`` 70% of ability power at level 13).
     """
 
     maturity = CogMaturity.MODELED_UNVERIFIED
@@ -91,6 +98,77 @@ class XinZhaoCog(ChampionCog):
                 )
             )
         return tuple(events)
+
+    @staticmethod
+    def _step_value(
+        level: int, level1_value: Decimal, steps: tuple[tuple[int, Decimal], ...]
+    ) -> Decimal:
+        """Evaluate a locked ``mAdditionalBonusAtThisLevel`` breakpoint formula.
+
+        Each breakpoint adds its bonus once, from its level onward — unlike the
+        per-level ``mBonusPerLevelAtAndAfter`` form handled by the base Cog.
+
+        :param level: Champion level to evaluate.
+        :param level1_value: Locked value at level one.
+        :param steps: ``(level, one-time bonus)`` pairs.
+        :return: Formula value at ``level``.
+        """
+        return level1_value + sum(
+            (bonus for at_level, bonus in steps if level >= at_level), Decimal(0)
+        )
+
+    def _with_determination(
+        self, context: ParticipantContext, events: tuple[ActionEvent, ...]
+    ) -> tuple[ActionEvent, ...]:
+        """Attach Determination's bonus damage and heal to every third attack.
+
+        :param context: Role-bound Xin Zhao and opponent snapshots.
+        :param events: Scheduled rotation events.
+        :return: The same events, every third basic attack carrying the passive.
+        """
+        level = context.snapshot.level
+        damage_ratio = self._step_value(
+            level,
+            Decimal("0.15"),
+            ((6, Decimal("0.15")), (11, Decimal("0.15")), (16, Decimal("0.15"))),
+        )
+        damage_ap_ratio = self._step_value(
+            level,
+            Decimal("0.05"),
+            ((6, Decimal("0.05")), (11, Decimal("0.05")), (16, Decimal("0.05"))),
+        )
+        heal_health_ratio = self._step_value(
+            level, Decimal("0.02"), ((6, Decimal("0.015")), (11, Decimal("0.015")))
+        )
+        heal_ap_ratio = self._step_value(
+            level, Decimal("0.4"), ((6, Decimal("0.1")), (11, Decimal("0.2")))
+        )
+        bonus = (
+            damage_ratio * context.snapshot.attack_damage
+            + damage_ap_ratio * context.snapshot.ability_power
+        )
+        heal = (
+            heal_health_ratio * context.snapshot.max_hp
+            + heal_ap_ratio * context.snapshot.ability_power
+        )
+        attacks = sorted(
+            (event for event in events if event.channel is ActionChannel.BASIC_ATTACK),
+            key=lambda event: (event.at_ms, event.sequence),
+        )
+        empowered = {event.id for index, event in enumerate(attacks) if index % 3 == 2}
+        return tuple(
+            replace(
+                event,
+                outputs=(
+                    *event.outputs,
+                    damage(context.opponent_entity, bonus, DamageType.PHYSICAL),
+                    healing(context.self_entity, heal),
+                ),
+            )
+            if event.id in empowered
+            else event
+            for event in events
+        )
 
     def build_action_plan(self, context: ParticipantContext) -> ActionPlan:
         """Build Xin Zhao's empowered-attack, slash-thrust, and sweep rotation.
@@ -156,7 +234,9 @@ class XinZhaoCog(ChampionCog):
                 ),
             ),
         ]
-        events = (*self._q_events(context), *fixed, *self._basic_attack_events(context))
+        events = self._with_determination(
+            context, (*self._q_events(context), *fixed, *self._basic_attack_events(context))
+        )
         level_blockers = (
             ()
             if context.snapshot.level == 13

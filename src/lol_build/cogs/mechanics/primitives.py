@@ -14,6 +14,7 @@ from lol_build.core.timeline import (
     HealOutput,
     HealthCostOutput,
     MaxHealthModifierOutput,
+    MissingHealthHealOutput,
     ShieldOutput,
     StatModifierOutput,
     StatusOutput,
@@ -65,6 +66,7 @@ def damage(
     *,
     percent_resistance_penetration: Decimal = Decimal(0),
     flat_resistance_penetration: Decimal = Decimal(0),
+    source_heal_ratio: Decimal = Decimal(0),
 ) -> DamageOutput:
     """Create fixed raw damage without pre-applying target resistance.
 
@@ -73,16 +75,20 @@ def damage(
     :param damage_type: Resistance channel or true-damage classification.
     :param percent_resistance_penetration: Event-local resistance fraction ignored.
     :param flat_resistance_penetration: Event-local resistance amount ignored.
+    :param source_heal_ratio: Fraction of the dealt damage healed back to the source.
     :return: Atomic damage output for an action event.
     """
     if amount < 0:
         raise ValueError("damage amount cannot be negative")
+    if source_heal_ratio < 0:
+        raise ValueError("source heal ratio cannot be negative")
     return DamageOutput(
         recipient,
         amount,
         damage_type,
         percent_resistance_penetration,
         flat_resistance_penetration,
+        source_heal_ratio,
     )
 
 
@@ -96,6 +102,26 @@ def healing(recipient: EntityId, amount: Decimal) -> HealOutput:
     if amount < 0:
         raise ValueError("healing amount cannot be negative")
     return HealOutput(recipient, amount)
+
+
+def missing_health_healing(
+    recipient: EntityId,
+    missing_health_ratio: Decimal,
+    *,
+    base_amount: Decimal = Decimal(0),
+) -> MissingHealthHealOutput:
+    """Create a heal that scales with the recipient's missing health at resolution.
+
+    :param recipient: Participant whose current health should increase.
+    :param missing_health_ratio: Fraction of missing health restored, in ``[0, 1]``.
+    :param base_amount: Fixed healing added before the maximum-health cap.
+    :return: Atomic missing-health healing output for an action event.
+    """
+    if not Decimal(0) <= missing_health_ratio <= Decimal(1):
+        raise ValueError("missing-health heal ratio must be within [0, 1]")
+    if base_amount < 0:
+        raise ValueError("healing base amount cannot be negative")
+    return MissingHealthHealOutput(recipient, missing_health_ratio, base_amount)
 
 
 def health_cost(

@@ -6,7 +6,7 @@ from pathlib import Path
 from lol_build.cogs import CogMaturity, ControlType, ParticipantContext
 from lol_build.cogs.base import DUEL_CAPABILITIES
 from lol_build.cogs.registry import create_default_registry
-from lol_build.core.timeline import DamageOutput, EntityId
+from lol_build.core.timeline import DamageOutput, EntityId, HealOutput
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -33,8 +33,8 @@ def _context(
     )
 
 
-def test_swain_metadata_root_and_three_drain_ticks_are_explicit() -> None:
-    """Require evidence, the E root, and R's three drain ticks."""
+def test_swain_metadata_root_and_drain_ticks_are_explicit() -> None:
+    """Require evidence, the E root, and R's half-second drain-and-heal ticks."""
     cog = create_default_registry(ROOT).require_cog("Swain")
     plan = cog.build_action_plan(_context())
 
@@ -42,7 +42,15 @@ def test_swain_metadata_root_and_three_drain_ticks_are_explicit() -> None:
     assert cog.capabilities == DUEL_CAPABILITIES
     assert all((ROOT / ref).is_file() for ref in cog.evidence_refs)
     assert plan == cog.build_action_plan(_context())
-    assert len([e for e in plan.events if "R_DEMONIC_ASCENSION_TICK" in e.id]) == 3
+    ticks = [e for e in plan.events if "R_DEMONIC_ASCENSION_TICK" in e.id]
+    # Demon Power lasts DemonPowerMax / DemonPowerDegen = 5 s, ticking every 0.5 s;
+    # cast at 2.9 s, all ten ticks land inside the eight-second encounter.
+    assert len(ticks) == 10
+    assert all(isinstance(tick.outputs[1], HealOutput) for tick in ticks)
+    assert (
+        ticks[0].outputs[0].amount
+        == (Decimal(25) + Decimal("0.04") * _context().snapshot.ability_power) / 2
+    )
     for event in plan.events:
         for output in event.outputs:
             if isinstance(output, DamageOutput) and event.channel.value == "ABILITY":

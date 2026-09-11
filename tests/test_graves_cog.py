@@ -124,5 +124,5 @@ def test_graves_role_reversal_and_item_policy_are_explicit() -> None:
     )
     assert (
         graves.item_candidate_blocker({"id": 2, "stats": {"LIFESTEAL": {}, "MANA": {}}})
-        == "GRAVES_ITEM_STAT_NOT_MODELED:2:LIFESTEAL,MANA"
+        == "GRAVES_ITEM_STAT_NOT_MODELED:2:MANA"
     )

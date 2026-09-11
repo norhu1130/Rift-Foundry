@@ -63,9 +63,9 @@ class CassiopeiaCog(ChampionCog):
         """Reject boots and item channels absent from the fixed fixture.
 
         Cassiopeia cannot buy boots. Mana cannot constrain the current action
-        schedule, while heal amplification and vamp are not consumed by the
-        shared healing resolver. AP, haste, movement, chassis, penetration, AD,
-        and attack speed remain represented.
+        schedule, while heal and shield power is not consumed by the shared
+        healing resolver. AP, haste, movement, chassis, penetration, AD, attack
+        speed, life steal, and omnivamp remain represented.
 
         :param item: Normalized candidate from the locked item catalog.
         :return: Cassiopeia-scoped blocker, or ``None`` when represented.
@@ -78,10 +78,8 @@ class CassiopeiaCog(ChampionCog):
         unsupported = {
             "CRITICAL_STRIKE_CHANCE",
             "HEAL_SHIELD_POWER",
-            "LIFESTEAL",
             "MANA",
             "MANA_REGEN",
-            "OMNIVAMP",
         } & stats.keys()
         if unsupported:
             names = ",".join(sorted(unsupported))

@@ -10,13 +10,18 @@ from lol_build.cogs.base import (
     ParticipantContext,
     ReactionPlan,
 )
-from lol_build.cogs.mechanics import action, damage
+from lol_build.cogs.mechanics import action, damage, shielding
 from lol_build.core.combat import DamageType
-from lol_build.core.timeline import ActionChannel
+from lol_build.core.timeline import ActionChannel, StatModifierOutput
 
 
 class LeeSinCog(ChampionCog):
-    """Model Lee Sin's level-13 Q5/E5/R2 confirmed-hit combo."""
+    """Model Lee Sin's level-13 Q5/E5/R2/W1 confirmed-hit combo.
+
+    Safeguard is self-cast first for its rank-one ``ShieldAmount``, and Iron
+    Will then grants its rank-one ``LifestealAndSpellVamp`` (10%) for
+    ``LifestealAndSpellVampTime`` (4 s), covering the Q-Q-R combo.
+    """
 
     maturity = CogMaturity.MODELED_UNVERIFIED
     capabilities = DUEL_CAPABILITIES
@@ -53,10 +58,8 @@ class LeeSinCog(ChampionCog):
         u = {
             "CRITICAL_STRIKE_CHANCE",
             "HEAL_SHIELD_POWER",
-            "LIFESTEAL",
             "MANA",
             "MANA_REGEN",
-            "OMNIVAMP",
         } & s.keys()
         return f"LEESIN_ITEM_STAT_NOT_MODELED:{item['id']}:{','.join(sorted(u))}" if u else None
 
@@ -69,6 +72,33 @@ class LeeSinCog(ChampionCog):
         b = self._sequence_base(c)
         ad = c.snapshot.bonus_attack_damage
         ev = [
+            action(
+                "LEESIN_W_SAFEGUARD_SELF",
+                at_ms=0,
+                sequence=b + 3,
+                source=c.self_entity,
+                channel=ActionChannel.ABILITY,
+                outputs=(
+                    shielding(
+                        c.self_entity,
+                        Decimal(60) + Decimal("0.8") * c.snapshot.ability_power,
+                        duration_ms=2000,
+                    ),
+                ),
+                requires_living_opponent=False,
+            ),
+            action(
+                "LEESIN_W_IRON_WILL",
+                at_ms=50,
+                sequence=b + 4,
+                source=c.self_entity,
+                channel=ActionChannel.ABILITY,
+                outputs=(
+                    StatModifierOutput(c.self_entity, "LIFESTEAL", Decimal("0.10"), 4000),
+                    StatModifierOutput(c.self_entity, "ABILITY_VAMP", Decimal("0.10"), 4000),
+                ),
+                requires_living_opponent=False,
+            ),
             action(
                 "LEESIN_Q_SONIC_WAVE",
                 at_ms=100,
@@ -108,12 +138,13 @@ class LeeSinCog(ChampionCog):
         ]
         return ActionPlan(
             "leesin_q5_e5_r2_level13_combo_v1",
-            tuple(ev),
+            tuple(sorted(ev, key=lambda event: (event.at_ms, event.sequence))),
             (
                 "LEESIN_LEVEL13_RANK_POLICY_UNVERIFIED",
                 "LEESIN_Q_HIT_AND_RECAST_TIMING_UNVERIFIED",
                 "LEESIN_Q_MISSING_HEALTH_DAMAGE_NOT_MODELED",
-                "LEESIN_W_SHIELD_AND_R_DISPLACEMENT_NOT_MODELED",
+                "LEESIN_R_DISPLACEMENT_NOT_MODELED",
+                "LEESIN_W_SELF_CAST_BEFORE_COMBO_ASSUMED",
             ),
         )
 
@@ -125,5 +156,5 @@ class LeeSinCog(ChampionCog):
         """
         return ReactionPlan(
             "leesin_safeguard_reaction_v1",
-            blockers=("LEESIN_W_ALLY_TARGET_AND_OMNIVAMP_NOT_MODELED",),
+            blockers=("LEESIN_W_ALLY_TARGET_REQUIRES_ALLIES",),
         )

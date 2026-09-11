@@ -233,6 +233,9 @@ def _opponent_combatant(view: OpponentView) -> Combatant:
         percent_magic_penetration=snapshot.percent_magic_penetration,
         flat_magic_penetration=snapshot.flat_magic_penetration,
         tenacity=snapshot.tenacity,
+        life_steal=snapshot.life_steal,
+        omnivamp=snapshot.omnivamp,
+        health_regen_per_second=snapshot.health_regen_per_second,
     )
 
 
@@ -1066,6 +1069,9 @@ class MatchupEngine:
                 percent_magic_penetration=actor_snapshot.percent_magic_penetration,
                 flat_magic_penetration=actor_snapshot.flat_magic_penetration,
                 tenacity=actor_snapshot.tenacity,
+                life_steal=actor_snapshot.life_steal,
+                omnivamp=actor_snapshot.omnivamp,
+                health_regen_per_second=actor_snapshot.health_regen_per_second,
             ),
             target=_opponent_combatant(opposing_side[0]),
             additional_allies=tuple(_opponent_combatant(view) for view in ally_side),

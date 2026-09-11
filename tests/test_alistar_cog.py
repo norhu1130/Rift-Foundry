@@ -211,7 +211,7 @@ def test_alistar_item_policy_and_lane_sustain_remain_state_honest() -> None:
         alistar.item_candidate_blocker(
             {"id": 2, "stats": {"HEAL_SHIELD_POWER": {}, "MANA": {}, "OMNIVAMP": {}}}
         )
-        == "ALISTAR_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA,OMNIVAMP"
+        == "ALISTAR_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA"
     )
     amount, blockers = alistar.lane_sustain_extra_health(
         _context(),

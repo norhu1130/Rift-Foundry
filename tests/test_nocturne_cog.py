@@ -116,5 +116,5 @@ def test_nocturne_role_reversal_sustain_and_item_policy_are_honest() -> None:
     assert blockers == ("NOCTURNE_PASSIVE_LANE_HEAL_REQUIRES_ATTACK_TARGET_TIMELINE",)
     assert (
         cog.item_candidate_blocker({"id": 10, "stats": {"MANA": {}, "OMNIVAMP": {}}})
-        == "NOCTURNE_ITEM_STAT_NOT_MODELED:10:MANA,OMNIVAMP"
+        == "NOCTURNE_ITEM_STAT_NOT_MODELED:10:MANA"
     )

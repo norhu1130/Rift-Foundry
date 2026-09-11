@@ -111,5 +111,5 @@ def test_gragas_role_reversal_and_item_policy_are_explicit() -> None:
     )
     assert (
         gragas.item_candidate_blocker({"id": 2, "stats": {"MANA": {}, "OMNIVAMP": {}}})
-        == "GRAGAS_ITEM_STAT_NOT_MODELED:2:MANA,OMNIVAMP"
+        == "GRAGAS_ITEM_STAT_NOT_MODELED:2:MANA"
     )

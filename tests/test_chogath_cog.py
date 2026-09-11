@@ -240,7 +240,7 @@ def test_chogath_item_and_lane_sustain_policies_are_scope_honest() -> None:
         chogath.item_candidate_blocker(
             {"id": 2, "stats": {"HEAL_SHIELD_POWER": {}, "MANA": {}, "OMNIVAMP": {}}}
         )
-        == "CHOGATH_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA,OMNIVAMP"
+        == "CHOGATH_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA"
     )
     recovered, blockers = chogath.lane_sustain_extra_health(
         context,

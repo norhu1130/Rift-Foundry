@@ -117,7 +117,7 @@ def test_mel_role_reversal_and_item_policy_remain_symmetric() -> None:
     )
     assert (
         cog.item_candidate_blocker({"id": 1, "stats": {"MANA": {}, "OMNIVAMP": {}}})
-        == "MEL_ITEM_STAT_NOT_MODELED:1:MANA,OMNIVAMP"
+        == "MEL_ITEM_STAT_NOT_MODELED:1:MANA"
     )
     engine = MatchupEngine(ROOT)
     as_actor = engine.evaluate(MatchupRequest("Mel", "Garen"))

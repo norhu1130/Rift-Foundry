@@ -114,5 +114,5 @@ def test_nami_role_reversal_sustain_and_item_policy_are_honest() -> None:
     assert blockers == ("NAMI_W_SELF_HEAL_REQUIRES_MANA_AND_COOLDOWN_STATE",)
     assert (
         cog.item_candidate_blocker({"id": 7, "stats": {"MANA": {}, "OMNIVAMP": {}}})
-        == "NAMI_ITEM_STAT_NOT_MODELED:7:MANA,OMNIVAMP"
+        == "NAMI_ITEM_STAT_NOT_MODELED:7:MANA"
     )

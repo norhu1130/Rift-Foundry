@@ -8,7 +8,7 @@ from lol_build.cogs import CogMaturity, ParticipantContext
 from lol_build.cogs.base import DUEL_CAPABILITIES
 from lol_build.cogs.registry import create_default_registry
 from lol_build.core.combat import DamageType
-from lol_build.core.timeline import ActionChannel, EntityId, HealOutput
+from lol_build.core.timeline import ActionChannel, EntityId
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -84,7 +84,10 @@ def test_warwick_rotation_is_deterministic_and_uses_locked_formulas() -> None:
         + Decimal("0.10") * context.opponent_snapshot.max_hp
     )
     assert q.outputs[1].amount == passive
-    assert isinstance(q.outputs[2], HealOutput)
+    # The bite heals 75% of the damage both its outputs actually deal.
+    assert len(q.outputs) == 2
+    assert all(output.source_heal_ratio == Decimal("0.75") for output in q.outputs)
+    assert all(output.source_heal_ratio == Decimal(1) for output in r.outputs[:2])
     assert r.outputs[0].amount == (Decimal(350) + Decimal("1.67") * Decimal(100)) / 3
     assert r.outputs[1].amount == passive
     assert attack.outputs[1].amount == passive
@@ -192,7 +195,7 @@ def test_warwick_policy_and_lane_sustain_keep_state_honest() -> None:
         warwick.item_candidate_blocker(
             {"id": 2, "stats": {"ABILITY_HASTE": {}, "LIFESTEAL": {}, "MANA": {}}}
         )
-        == "WARWICK_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,LIFESTEAL,MANA"
+        == "WARWICK_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,MANA"
     )
     amount, blockers = warwick.lane_sustain_extra_health(
         _context(),

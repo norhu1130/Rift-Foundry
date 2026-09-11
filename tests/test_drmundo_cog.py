@@ -174,7 +174,7 @@ def test_drmundo_policy_and_reactions_keep_unmodeled_state_honest() -> None:
         mundo.item_candidate_blocker(
             {"id": 2, "stats": {"ABILITY_HASTE": {}, "MANA": {}, "OMNIVAMP": {}}}
         )
-        == "DRMUNDO_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,MANA,OMNIVAMP"
+        == "DRMUNDO_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,MANA"
     )
     assert mundo.build_reaction_plan(_context()).blockers == (
         "DRMUNDO_PASSIVE_FIRST_IMMOBILIZING_EFFECT_ONLY_NOT_MODELED",

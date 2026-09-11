@@ -138,7 +138,9 @@ def test_fiddlesticks_rotation_is_deterministic_and_uses_locked_formulas() -> No
     assert q.outputs[0].ratio == Decimal("0.18")
     assert e.outputs[0].amount == Decimal(120)
     assert w_tick.outputs[0].amount == Decimal("56.25")
-    assert isinstance(w_tick.outputs[1], HealOutput)
+    # Rank-five VampPercentage heals from each tick's resolved damage.
+    assert w_tick.outputs[0].source_heal_ratio == Decimal("0.55")
+    assert not any(isinstance(output, HealOutput) for output in w_tick.outputs)
     assert isinstance(w_final.outputs[-1], MissingHealthDamageOutput)
     assert w_final.outputs[-1].missing_health_ratio == Decimal("0.22")
     assert len([event for event in first.events if "CROWSTORM_TICK" in event.id]) == 20
@@ -272,7 +274,7 @@ def test_fiddlesticks_item_policy_sustain_and_engagement_are_state_honest() -> N
         fiddlesticks.item_candidate_blocker(
             {"id": 2, "stats": {"HEAL_SHIELD_POWER": {}, "MANA": {}, "OMNIVAMP": {}}}
         )
-        == "FIDDLESTICKS_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA,OMNIVAMP"
+        == "FIDDLESTICKS_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA"
     )
     amount, blockers = fiddlesticks.lane_sustain_extra_health(
         context,

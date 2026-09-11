@@ -53,10 +53,8 @@ class LeblancCog(ChampionCog):
         u = {
             "CRITICAL_STRIKE_CHANCE",
             "HEAL_SHIELD_POWER",
-            "LIFESTEAL",
             "MANA",
             "MANA_REGEN",
-            "OMNIVAMP",
         } & s.keys()
         return f"LEBLANC_ITEM_STAT_NOT_MODELED:{item['id']}:{','.join(sorted(u))}" if u else None
 

@@ -98,12 +98,13 @@ def test_ambessa_rotation_is_deterministic_and_uses_locked_formulas() -> None:
         Decimal("0.10") * context.opponent_snapshot.max_hp
     )
     assert ultimate.outputs[0].amount == Decimal(330)
-    assert isinstance(ultimate.outputs[1], HealOutput)
-    assert ultimate.outputs[1].amount > 0
+    # R2's ability healing resolves from each hit's own post-mitigation damage.
+    assert ultimate.outputs[0].source_heal_ratio == Decimal("0.175")
+    assert not any(isinstance(output, HealOutput) for output in ultimate.outputs)
     assert e.outputs[0].amount == Decimal(340)
-    assert isinstance(w.outputs[1], HealOutput)
-    assert isinstance(w.outputs[4], ShieldOutput)
-    assert w.outputs[4].amount == Decimal(200) + Decimal(270 * 12) / Decimal(17)
+    assert w.outputs[0].source_heal_ratio == Decimal("0.175")
+    shield = next(output for output in w.outputs if isinstance(output, ShieldOutput))
+    assert shield.amount == Decimal(200) + Decimal(270 * 12) / Decimal(17)
     assert empowered.channel is ActionChannel.BASIC_ATTACK
     assert empowered.outputs[1].amount == (Decimal(30) + Decimal(25 * 12) / Decimal(17))
     assert "AMBESSA_ENERGY_LEDGER_NOT_MODELED" in first.blockers

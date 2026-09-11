@@ -28,7 +28,9 @@ from lol_build.recommendation.context import (
     pregame_assumptions,
 )
 from lol_build.recommendation.explanation import (
+    AntiHealReview,
     BuildExplanation,
+    build_anti_heal_review,
     build_explanation,
     build_slot_runner_up,
 )
@@ -107,6 +109,8 @@ class _BeamState:
     all_core_item_ready: bool
     heartsteel_proc_count: int
     total_gold: int
+    opponent_healing_weighted: Decimal = Decimal(0)
+    healing_prevented_weighted: Decimal = Decimal(0)
 
 
 @dataclass(frozen=True)
@@ -124,6 +128,8 @@ class _StageRecord:
     chassis_ready: bool
     item_ready: bool
     heartsteel_proc_count: int
+    opponent_healing: Decimal = Decimal(0)
+    healing_prevented: Decimal = Decimal(0)
 
 
 def _prefix_cache_key(path: tuple[int, ...], core: int) -> tuple[tuple[int, ...], int, int]:
@@ -201,8 +207,12 @@ def _stage_record(
         getattr(request, "active_duty_policy", _DEFAULT_ACTIVE_DUTY_POLICY),
         getattr(request, "pursuit_target_policy", _DEFAULT_PURSUIT_TARGET_POLICY),
     )
+    # In a duel the opponent's net health loss already subtracts every heal it
+    # received. With allies the actor's own damage is isolated instead, which
+    # would ignore healing entirely, so the healing the actor's reductions
+    # prevented is credited as the health removal it is.
     record = _StageRecord(
-        evaluation.timeline.actor_damage_dealt
+        evaluation.timeline.actor_damage_dealt + evaluation.timeline.actor_healing_prevented
         if request.allies
         else evaluation.opposing_side_hp_lost,
         evaluation.timeline.actor_at_end.current_hp,
@@ -215,6 +225,8 @@ def _stage_record(
         stage["chassis_ready"],
         stage["item_ready"],
         heartsteel_count,
+        evaluation.timeline.opposing_side_healing,
+        evaluation.timeline.actor_healing_prevented,
     )
     cache[key] = record
     return record
@@ -443,6 +455,8 @@ def _evaluate_ordered_path_state(
             state.all_core_item_ready and record.item_ready,
             record.heartsteel_proc_count,
             running_gold,
+            state.opponent_healing_weighted + record.opponent_healing * weight,
+            state.healing_prevented_weighted + record.healing_prevented * weight,
         )
     return state
 
@@ -564,6 +578,8 @@ def _beam_metrics(state: _BeamState, denominator: Decimal) -> dict[str, Decimal]
         "ALL_CORE_CHASSIS_READY": Decimal(state.all_core_chassis),
         "ALL_CORE_ITEM_PASSIVES_READY": Decimal(state.all_core_item_ready),
         "HEARTSTEEL_PROC_COUNT": Decimal(state.heartsteel_proc_count),
+        "OPPONENT_HEALING_RECEIVED_8S": state.opponent_healing_weighted / denominator,
+        "ACTOR_HEALING_PREVENTED_8S": state.healing_prevented_weighted / denominator,
         "TOTAL_GOLD": Decimal(state.total_gold),
         "OCCUPIED_SLOTS": Decimal(3),
     }
@@ -744,6 +760,8 @@ def generic_cog_build_preview(
                         state.all_core_item_ready and record.item_ready,
                         record.heartsteel_proc_count,
                         total_gold,
+                        state.opponent_healing_weighted + record.opponent_healing * weight,
+                        state.healing_prevented_weighted + record.healing_prevented * weight,
                     )
                 )
                 evaluated += 1
@@ -986,6 +1004,62 @@ def generic_cog_build_preview(
 
         return key
 
+    reduction_item_ids = frozenset(
+        int(item["id"]) for item in items if _applies_healing_reduction(item)
+    )
+
+    def _anti_heal_review(branch: BranchId, state: _BeamState) -> AntiHealReview:
+        """Check the best single-slot swap to a healing-reduction item.
+
+        Every legal path was already evaluated by the exhaustive search, so the
+        swap is looked up rather than re-simulated, and it is judged by exactly
+        the gate and ranking that selected the branch.
+
+        :param branch: Branch whose selected build is reviewed.
+        :param state: Selected build state of that branch.
+        :return: Structured healing-reduction review.
+        """
+
+        swaps = [
+            candidate
+            for candidate in states
+            if len(candidate.item_ids) == len(state.item_ids)
+            and sum(
+                left != right
+                for left, right in zip(candidate.item_ids, state.item_ids, strict=True)
+            )
+            == 1
+            and any(
+                left != right and left in reduction_item_ids
+                for left, right in zip(candidate.item_ids, state.item_ids, strict=True)
+            )
+        ]
+        best: _BeamState | None = None
+        passes: bool | None = None
+        if swaps:
+            gate = branch_ablation_gate[branch]
+            passing = [
+                candidate
+                for candidate in swaps
+                if gate(candidate, metric_by_path[candidate.item_ids])
+            ]
+            sort_key = _slot_sort_key(branch_priorities[branch])
+            ranked = passing or swaps
+            best, _ = min(
+                ((candidate, metric_by_path[candidate.item_ids]) for candidate in ranked),
+                key=sort_key,
+            )
+            passes = bool(passing)
+        return build_anti_heal_review(
+            priority_metrics=branch_priorities[branch],
+            selected_item_ids=state.item_ids,
+            selected_metrics=metric_by_path[state.item_ids],
+            reduction_item_ids=reduction_item_ids,
+            candidate_item_ids=best.item_ids if best is not None else None,
+            candidate_metrics=metric_by_path[best.item_ids] if best is not None else None,
+            passes_branch_gate=passes,
+        )
+
     explanations = {}
     with _stage_pool(workers, root, request, progress) as ablation_pool:
         for branch, state in chosen.items():
@@ -1056,6 +1130,7 @@ def generic_cog_build_preview(
                     metric_by_path[reference.item_ids] if reference is not None else None
                 ),
                 slot_runner_ups=tuple(slot_runner_ups),
+                anti_heal_review=_anti_heal_review(branch, state),
             )
     blockers = tuple(
         sorted(
@@ -1104,6 +1179,19 @@ def generic_cog_build_preview(
     )
     report_progress(progress, "6/7 분기 선택·선정 근거·blocker 결합 완료")
     return result
+
+
+def _applies_healing_reduction(item: Mapping[str, Any]) -> bool:
+    """Report whether an item's effect programs apply a healing reduction.
+
+    :param item: Loaded item document with its curated effect programs.
+    :return: ``True`` when any operation applies ``HEALING_REDUCTION``.
+    """
+    return any(
+        operation.get("status_or_stat") == "HEALING_REDUCTION"
+        for program in item.get("__effect_programs", ())
+        for operation in program.get("operations", ())
+    )
 
 
 def _heartsteel_bonus_health(

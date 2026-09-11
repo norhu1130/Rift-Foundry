@@ -16,7 +16,12 @@ from lol_build.cogs.base import (
 )
 from lol_build.cogs.mechanics import action, crowd_control, damage, shielding
 from lol_build.core.combat import DamageType
-from lol_build.core.timeline import ActionChannel, ActionEvent, MissingHealthDamageOutput
+from lol_build.core.timeline import (
+    ActionChannel,
+    ActionEvent,
+    MissingHealthDamageOutput,
+    StatModifierOutput,
+)
 
 
 class MorganaCog(ChampionCog):
@@ -140,10 +145,8 @@ class MorganaCog(ChampionCog):
         unsupported = {
             "CRITICAL_STRIKE_CHANCE",
             "HEAL_SHIELD_POWER",
-            "LIFESTEAL",
             "MANA",
             "MANA_REGEN",
-            "OMNIVAMP",
         } & stats.keys()
         if unsupported:
             return f"MORGANA_ITEM_STAT_NOT_MODELED:{item['id']}:{','.join(sorted(unsupported))}"
@@ -218,7 +221,24 @@ class MorganaCog(ChampionCog):
                 ),
             ),
         )
-        events = (*fixed, *self._shadow_events(context), *self._attack_events(context))
+        soul_siphon = action(
+            "MORGANA_PASSIVE_SOUL_SIPHON",
+            at_ms=0,
+            sequence=base + 90,
+            source=context.self_entity,
+            channel=ActionChannel.PASSIVE,
+            # Locked HealPercent: 18% of champion ability damage.
+            outputs=(
+                StatModifierOutput(context.self_entity, "ABILITY_VAMP", Decimal("0.18"), None),
+            ),
+            requires_living_opponent=False,
+        )
+        events = (
+            soul_siphon,
+            *fixed,
+            *self._shadow_events(context),
+            *self._attack_events(context),
+        )
         level_blockers = (
             ()
             if context.snapshot.level == 13
@@ -232,7 +252,6 @@ class MorganaCog(ChampionCog):
                 "MORGANA_LEVEL13_Q5_E5_W1_R2_SUPPORT_ORDER_UNVERIFIED",
                 "MORGANA_Q_AND_ALL_W_TICKS_HIT_ASSUMED",
                 "MORGANA_R_TARGET_REMAINS_TETHERED_FOR_THREE_SECONDS_ASSUMED",
-                "MORGANA_PASSIVE_SOUL_SIPHON_HEAL_NOT_MODELED",
                 "MORGANA_W_COOLDOWN_REFUND_NOT_MODELED",
                 "MORGANA_E_CONTROL_PROTECTION_DEPENDS_ON_REMAINING_MAGIC_SHIELD",
                 "MORGANA_RESOURCE_COSTS_NOT_MODELED",

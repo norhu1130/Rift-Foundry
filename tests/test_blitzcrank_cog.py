@@ -218,5 +218,5 @@ def test_blitzcrank_item_policy_blocks_unrepresented_resources() -> None:
         blitzcrank.item_candidate_blocker(
             {"id": 2, "stats": {"ABILITY_HASTE": {}, "MANA": {}, "LIFESTEAL": {}}}
         )
-        == "BLITZCRANK_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,LIFESTEAL,MANA"
+        == "BLITZCRANK_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,MANA"
     )

@@ -21,6 +21,7 @@ from lol_build.core.timeline import (
     ActionEvent,
     DamageModifierWindow,
     DamageOutput,
+    StatModifierOutput,
     StatusOutput,
 )
 
@@ -152,10 +153,8 @@ class NilahCog(ChampionCog):
         assert isinstance(stats, dict)
         unsupported = {
             "HEAL_SHIELD_POWER",
-            "LIFESTEAL",
             "MANA",
             "MANA_REGEN",
-            "OMNIVAMP",
         } & stats.keys()
         return (
             f"NILAH_ITEM_STAT_NOT_MODELED:{item['id']}:{','.join(sorted(unsupported))}"
@@ -175,10 +174,11 @@ class NilahCog(ChampionCog):
         penetration = self._passive_armor_penetration(context)
         base = self._sequence_base(context)
 
-        def physical(amount: Decimal) -> DamageOutput:
+        def physical(amount: Decimal, heal_ratio: Decimal = Decimal(0)) -> DamageOutput:
             """Create Nilah physical damage with Q-passive penetration.
 
             :param amount: Raw physical damage before target mitigation.
+            :param heal_ratio: Fraction of the dealt damage healed back to Nilah.
             :return: Output carrying Nilah's critical-derived armor penetration.
             """
             return damage(
@@ -186,7 +186,11 @@ class NilahCog(ChampionCog):
                 amount,
                 DamageType.PHYSICAL,
                 percent_resistance_penetration=penetration,
+                source_heal_ratio=heal_ratio,
             )
+
+        # ChampHealingPercent: Apotheosis heals 20% plus 10% of crit chance.
+        r_heal_ratio = Decimal("0.20") + Decimal("0.10") * crit
 
         e_damage = Decimal(100) + Decimal("0.20") * bonus_ad
         q_damage = (Decimal(40) + ad) * (Decimal(1) + Decimal("0.70") * crit)
@@ -210,6 +214,11 @@ class NilahCog(ChampionCog):
                 outputs=(
                     physical(q_damage),
                     StatusOutput(context.self_entity, "NILAH_Q_ATTACK_BUFF", 4000),
+                    # CritLifesteal: the Q buff grants CritHealScalar (0.2) of
+                    # critical strike chance as life steal for BuffDuration.
+                    StatModifierOutput(
+                        context.self_entity, "LIFESTEAL", Decimal("0.20") * crit, 4000
+                    ),
                 ),
             ),
             action(
@@ -243,7 +252,7 @@ class NilahCog(ChampionCog):
                     sequence=base + 4 + index,
                     source=context.self_entity,
                     channel=ActionChannel.ABILITY,
-                    outputs=(physical(r_tick),),
+                    outputs=(physical(r_tick, r_heal_ratio),),
                 )
                 for index in range(4)
             ),
@@ -253,7 +262,7 @@ class NilahCog(ChampionCog):
                 sequence=base + 8,
                 source=context.self_entity,
                 channel=ActionChannel.ABILITY,
-                outputs=(physical(r_burst),),
+                outputs=(physical(r_burst, r_heal_ratio),),
             ),
         )
         events = (*fixed, *self._attack_events(context))
@@ -270,8 +279,7 @@ class NilahCog(ChampionCog):
                 "NILAH_LEVEL13_Q5_E5_W1_R2_ORDER_LOCKED_UNVERIFIED",
                 "NILAH_E_TWO_CHARGES_ASSUMED_AVAILABLE_AT_ENCOUNTER_START",
                 "NILAH_R_FOUR_TOOLTIP_TICKS_AND_FINAL_BURST_MAPPING_UNVERIFIED",
-                "NILAH_R_POST_MITIGATION_HEAL_AND_OVERHEAL_SHIELD_NOT_MODELED",
-                "NILAH_Q_ATTACK_HEAL_AND_OVERHEAL_SHIELD_NOT_MODELED",
+                "NILAH_R_AND_Q_OVERHEAL_SHIELD_NOT_MODELED",
                 "NILAH_Q_CONE_HAS_ONE_CHAMPION_TARGET",
                 "NILAH_RESOURCE_COSTS_NOT_MODELED",
             ),

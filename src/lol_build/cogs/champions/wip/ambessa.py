@@ -15,7 +15,7 @@ from lol_build.cogs.base import (
     ParticipantContext,
     ReactionPlan,
 )
-from lol_build.cogs.mechanics import action, crowd_control, damage, healing, shielding
+from lol_build.cogs.mechanics import action, crowd_control, damage, shielding
 from lol_build.core.combat import (
     DamageType,
     ResistanceModifiers,
@@ -161,12 +161,13 @@ class AmbessaCog(ChampionCog):
         :param extra_outputs: Shield, status, or control outputs resolved atomically.
         :return: Damage, healing, and caller-provided outputs for one ability hit.
         """
-        restored = self._post_mitigation_physical(context, raw_damage) * (
-            self._R2_ABILITY_HEAL_RATIO
-        )
         return (
-            damage(context.opponent_entity, raw_damage, DamageType.PHYSICAL),
-            healing(context.self_entity, restored),
+            damage(
+                context.opponent_entity,
+                raw_damage,
+                DamageType.PHYSICAL,
+                source_heal_ratio=self._R2_ABILITY_HEAL_RATIO,
+            ),
             StatusOutput(
                 context.self_entity,
                 "AMBESSA_PASSIVE_DASH_DISTANCE",
@@ -214,10 +215,8 @@ class AmbessaCog(ChampionCog):
             "AP",
             "CRITICAL_STRIKE_CHANCE",
             "HEAL_SHIELD_POWER",
-            "LIFESTEAL",
             "MANA",
             "MANA_REGEN",
-            "OMNIVAMP",
         } & stats.keys()
         if unsupported:
             names = ",".join(sorted(unsupported))
@@ -537,7 +536,6 @@ class AmbessaCog(ChampionCog):
                 "AMBESSA_E_DASH_SECOND_STRIKE_ASSUMED",
                 "AMBESSA_R_TARGET_SELECTION_AND_GEOMETRY_NOT_MODELED",
                 "AMBESSA_R2_NATIVE_ARMOR_PENETRATION_NOT_APPLIED_BY_TIMELINE",
-                "AMBESSA_R2_HEAL_PRECOMPUTED_BEFORE_RUNTIME_TARGET_MODIFIERS",
                 "AMBESSA_MULTITARGET_OUTPUT_NOT_MODELED",
                 "AMBESSA_COOLDOWN_AND_ATTACK_INTERLEAVING_ASSUMED",
             ),

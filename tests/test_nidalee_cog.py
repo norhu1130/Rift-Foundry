@@ -6,7 +6,12 @@ from pathlib import Path
 from lol_build.cogs import CogMaturity, ParticipantContext
 from lol_build.cogs.base import DUEL_CAPABILITIES
 from lol_build.cogs.registry import create_default_registry
-from lol_build.core.timeline import DamageOutput, EntityId, HealOutput, MissingHealthDamageOutput
+from lol_build.core.timeline import (
+    DamageOutput,
+    EntityId,
+    MissingHealthDamageOutput,
+    MissingHealthHealOutput,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -53,7 +58,10 @@ def test_nidalee_metadata_human_to_cougar_rotation_is_explicit() -> None:
     assert all((ROOT / ref).is_file() for ref in cog.evidence_refs)
     assert plan == cog.build_action_plan(_context())
     assert len(_event(plan, "NIDALEE_Q_JAVELIN_TOSS_MAX_RANGE").outputs) == 2
-    assert isinstance(_event(plan, "NIDALEE_E_PRIMAL_SURGE_SELF_MINIMUM").outputs[0], HealOutput)
+    assert isinstance(
+        _event(plan, "NIDALEE_E_PRIMAL_SURGE_SELF_MINIMUM").outputs[0],
+        MissingHealthHealOutput,
+    )
     assert isinstance(
         _event(plan, "NIDALEE_Q_TAKEDOWN_BASE_MISSING_HEALTH").outputs[0],
         MissingHealthDamageOutput,
@@ -72,7 +80,7 @@ def test_nidalee_ap_attack_speed_and_hunted_engagement_are_connected() -> None:
     assert _event(powered, "NIDALEE_Q_JAVELIN_TOSS_MAX_RANGE").outputs[0].amount - _event(
         base, "NIDALEE_Q_JAVELIN_TOSS_MAX_RANGE"
     ).outputs[0].amount == Decimal("162.5")
-    assert _event(powered, "NIDALEE_E_PRIMAL_SURGE_SELF_MINIMUM").outputs[0].amount == 185
+    assert _event(powered, "NIDALEE_E_PRIMAL_SURGE_SELF_MINIMUM").outputs[0].base_amount == 185
     assert len([event for event in powered.events if "COUGAR_BASIC_ATTACK" in event.id]) > len(
         [event for event in base.events if "COUGAR_BASIC_ATTACK" in event.id]
     )
@@ -101,5 +109,5 @@ def test_nidalee_role_reversal_sustain_and_item_policy_are_honest() -> None:
     assert blockers == ("NIDALEE_E_HEAL_REQUIRES_MANA_COOLDOWN_AND_MISSING_HEALTH",)
     assert (
         cog.item_candidate_blocker({"id": 10, "stats": {"MANA": {}, "OMNIVAMP": {}}})
-        == "NIDALEE_ITEM_STAT_NOT_MODELED:10:MANA,OMNIVAMP"
+        == "NIDALEE_ITEM_STAT_NOT_MODELED:10:MANA"
     )

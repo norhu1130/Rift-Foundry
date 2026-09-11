@@ -25,6 +25,7 @@ from lol_build.core.timeline import (
     ActionEvent,
     DamageModifierWindow,
     ResistanceReductionOutput,
+    StatModifierOutput,
     StatusOutput,
 )
 
@@ -113,10 +114,8 @@ class NasusCog(ChampionCog):
             "ABILITY_HASTE",
             "CRITICAL_STRIKE_CHANCE",
             "HEAL_SHIELD_POWER",
-            "LIFESTEAL",
             "MANA",
             "MANA_REGEN",
-            "OMNIVAMP",
         } & stats.keys()
         if unsupported:
             names = ",".join(sorted(unsupported))
@@ -310,7 +309,22 @@ class NasusCog(ChampionCog):
             if context.snapshot.level == 13
             else (f"NASUS_MODEL_LEVEL_UNSUPPORTED:{context.snapshot.level}",)
         )
+        # Soul Eater: 10% life steal, +5% at levels 7 and 13 (locked tooltip).
+        life_steal = Decimal("0.10") + sum(
+            (Decimal("0.05") for at_level in (7, 13) if context.snapshot.level >= at_level),
+            Decimal(0),
+        )
+        soul_eater = action(
+            "NASUS_PASSIVE_SOUL_EATER",
+            at_ms=0,
+            sequence=base + 90,
+            source=context.self_entity,
+            channel=ActionChannel.PASSIVE,
+            outputs=(StatModifierOutput(context.self_entity, "LIFESTEAL", life_steal, None),),
+            requires_living_opponent=False,
+        )
         events = (
+            soul_eater,
             *self._fury_events(context),
             *self._spirit_fire_events(context),
             wither,
@@ -332,7 +346,6 @@ class NasusCog(ChampionCog):
                 "NASUS_E_FULL_ZONE_DURATION_ASSUMED",
                 "NASUS_R_MAXIMUM_HEALTH_450_NOT_APPLIED",
                 "NASUS_R_ATTACK_RANGE_50_NOT_APPLIED",
-                "NASUS_PASSIVE_LIFESTEAL_NOT_MODELED",
                 "NASUS_RESOURCE_COSTS_NOT_EVALUATED",
             ),
         )

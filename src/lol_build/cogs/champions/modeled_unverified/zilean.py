@@ -14,7 +14,7 @@ from lol_build.cogs.base import (
     ParticipantContext,
     ReactionPlan,
 )
-from lol_build.cogs.mechanics import action, crowd_control, damage, shielding
+from lol_build.cogs.mechanics import action, crowd_control, damage
 from lol_build.core.combat import DamageType
 from lol_build.core.timeline import ActionChannel, ActionEvent, DeathPreventionOutput
 
@@ -22,9 +22,11 @@ from lol_build.core.timeline import ActionChannel, ActionEvent, DeathPreventionO
 class ZileanCog(ChampionCog):
     """Model Zilean's Q5/E5/W1/R2 level-thirteen duel fixture.
 
-    Time Bomb detonates on its locked fuse timer for damage and a stun, and
-    Chronoshift grants its shield alongside the death prevention it exists
-    for. Rewind and Time Warp carry no locked damage or control data at all —
+    Time Bomb detonates on its locked fuse timer for damage and a stun.
+    Chronoshift grants no shield: while it lasts, lethal damage is stopped,
+    Zilean spends ``ReviveStateDuration`` (3 s) in stasis, and is then healed
+    for ``RTotalHeal`` (``RBaseHeal`` plus ``APRatio`` of ability power).
+    Rewind and Time Warp carry no locked damage or control data at all —
     they are pure cooldown and movement utility — so this fixture correctly
     contributes nothing from them rather than inventing an effect neither
     ability has.
@@ -40,6 +42,7 @@ class ZileanCog(ChampionCog):
 
     _R_AT_MS = 0
     _R_DURATION_MS = 5000
+    _R_REVIVE_STASIS_MS = 3000
     _Q_AT_MS = 600
     _Q_FUSE_MS = 3000
     _Q_STUN_MS = 1500
@@ -51,7 +54,7 @@ class ZileanCog(ChampionCog):
         :return: Deterministic level-thirteen schedule with honest blockers.
         """
         base = self._sequence_base(context)
-        r_shield = Decimal(600) + Decimal(2) * context.snapshot.ability_power
+        r_heal = Decimal(850) + Decimal(2) * context.snapshot.ability_power
         q_damage = Decimal(300) + Decimal("0.9") * context.snapshot.ability_power
         fixed = [
             action(
@@ -61,12 +64,13 @@ class ZileanCog(ChampionCog):
                 source=context.self_entity,
                 channel=ActionChannel.ABILITY,
                 outputs=(
-                    shielding(context.self_entity, r_shield, duration_ms=self._R_DURATION_MS),
                     DeathPreventionOutput(
                         context.self_entity,
                         health_floor=Decimal(1),
                         duration_ms=self._R_DURATION_MS,
                         state_key="ZILEAN_R_CHRONOSHIFT",
+                        trigger_stasis_ms=self._R_REVIVE_STASIS_MS,
+                        trigger_heal=r_heal,
                     ),
                 ),
                 requires_living_opponent=False,
@@ -96,6 +100,7 @@ class ZileanCog(ChampionCog):
                 *level_blockers,
                 *self.verification_blockers(),
                 "ZILEAN_Q_DOUBLE_BOMB_INSTANT_DETONATE_NOT_MODELED",
+                "ZILEAN_R_REVIVE_STASIS_AND_HEAL_TIMING_UNVERIFIED",
                 "ZILEAN_PASSIVE_EXPERIENCE_SHARE_NOT_APPLICABLE",
                 "ZILEAN_RESOURCE_COSTS_NOT_EVALUATED",
                 "ZILEAN_ROTATION_AND_HIT_TIMING_UNVERIFIED",

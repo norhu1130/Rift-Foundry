@@ -14,7 +14,7 @@ from lol_build.cogs.base import (
     ParticipantContext,
     ReactionPlan,
 )
-from lol_build.cogs.mechanics import action, crowd_control, damage, healing
+from lol_build.cogs.mechanics import action, crowd_control, damage
 from lol_build.core.combat import DamageType, resistance_multiplier
 from lol_build.core.timeline import ActionChannel, ActionEvent, DamageModifierWindow, StatusOutput
 
@@ -69,10 +69,8 @@ class GwenCog(ChampionCog):
             "ABILITY_HASTE",
             "CRITICAL_STRIKE_CHANCE",
             "HEAL_SHIELD_POWER",
-            "LIFESTEAL",
             "MANA",
             "MANA_REGEN",
-            "OMNIVAMP",
         } & stats.keys()
         if unsupported:
             names = ",".join(sorted(unsupported))
@@ -98,8 +96,12 @@ class GwenCog(ChampionCog):
         """
         passive_damage = self._passive_damage(context) * Decimal(applications)
         return (
-            damage(context.opponent_entity, passive_damage, DamageType.MAGIC),
-            healing(context.self_entity, Decimal("0.67") * passive_damage),
+            damage(
+                context.opponent_entity,
+                passive_damage,
+                DamageType.MAGIC,
+                source_heal_ratio=Decimal("0.67"),
+            ),
         )
 
     def _attack_events(self, context: ParticipantContext) -> tuple[ActionEvent, ...]:
@@ -287,7 +289,6 @@ class GwenCog(ChampionCog):
                 "GWEN_E_FIRST_HIT_COOLDOWN_REFUND_NOT_VALUED",
                 "GWEN_R_PROJECTILE_COLLISION_AND_MULTI_TARGETS_NOT_MODELED",
                 "GWEN_PASSIVE_CURRENT_HEALTH_EXECUTE_NOT_MODELED",
-                "GWEN_PASSIVE_HEALING_USES_PREMITIGATION_PROXY",
                 "GWEN_RESOURCE_COSTS_NOT_EVALUATED",
             ),
         )

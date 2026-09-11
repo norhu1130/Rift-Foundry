@@ -51,9 +51,10 @@ class JaxCog(ChampionCog):
         """Reject item stats whose combat value is absent from this rotation.
 
         Defensive stats, attack speed, attack damage, ability power, penetration,
-        movement, tenacity, health regeneration, and lane lifesteal are evaluated
-        by the shared engine. Ability haste and mana need resource-aware spell
-        scheduling, while critical strikes and omnivamp need output attribution.
+        movement, tenacity, health regeneration, life steal, and omnivamp are
+        evaluated by the shared engine. Ability haste and mana need
+        resource-aware spell scheduling, while critical strikes need output
+        attribution.
 
         :param item: Normalized item candidate from the locked catalog.
         :return: A champion-scoped blocker for unsupported stats, otherwise ``None``.
@@ -64,7 +65,6 @@ class JaxCog(ChampionCog):
             "ABILITY_HASTE",
             "CRITICAL_STRIKE_CHANCE",
             "MANA",
-            "OMNIVAMP",
         } & stats.keys()
         if unsupported:
             return f"JAX_ITEM_STAT_NOT_MODELED:{item['id']}:{','.join(sorted(unsupported))}"

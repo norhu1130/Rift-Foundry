@@ -111,5 +111,5 @@ def test_miss_fortune_role_reversal_and_item_policy_are_honest() -> None:
     assert cog.engagement_speed_multiplier(_context()) > 1
     assert (
         cog.item_candidate_blocker({"id": 3, "stats": {"MANA": {}, "OMNIVAMP": {}}})
-        == "MISS_FORTUNE_ITEM_STAT_NOT_MODELED:3:MANA,OMNIVAMP"
+        == "MISS_FORTUNE_ITEM_STAT_NOT_MODELED:3:MANA"
     )

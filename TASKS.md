@@ -810,7 +810,7 @@ P0-042..043 ─┘                    └─ P0-052..054
 
 ### P1-064 — 전 챔피언 전용 Cog 승격
 
-- 상태: `IN_PROGRESS`
+- 상태: `DONE_NON_RELEASE`
 - 우선순위: `P1`
 - 선행: P1-063
 - 완료 조건:
@@ -821,10 +821,22 @@ P0-042..043 ─┘                    └─ P0-052..054
     구현하고 결정성·역할 반전 회귀 테스트를 통과한다.
   - 미구현 또는 미검증 메커니즘은 champion-scoped blocker로 남긴다.
 - 현재 요약 (2026-09-11 기준, 아래 "진행 기록"의 중간 수치보다 우선):
-  - 폴더 기준 todo 31 · wip 104 · modeled_unverified 38 · curated 0.
-    manifest 기준 `MODELED_UNVERIFIED` 142 · `SCAFFOLDED` 31 · `VERIFIED` 0.
+  - 폴더 기준 todo 0 · wip 104 · modeled_unverified 69 · curated 0.
+    manifest 기준 `MODELED_UNVERIFIED` 173 · `SCAFFOLDED` 0 · `VERIFIED` 0.
+  - 마지막 31개(Sylas, Rengar, Udyr, Yorick, Viego, TahmKench, Zac, Rakan,
+    Senna, Seraphine, Yuumi, Shyvana, Smolder, Zaahen, Samira, Thresh, Quinn,
+    Ryze, TwistedFate, Rell, Renata, Shaco, Taliyah, RekSai, Xayah, Zyra,
+    Skarner, Qiyana, Sivir, Zeri, Yunara)를 승격했다. 지형이 필요한 메커니즘
+    (Qiyana 원소·R, Zeri 벽 레이저, Taliyah 벽 등)은 champion-scoped blocker로
+    남겼다. Sivir E는 새 엔진 지원(`SPELL_SHIELD_HEAL`: 주문 방어막이 실제로
+    적 스킬을 막을 때만 회복)으로 구현했다.
   - `MULTI_TARGET` 선언 Cog 4개(Amumu, Annie, Karthus, Leona).
-  - 보류: Qiyana, Sivir, Zeri, Shyvana(엔진 범위 밖 또는 별도 설계 필요).
+  - 알려진 한계: `tests/test_all_champion_modules.py`의 폴더 분류 정규식
+    `blockers=\((.*?)\),?\n`이 `*self.verification_blockers(),\n` 줄에서
+    끝나 버려, 그 뒤에 나열된 literal gap blocker를 보지 못한다. 이 배치의
+    신규 Cog는 이 규칙에 따라 `modeled_unverified/`로 분류됐지만 실제로는
+    `wip/` 성격의 제외 blocker를 여럿 가진다. 정규식을 괄호 균형 파싱으로
+    바꾸면 다수가 `wip/`로 재분류될 것이다(후속 과제).
 - 진행 기록 (시간순 누적, 중간 수치는 당시 값):
   - 전용 모듈 173/173, 상세 원본 3종 173/173, patch lock 538파일.
   - 계산 원본 인덱스 173명·865 슬롯. Q/W/E/R BIN source ref 누락 0건.
@@ -1329,6 +1341,53 @@ P0-042..043 ─┘                    └─ P0-052..054
 - 검증: `tests/test_champion_cogs.py` 단독 통과(18/18). 전체 테스트
   스위트(0 실패) · `ruff check .` 통과.
 
+### P1-071 — 전 회복 메커니즘 엔진화, 치료 감소 구매 검토
+
+- 상태: `DONE_NON_RELEASE`
+- 우선순위: `P1`
+- 선행: P1-070
+- 배경: 사용자 요청 — "DARIUS Q 체력재생과 같은 모든 체력재생 구현, 상대
+  팀에 회복이 있다면 치료 감소(칼, 가시갑옷 등) 구매를 검토하도록 수정."
+- 엔진 (`core/timeline.py`):
+  - 모든 회복을 `receive_healing` 한 경로로 통일했다: `HEALING_REDUCTION`
+    (중첩 안 됨 — 가장 강한 값 하나만, 출처 유지), 받는 회복 증가, 최대
+    체력 상한. 반환값에 실제 회복량·차단량·차단 출처를 담아
+    `healing_by_entity`/`healing_prevented_by_entity`/`_by_source`로 집계한다.
+  - 모든 피해 출력 뒤 흡혈: 모든 피해 흡혈(전 채널), 생명력 흡수(기본
+    공격), 스킬 흡혈(스킬·패시브), 이벤트 자체의 `source_heal_ratio`
+    (예: 아트록스 패시브, 워윅 Q).
+  - 이벤트 사이 기본 체력 재생 누적(`health_regen_per_second`, 스냅샷에서
+    레벨·`BASE_HEALTH_REGEN_PERCENT` 반영).
+  - `MissingHealthHealOutput`(다리우스 Q 등 잃은 체력 비례 회복),
+    `DeathPreventionOutput`의 정체(stasis) 뒤 지연 회복(질리언 R 부활),
+    `SPELL_SHIELD_HEAL`(시비르 E — 막았을 때만 회복).
+  - 106개 Cog에서 `LIFESTEAL`/`OMNIVAMP` 아이템 blocker를 제거했다(엔진이
+    이제 실제로 계산하므로).
+- 챔피언 회복: Darius Q, Sona W, Swain R, Zilean R, Xin Zhao 패시브,
+  Gangplank W, Volibear W, Master Yi W, Nasus, Morgana, Lee Sin W, Briar,
+  Vladimir, Aatrox, Warwick, Bel'Veth, Ambessa, Gwen, Nilah, Fiddlesticks,
+  Illaoi, Lissandra, Nidalee, Kayle 및 신규 31개 Cog의 회복을 잠긴 원본
+  수치로 연결했다. Singed처럼 치료 감소를 거는 스킬은 틱마다 적용한다.
+- 추천 (`application/cog_preview.py`, `recommendation/explanation.py`):
+  - 지표 `OPPONENT_HEALING_RECEIVED_8S`, `ACTOR_HEALING_PREVENTED_8S` 추가.
+    팀 교전 피해 기록은 `준 피해 + 막은 회복`으로 셈해, 치료 감소 아이템이
+    막은 회복만큼 실제 기여로 평가된다.
+  - 모든 분기에 `AntiHealReview`: 상대 측 회복이 있으면 선택 빌드의 슬롯
+    하나를 치료 감소 아이템(3033 필멸자의 운명, 3075 가시갑옷, 3165
+    모렐로노미콘, 6609 화공 펑크 사슬검)으로 바꾼 최선의 합법 경로를
+    전수 탐색 결과에서 찾아, 분기 게이트 통과 여부와 전 지표 차이를
+    보여준다. 선택 자체는 바꾸지 않는다(가중합 금지 원칙). 상태:
+    `NO_OPPONENT_HEALING` / `BRANCH_HAS_HEALING_REDUCTION` /
+    `NO_LEGAL_SUBSTITUTION` / `SUBSTITUTION_EVALUATED`.
+  - 웹 UI에 "치료 감소 검토" 카드와 한국어 라벨을 추가했다.
+- 문서: `docs/timeline-semantics.md` 회복·흡혈·재생·치료 감소 절,
+  `docs/selection-semantics.md` "Healing and healing reduction" 절.
+- 검증: `tests/test_healing_engine.py`(10개) 및 회복 수치를 고정한 기존
+  Cog 테스트 갱신, 전체 스위트 통과. 추천 스윕 결과는
+  `reports/healing-sweep-p1-071.md`.
+- 한계: 회복 수치는 잠긴 원본 기준 `UNVERIFIED`이며, 8초 결투 창 밖의
+  라인 유지력(포션·라인 체력 재생 누적)은 기존 sustain 지표에만 반영된다.
+
 ### D-001 — 통계 플러그인
 
 - 상태: `DEFERRED`
@@ -1417,11 +1476,13 @@ P0-042..043 ─┘                    └─ P0-052..054
 
 ### 코드로 진행 가능한 다음 작업
 
-1. P1-064 남은 31개 챔피언 승격과 광역기 Cog의 `MULTI_TARGET` 확장.
+1. 광역기 Cog의 `MULTI_TARGET` 확장과 폴더 분류 정규식 개선(P1-064 한계
+   참고) — 챔피언 173명 승격 자체는 완료.
 2. D-004 숙련자 빌드 코퍼스 파일럿 — 엔진 결과를 외부 정성 근거와 대조할
    첫 수단이다.
 3. P1-067의 남은 과제: 방어 분기 우선순위 설계 검토(P1-068에서 DEFENSE는
    스펙대로 유지로 확정됐으므로 새 근거가 있을 때만 재개).
 
-최근 작업은 P1-066~070(다리우스 전용 엔진 제거, 전수 탐색 전환, DEFAULT
-게이트·순위 수정, 중복 그룹 처리, DEFENSE 폴백과 액티브 가동률 정책)이다.
+최근 작업은 P1-066~071(다리우스 전용 엔진 제거, 전수 탐색 전환, DEFAULT
+게이트·순위 수정, 중복 그룹 처리, DEFENSE 폴백과 액티브 가동률 정책, 전
+회복 메커니즘과 치료 감소 검토)이다.

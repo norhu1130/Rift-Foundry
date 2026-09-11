@@ -59,9 +59,7 @@ class MalphiteCog(ChampionCog):
             "ABILITY_HASTE",
             "CRITICAL_STRIKE_CHANCE",
             "HEAL_SHIELD_POWER",
-            "LIFESTEAL",
             "MANA",
-            "OMNIVAMP",
         } & stats.keys()
         if unsupported:
             return f"MALPHITE_ITEM_STAT_NOT_MODELED:{item['id']}:{','.join(sorted(unsupported))}"

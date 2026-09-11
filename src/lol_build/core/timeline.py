@@ -82,6 +82,9 @@ class Combatant:
     percent_magic_penetration: Decimal = Decimal(0)
     flat_magic_penetration: Decimal = Decimal(0)
     tenacity: Decimal = Decimal(0)
+    life_steal: Decimal = Decimal(0)
+    omnivamp: Decimal = Decimal(0)
+    health_regen_per_second: Decimal = Decimal(0)
 
 
 @dataclass(frozen=True)
@@ -92,6 +95,10 @@ class DamageOutput:
     percentage penetration, then its flat value is added to source flat
     penetration. This keeps spell-specific armor ignore local to the damage
     event instead of mutating the attacker or later events.
+
+    ``source_heal_ratio`` heals the source for that fraction of the damage this
+    output deals, for spells such as Vladimir's Hemoplague that restore health
+    equal to their own damage rather than granting a lasting vamp stat.
     """
 
     recipient: EntityId
@@ -99,6 +106,7 @@ class DamageOutput:
     damage_type: DamageType
     percent_resistance_penetration: Decimal = Decimal(0)
     flat_resistance_penetration: Decimal = Decimal(0)
+    source_heal_ratio: Decimal = Decimal(0)
 
 
 @dataclass(frozen=True)
@@ -107,6 +115,20 @@ class HealOutput:
 
     recipient: EntityId
     amount: Decimal
+
+
+@dataclass(frozen=True)
+class MissingHealthHealOutput:
+    """Restore health scaled by the recipient's missing health at resolution.
+
+    The amount is read when the event resolves, not when it is scheduled, so a
+    heal such as Darius's Decimate grows with the damage taken earlier in the
+    same encounter.
+    """
+
+    recipient: EntityId
+    missing_health_ratio: Decimal
+    base_amount: Decimal = Decimal(0)
 
 
 @dataclass(frozen=True)
@@ -222,17 +244,26 @@ class ExecuteOutput:
 
 @dataclass(frozen=True)
 class DeathPreventionOutput:
-    """Prevent damage from reducing a recipient below a fixed health floor."""
+    """Prevent damage from reducing a recipient below a fixed health floor.
+
+    A window with a trigger — Zilean's Chronoshift, for instance — is consumed
+    the first time it actually stops lethal damage: the recipient enters
+    stasis for ``trigger_stasis_ms`` and then receives ``trigger_heal``. A
+    window without one simply holds the floor until it expires.
+    """
 
     recipient: EntityId
     health_floor: Decimal
     duration_ms: int
     state_key: str
+    trigger_stasis_ms: int = 0
+    trigger_heal: Decimal = Decimal(0)
 
 
 type EventOutput = (
     DamageOutput
     | HealOutput
+    | MissingHealthHealOutput
     | HealthCostOutput
     | MaxHealthModifierOutput
     | ShieldOutput
@@ -335,6 +366,33 @@ class TimelineResult:
     damage_by_source_first_horizon: Mapping[EntityId, Decimal] = field(default_factory=dict)
     damage_by_source_total: Mapping[EntityId, Decimal] = field(default_factory=dict)
     death_ms_by_entity: Mapping[EntityId, int] = field(default_factory=dict)
+    healing_by_entity: Mapping[EntityId, Decimal] = field(default_factory=dict)
+    healing_prevented_by_entity: Mapping[EntityId, Decimal] = field(default_factory=dict)
+    healing_prevented_by_source: Mapping[EntityId, Decimal] = field(default_factory=dict)
+
+    @property
+    def opposing_side_healing(self) -> Decimal:
+        """Sum the health every opponent restored during the encounter.
+
+        :return: Healing received by the opposing side after reductions.
+        """
+        return sum(
+            (
+                value
+                for entity, value in self.healing_by_entity.items()
+                if entity not in ALLY_ENTITIES
+            ),
+            Decimal(0),
+        )
+
+    @property
+    def actor_healing_prevented(self) -> Decimal:
+        """Report the opponent healing removed by reductions the actor applied.
+
+        :return: Healing prevented through healing-reduction statuses sourced
+            from the actor.
+        """
+        return self.healing_prevented_by_source.get(EntityId.ACTOR, Decimal(0))
 
     def survival_ms(self, entity: EntityId) -> int:
         """Report how long one participant stayed alive.
@@ -419,8 +477,51 @@ class _MutableCombatant:
     status_magnitudes: dict[str, Decimal] = field(default_factory=dict)
     timed_shields: list[_TimedShield] = field(default_factory=list)
     stat_modifiers: dict[str, dict[str, tuple[Decimal, int | None]]] = field(default_factory=dict)
-    death_preventions: dict[str, tuple[Decimal, int]] = field(default_factory=dict)
+    death_preventions: dict[str, tuple[Decimal, int, int, Decimal]] = field(default_factory=dict)
+    pending_heals: list[tuple[int, Decimal]] = field(default_factory=list)
     timed_max_health: list[tuple[Decimal, int]] = field(default_factory=list)
+    life_steal: Decimal = Decimal(0)
+    omnivamp: Decimal = Decimal(0)
+    health_regen_per_second: Decimal = Decimal(0)
+    regen_accrued_ms: int = 0
+    status_sources: dict[str, EntityId] = field(default_factory=dict)
+
+    def receive_healing(self, amount: Decimal) -> tuple[Decimal, Decimal, EntityId | None]:
+        """Apply healing through healing reduction, amplification, and the health cap.
+
+        Every restoration path — ability heals, vamp, and regeneration — goes
+        through this one method, so Grievous Wounds reduces all of them the same
+        way it does in the client.
+
+        :param amount: Healing requested before reduction and amplification.
+        :return: Health actually restored, healing removed by reduction, and the
+            participant whose reduction status removed it (``None`` if none).
+        """
+        reduction = min(Decimal(1), self.status_magnitudes.get("HEALING_REDUCTION", Decimal(0)))
+        amplified = amount * (
+            Decimal(1) + self.stat_modifier_total("HEALING_RECEIVED_INCREASE_PERCENT")
+        )
+        adjusted = amplified * (Decimal(1) - reduction)
+        restored = min(adjusted, max(Decimal(0), self.max_hp - self.current_hp))
+        self.current_hp += restored
+        # Only healing that the cap would otherwise have allowed counts as
+        # prevented; reducing a heal that would overflow full health prevents
+        # nothing.
+        prevented = min(amplified, max(Decimal(0), self.max_hp - self.current_hp + restored))
+        prevented = max(Decimal(0), prevented - restored)
+        return restored, prevented, self.status_sources.get("HEALING_REDUCTION")
+
+    def accrue_regeneration(self, to_ms: int) -> tuple[Decimal, Decimal, EntityId | None]:
+        """Regenerate health continuously from the last accrual up to ``to_ms``.
+
+        :param to_ms: Replay timestamp regeneration is brought up to.
+        :return: Restored health, healing prevented by reduction, and its source.
+        """
+        elapsed = to_ms - self.regen_accrued_ms
+        self.regen_accrued_ms = max(self.regen_accrued_ms, to_ms)
+        if elapsed <= 0 or self.dead or self.health_regen_per_second <= 0:
+            return Decimal(0), Decimal(0), None
+        return self.receive_healing(self.health_regen_per_second * Decimal(elapsed) / Decimal(1000))
 
     @property
     def dead(self) -> bool:
@@ -536,9 +637,38 @@ class _MutableCombatant:
         :return: Maximum health floor across active death-prevention windows.
         """
         return max(
-            (floor for floor, _ in self.death_preventions.values()),
+            (floor for floor, *_ in self.death_preventions.values()),
             default=Decimal(0),
         )
+
+    def trigger_death_prevention(self, at_ms: int) -> str | None:
+        """Consume the first triggered death-prevention window after lethal damage.
+
+        :param at_ms: Timestamp of the damage the window stopped.
+        :return: State key of the consumed window, or ``None`` if none triggers.
+        """
+        for key in sorted(self.death_preventions):
+            _, _, stasis_ms, heal = self.death_preventions[key]
+            if stasis_ms <= 0 and heal <= 0:
+                continue
+            del self.death_preventions[key]
+            if stasis_ms > 0:
+                self.statuses["STASIS"] = max(self.statuses.get("STASIS", 0), at_ms + stasis_ms)
+                self.status_magnitudes["STASIS"] = Decimal(1)
+            if heal > 0:
+                self.pending_heals.append((at_ms + stasis_ms, heal))
+            return key
+        return None
+
+    def release_pending_heals(self, to_ms: int) -> list[Decimal]:
+        """Remove scheduled trigger heals due at or before ``to_ms``.
+
+        :param to_ms: Replay timestamp heals are released up to.
+        :return: Heal amounts that became due, in schedule order.
+        """
+        due = sorted(entry for entry in self.pending_heals if entry[0] <= to_ms)
+        self.pending_heals = [entry for entry in self.pending_heals if entry[0] > to_ms]
+        return [amount for _, amount in due]
 
     def damage_hp_loss(self, damage_after_shields: Decimal) -> tuple[Decimal, Decimal]:
         """Clamp incoming health damage against active death prevention.
@@ -722,6 +852,16 @@ def _validate_event(event: ActionEvent, *, duration_ms: int) -> None:
     if not event.outputs:
         raise TimelineError(f"event {event.id!r} must have at least one output")
     for index, output in enumerate(event.outputs):
+        if isinstance(output, MissingHealthHealOutput):
+            _finite_decimal(
+                output.missing_health_ratio,
+                name=f"event {event.id}.outputs[{index}].missing_health_ratio",
+            )
+            _finite_decimal(output.base_amount, name=f"event {event.id}.outputs[{index}].base")
+            if not Decimal(0) <= output.missing_health_ratio <= Decimal(1):
+                raise TimelineError("missing-health heal ratio must be within [0, 1]")
+            if output.base_amount < 0:
+                raise TimelineError("missing-health heal base amount must be non-negative")
         if isinstance(output, (DamageOutput, HealOutput, ShieldOutput)):
             _finite_decimal(output.amount, name=f"event {event.id}.outputs[{index}].amount")
             if output.amount < 0:
@@ -739,6 +879,12 @@ def _validate_event(event: ActionEvent, *, duration_ms: int) -> None:
                     raise TimelineError("damage-output percent penetration must be within [0, 1]")
                 if output.flat_resistance_penetration < 0:
                     raise TimelineError("damage-output flat penetration must be non-negative")
+                _finite_decimal(
+                    output.source_heal_ratio,
+                    name=f"event {event.id}.outputs[{index}].source_heal_ratio",
+                )
+                if output.source_heal_ratio < 0:
+                    raise TimelineError("damage-output source heal ratio must be non-negative")
                 if output.damage_type is DamageType.TRUE and (
                     output.percent_resistance_penetration or output.flat_resistance_penetration
                 ):
@@ -836,6 +982,12 @@ def _validate_event(event: ActionEvent, *, duration_ms: int) -> None:
             )
             if output.health_floor < 0:
                 raise TimelineError("death-prevention health floor must be non-negative")
+            _finite_decimal(
+                output.trigger_heal,
+                name=f"event {event.id}.outputs[{index}].trigger_heal",
+            )
+            if output.trigger_stasis_ms < 0 or output.trigger_heal < 0:
+                raise TimelineError("death-prevention trigger must be non-negative")
             if output.duration_ms <= 0 or not output.state_key:
                 raise TimelineError("death-prevention window contract is invalid")
 
@@ -964,6 +1116,9 @@ def simulate_timeline(
             combatant.tenacity,
             statuses=dict(combatant.statuses),
             status_magnitudes={status: Decimal(1) for status, _ in combatant.statuses},
+            life_steal=combatant.life_steal,
+            omnivamp=combatant.omnivamp,
+            health_regen_per_second=combatant.health_regen_per_second,
         )
 
     states = {
@@ -976,9 +1131,44 @@ def simulate_timeline(
     damage_by_source = dict.fromkeys(states, Decimal(0))
     death_ms_by_entity: dict[EntityId, int] = {}
     horizon_damage_by_source = dict.fromkeys(states, Decimal(0))
+    healing_by_entity = dict.fromkeys(states, Decimal(0))
+    healing_prevented_by_entity = dict.fromkeys(states, Decimal(0))
+    healing_prevented_by_source = dict.fromkeys(states, Decimal(0))
     log: list[TimelineLogEntry] = []
 
+    def record_healing(
+        entity: EntityId,
+        outcome: tuple[Decimal, Decimal, EntityId | None],
+    ) -> None:
+        """Accumulate restored and prevented healing for one recipient.
+
+        :param entity: Participant that received the healing.
+        :param outcome: Restored amount, prevented amount, and reduction source.
+        :return: None.
+        """
+        restored, prevented, reducer = outcome
+        healing_by_entity[entity] += restored
+        healing_prevented_by_entity[entity] += prevented
+        if reducer is not None and prevented > 0:
+            healing_prevented_by_source[reducer] += prevented
+
+    def accrue_all_regeneration(to_ms: int) -> None:
+        """Bring every participant's passive regeneration up to ``to_ms``.
+
+        Regeneration accrues before statuses expire at the same timestamp, so a
+        healing reduction active through the elapsed interval still applies.
+
+        :param to_ms: Replay timestamp to accrue regeneration to.
+        :return: None.
+        """
+        for entity, state in states.items():
+            record_healing(entity, state.accrue_regeneration(to_ms))
+            for amount in state.release_pending_heals(to_ms):
+                if not state.dead:
+                    record_healing(entity, state.receive_healing(amount))
+
     for event in sorted(events, key=lambda item: (item.at_ms, item.sequence)):
+        accrue_all_regeneration(event.at_ms)
         for state in states.values():
             state.expire_reductions(event.at_ms)
             state.expire_statuses(event.at_ms)
@@ -1027,6 +1217,14 @@ def simulate_timeline(
         for entity in spell_shield_blocked:
             states[entity].statuses.pop("SPELL_SHIELD", None)
             states[entity].status_magnitudes.pop("SPELL_SHIELD", None)
+            # A companion SPELL_SHIELD_HEAL status (Sivir's Spell Shield) heals
+            # its magnitude only when the shield actually blocks an ability.
+            if "SPELL_SHIELD_HEAL" in states[entity].statuses:
+                heal = states[entity].status_magnitudes.get("SPELL_SHIELD_HEAL", Decimal(0))
+                states[entity].statuses.pop("SPELL_SHIELD_HEAL", None)
+                states[entity].status_magnitudes.pop("SPELL_SHIELD_HEAL", None)
+                if heal > 0:
+                    record_healing(entity, states[entity].receive_healing(heal))
 
         for output in event.outputs:
             recipient = states[output.recipient]
@@ -1273,6 +1471,8 @@ def simulate_timeline(
                 shield_absorbed = recipient.absorb_shield(damage, output.damage_type, event.at_ms)
                 hp_loss, prevented = recipient.damage_hp_loss(damage - shield_absorbed)
                 recipient.current_hp -= hp_loss
+                if prevented > 0:
+                    recipient.trigger_death_prevention(event.at_ms)
                 if output.recipient not in ALLY_ENTITIES:
                     damage_by_target[output.recipient] += damage
                     if event.at_ms <= horizon_ms:
@@ -1280,6 +1480,46 @@ def simulate_timeline(
                     damage_by_source[event.source] += damage
                     if event.at_ms <= horizon_ms:
                         horizon_damage_by_source[event.source] += damage
+                # Life steal heals from basic-attack damage and omnivamp from all
+                # damage, both measured before shields absorb it, as in the client.
+                vamp_ratio = source.omnivamp + source.stat_modifier_total("OMNIVAMP")
+                if event.channel is ActionChannel.BASIC_ATTACK:
+                    vamp_ratio += source.life_steal + source.stat_modifier_total("LIFESTEAL")
+                # Ability vamp (Morgana's Soul Siphon, Lee Sin's Iron Will) heals
+                # from champion ability and passive damage. Item effects resolve on
+                # the ITEM_ACTIVE channel and are excluded.
+                if event.channel in (ActionChannel.ABILITY, ActionChannel.PASSIVE):
+                    vamp_ratio += source.stat_modifier_total("ABILITY_VAMP")
+                if isinstance(output, DamageOutput):
+                    vamp_ratio += output.source_heal_ratio
+                if (
+                    vamp_ratio > 0
+                    and damage > 0
+                    and output.recipient is not event.source
+                    and not source.dead
+                ):
+                    vamp = source.receive_healing(damage * vamp_ratio)
+                    record_healing(event.source, vamp)
+                    log.append(
+                        TimelineLogEntry(
+                            event.at_ms,
+                            event.sequence,
+                            event.id,
+                            event.channel,
+                            "VAMP_HEAL",
+                            "APPLIED",
+                            event.source,
+                            None,
+                            damage * vamp_ratio,
+                            None,
+                            None,
+                            vamp[0],
+                            source.current_hp,
+                            source.snapshot().shield,
+                            f"vamp_ratio:{vamp_ratio}"
+                            + (f":prevented={vamp[1]}" if vamp[1] else ""),
+                        )
+                    )
                 log.append(
                     TimelineLogEntry(
                         event.at_ms,
@@ -1353,7 +1593,23 @@ def simulate_timeline(
                 if output.status == "CC_SLOW":
                     slow_resistance = recipient.stat_modifier_total("SLOW_RESISTANCE_PERCENT")
                     magnitude *= max(Decimal(0), Decimal(1) - slow_resistance)
-                recipient.statuses[output.status] = event.at_ms + adjusted_duration_ms
+                if (
+                    output.status == "HEALING_REDUCTION"
+                    and output.status in recipient.statuses
+                    and recipient.status_magnitudes.get(output.status, Decimal(0)) > magnitude
+                ):
+                    # Grievous Wounds does not stack: a weaker application
+                    # refreshes the duration but keeps the stronger reduction
+                    # and its original source.
+                    magnitude = recipient.status_magnitudes[output.status]
+                else:
+                    recipient.status_sources[output.status] = event.source
+                recipient.statuses[output.status] = max(
+                    event.at_ms + adjusted_duration_ms,
+                    recipient.statuses.get(output.status, 0)
+                    if output.status == "HEALING_REDUCTION"
+                    else 0,
+                )
                 recipient.status_magnitudes[output.status] = magnitude
                 log.append(
                     TimelineLogEntry(
@@ -1416,18 +1672,18 @@ def simulate_timeline(
                         ",".join(removed),
                     )
                 )
-            elif isinstance(output, HealOutput):
+            elif isinstance(output, (HealOutput, MissingHealthHealOutput)):
                 reduction = recipient.status_magnitudes.get("HEALING_REDUCTION", Decimal(0))
-                received_increase = recipient.stat_modifier_total(
-                    "HEALING_RECEIVED_INCREASE_PERCENT"
-                )
-                adjusted_amount = (
+                requested = (
                     output.amount
-                    * (Decimal(1) + received_increase)
-                    * max(Decimal(0), Decimal(1) - reduction)
+                    if isinstance(output, HealOutput)
+                    else output.base_amount
+                    + output.missing_health_ratio
+                    * max(Decimal(0), recipient.max_hp - recipient.current_hp)
                 )
-                healing = min(adjusted_amount, recipient.max_hp - recipient.current_hp)
-                recipient.current_hp += healing
+                outcome = recipient.receive_healing(requested)
+                record_healing(output.recipient, outcome)
+                healing = outcome[0]
                 log.append(
                     TimelineLogEntry(
                         event.at_ms,
@@ -1438,7 +1694,7 @@ def simulate_timeline(
                         "APPLIED",
                         output.recipient,
                         None,
-                        output.amount,
+                        requested,
                         None,
                         None,
                         healing,
@@ -1523,6 +1779,8 @@ def simulate_timeline(
                     else (Decimal(0), Decimal(0))
                 )
                 recipient.current_hp -= hp_loss
+                if prevented > 0:
+                    recipient.trigger_death_prevention(event.at_ms)
                 log.append(
                     TimelineLogEntry(
                         event.at_ms,
@@ -1546,6 +1804,8 @@ def simulate_timeline(
                 recipient.death_preventions[output.state_key] = (
                     output.health_floor,
                     event.at_ms + output.duration_ms,
+                    output.trigger_stasis_ms,
+                    output.trigger_heal,
                 )
                 log.append(
                     TimelineLogEntry(
@@ -1573,6 +1833,7 @@ def simulate_timeline(
         if event.at_ms <= horizon_ms:
             horizon_snapshots = {entity: state.snapshot() for entity, state in states.items()}
 
+    accrue_all_regeneration(duration_ms)
     for state in states.values():
         state.expire_reductions(duration_ms)
         state.expire_statuses(duration_ms)
@@ -1615,4 +1876,7 @@ def simulate_timeline(
         damage_by_source_first_horizon=dict(horizon_damage_by_source),
         damage_by_source_total=dict(damage_by_source),
         death_ms_by_entity=dict(death_ms_by_entity),
+        healing_by_entity=dict(healing_by_entity),
+        healing_prevented_by_entity=dict(healing_prevented_by_entity),
+        healing_prevented_by_source=dict(healing_prevented_by_source),
     )

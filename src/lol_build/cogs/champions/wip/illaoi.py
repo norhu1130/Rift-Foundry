@@ -12,7 +12,7 @@ from lol_build.cogs.base import (
     ParticipantContext,
     ReactionPlan,
 )
-from lol_build.cogs.mechanics import action, damage
+from lol_build.cogs.mechanics import action, damage, missing_health_healing
 from lol_build.core.combat import DamageType
 from lol_build.core.timeline import ActionChannel, ActionEvent
 
@@ -70,10 +70,8 @@ class IllaoiCog(ChampionCog):
             "ABILITY_HASTE",
             "CRITICAL_STRIKE_CHANCE",
             "HEAL_SHIELD_POWER",
-            "LIFESTEAL",
             "MANA",
             "MANA_REGEN",
-            "OMNIVAMP",
         } & stats.keys()
         if unsupported:
             names = ",".join(sorted(unsupported))
@@ -184,6 +182,9 @@ class IllaoiCog(ChampionCog):
                         tentacle_damage,
                         DamageType.PHYSICAL,
                     ),
+                    # Prophet of an Elder God: a tentacle hitting a champion heals
+                    # MissingHPPercentHeal (5%) of Illaoi's missing health.
+                    missing_health_healing(context.self_entity, Decimal("0.05")),
                 ),
             ),
         )
@@ -212,7 +213,6 @@ class IllaoiCog(ChampionCog):
                 "ILLAOI_E_VESSEL_STATE_AND_SLOW_NOT_MODELED",
                 "ILLAOI_TENTACLE_PLACEMENT_AND_HIT_GEOMETRY_NOT_MODELED",
                 "ILLAOI_R_MULTI_TARGET_TENTACLE_COUNT_NOT_MODELED",
-                "ILLAOI_TENTACLE_MISSING_HEALTH_HEALING_NOT_MODELED",
                 "ILLAOI_W_DURING_R_COOLDOWN_FIXTURE_ASSUMED",
                 "ILLAOI_RESOURCE_BUDGET_NOT_EVALUATED",
             ),

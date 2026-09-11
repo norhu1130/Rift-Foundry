@@ -78,10 +78,8 @@ class BriarCog(ChampionCog):
         unsupported = {
             "CRITICAL_STRIKE_CHANCE",
             "HEAL_SHIELD_POWER",
-            "LIFESTEAL",
             "MANA",
             "MANA_REGEN",
-            "OMNIVAMP",
         } & stats.keys()
         if unsupported:
             names = ",".join(sorted(unsupported))
@@ -284,6 +282,8 @@ class BriarCog(ChampionCog):
                         7800,
                     ),
                     StatusOutput(context.self_entity, "BRIAR_R_HEMOMANIA", 7800),
+                    # Rank-two LifestealPercent while Hemomania lasts.
+                    StatModifierOutput(context.self_entity, "LIFESTEAL", Decimal("0.15"), 7800),
                 ),
             ),
             action(
@@ -366,7 +366,6 @@ class BriarCog(ChampionCog):
                 "BRIAR_E_KNOCKBACK_DURATION_ASSUMED",
                 "BRIAR_R_MISSILE_COLLISION_GLOBAL_PATH_NOT_MODELED",
                 "BRIAR_R_AUTOMATIC_PURSUIT_NOT_MODELED",
-                "BRIAR_R_LIFESTEAL_NOT_MODELED",
             ),
         )
 

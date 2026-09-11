@@ -14,7 +14,7 @@ from lol_build.cogs.base import (
     ParticipantContext,
     ReactionPlan,
 )
-from lol_build.cogs.mechanics import action, crowd_control, damage, healing
+from lol_build.cogs.mechanics import action, crowd_control, damage
 from lol_build.core.combat import (
     DamageType,
     ResistanceModifiers,
@@ -142,10 +142,8 @@ class BelvethCog(ChampionCog):
             "AP",
             "CRITICAL_STRIKE_CHANCE",
             "HEAL_SHIELD_POWER",
-            "LIFESTEAL",
             "MANA",
             "MANA_REGEN",
-            "OMNIVAMP",
         } & stats.keys()
         if unsupported:
             names = ",".join(sorted(unsupported))
@@ -255,9 +253,6 @@ class BelvethCog(ChampionCog):
         )
         strike_count = 6 + extra_strikes
         raw_damage = Decimal(18) + Decimal("0.12") * context.snapshot.attack_damage
-        healing_per_strike = (
-            self._post_mitigation_physical(context, raw_damage) * self._E5_LIFESTEAL
-        )
         events = [
             action(
                 "BELVETH_E_ROYAL_MAELSTROM_START",
@@ -279,8 +274,12 @@ class BelvethCog(ChampionCog):
                     source=context.self_entity,
                     channel=ActionChannel.ABILITY,
                     outputs=(
-                        damage(context.opponent_entity, raw_damage, DamageType.PHYSICAL),
-                        healing(context.self_entity, healing_per_strike),
+                        damage(
+                            context.opponent_entity,
+                            raw_damage,
+                            DamageType.PHYSICAL,
+                            source_heal_ratio=self._E5_LIFESTEAL,
+                        ),
                     ),
                 )
             )
@@ -391,7 +390,6 @@ class BelvethCog(ChampionCog):
                 "BELVETH_E_LOWEST_HEALTH_TARGET_SELECTION_NOT_MODELED",
                 "BELVETH_E_MISSING_HEALTH_DAMAGE_USES_MINIMUM",
                 "BELVETH_E_CHANNEL_INTERRUPTION_SUPPORTED_BY_SHARED_CONTROL_ONLY",
-                "BELVETH_E_HEAL_PRECOMPUTED_BEFORE_RUNTIME_TARGET_MODIFIERS",
                 "BELVETH_R_PASSIVE_E_ON_HIT_INTERACTION_NOT_MODELED",
                 "BELVETH_R_CORAL_ACTIVE_AND_CURRENT_HP_EXECUTE_NOT_MODELED",
                 "BELVETH_R_VOID_EPIC_FORM_AND_REMORA_NOT_MODELED",

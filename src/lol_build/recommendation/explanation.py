@@ -70,6 +70,36 @@ class ItemContribution:
 
 
 @dataclass(frozen=True)
+class AntiHealReview:
+    """Report whether a healing-reduction purchase was considered for one branch.
+
+    A branch whose opponents heal is always checked against the best legal
+    build that swaps exactly one slot for a healing-reduction item. The review
+    never changes the selected branch: it exposes the substitution, whether it
+    would still pass the branch's own gate, and every metric difference, so
+    the trade-off stays visible instead of being folded into a weighted score.
+
+    ``status`` is one of:
+
+    - ``NO_OPPONENT_HEALING`` — the opposing side restored no health, so a
+      reduction item has nothing to act on in this encounter;
+    - ``BRANCH_HAS_HEALING_REDUCTION`` — the selected build already owns one;
+    - ``NO_LEGAL_SUBSTITUTION`` — no single-slot swap to a reduction item is
+      a legal path under the same budget and group rules;
+    - ``SUBSTITUTION_EVALUATED`` — ``candidate_item_ids`` holds the best swap.
+    """
+
+    status: str
+    opponent_healing: Decimal
+    owned_item_ids: tuple[int, ...] = ()
+    candidate_item_ids: tuple[int, ...] = ()
+    replaced_slot: int | None = None
+    candidate_item_id: int | None = None
+    passes_branch_gate: bool | None = None
+    metric_comparisons: tuple[MetricComparison, ...] = ()
+
+
+@dataclass(frozen=True)
 class BuildExplanation:
     """Describe why one branch survived gates and outranked its comparison build."""
 
@@ -81,6 +111,7 @@ class BuildExplanation:
     comparison_item_ids: tuple[int, ...]
     metric_comparisons: tuple[MetricComparison, ...]
     item_contributions: tuple[ItemContribution, ...]
+    anti_heal_review: AntiHealReview | None = None
 
 
 _STAT_ROLES: Mapping[str, tuple[str, ...]] = {
@@ -243,6 +274,60 @@ def build_slot_runner_up(
     )
 
 
+#: Metrics every anti-heal review compares in addition to the branch priorities.
+ANTI_HEAL_REVIEW_METRICS = ("OPPONENT_HEALING_RECEIVED_8S", "ACTOR_HEALING_PREVENTED_8S")
+
+
+def build_anti_heal_review(
+    *,
+    priority_metrics: tuple[str, ...],
+    selected_item_ids: tuple[int, ...],
+    selected_metrics: Mapping[str, Decimal],
+    reduction_item_ids: frozenset[int],
+    candidate_item_ids: tuple[int, ...] | None,
+    candidate_metrics: Mapping[str, Decimal] | None,
+    passes_branch_gate: bool | None,
+) -> AntiHealReview:
+    """Summarize the healing-reduction check for one selected branch.
+
+    :param priority_metrics: Metrics the branch's own selection rule ranks by.
+    :param selected_item_ids: Ordered items of the selected build.
+    :param selected_metrics: Engine metric vector of the selected build.
+    :param reduction_item_ids: Pool items that apply a healing reduction.
+    :param candidate_item_ids: Best single-slot swap to a reduction item, if any.
+    :param candidate_metrics: Engine metric vector of that swapped build.
+    :param passes_branch_gate: Whether the swapped build passes the branch gate.
+    :return: Structured review suitable for deterministic UI rendering.
+    """
+
+    healing = selected_metrics.get("OPPONENT_HEALING_RECEIVED_8S", Decimal(0))
+    owned = tuple(item_id for item_id in selected_item_ids if item_id in reduction_item_ids)
+    if owned:
+        return AntiHealReview("BRANCH_HAS_HEALING_REDUCTION", healing, owned)
+    if healing <= 0:
+        return AntiHealReview("NO_OPPONENT_HEALING", healing)
+    if candidate_item_ids is None or candidate_metrics is None:
+        return AntiHealReview("NO_LEGAL_SUBSTITUTION", healing)
+    slot = next(
+        index
+        for index, (selected, candidate) in enumerate(
+            zip(selected_item_ids, candidate_item_ids, strict=True)
+        )
+        if selected != candidate
+    )
+    metrics = tuple(dict.fromkeys((*priority_metrics, *ANTI_HEAL_REVIEW_METRICS)))
+    return AntiHealReview(
+        "SUBSTITUTION_EVALUATED",
+        healing,
+        (),
+        tuple(candidate_item_ids),
+        slot,
+        candidate_item_ids[slot],
+        passes_branch_gate,
+        _metric_comparisons(metrics, (), selected_metrics, candidate_metrics),
+    )
+
+
 def build_explanation(
     *,
     policy_id: str,
@@ -257,6 +342,7 @@ def build_explanation(
     comparison_item_ids: tuple[int, ...] = (),
     comparison_metrics: Mapping[str, Decimal] | None = None,
     slot_runner_ups: tuple[SlotRunnerUp | None, ...] = (),
+    anti_heal_review: AntiHealReview | None = None,
 ) -> BuildExplanation:
     """Build an explanation exclusively from selection and item-engine inputs.
 
@@ -272,6 +358,7 @@ def build_explanation(
     :param comparison_item_ids: Ordered item path of the reference candidate.
     :param comparison_metrics: Engine metric vector belonging to the reference candidate.
     :param slot_runner_ups: Optional per-item runner-up, parallel to ``selected_item_ids``.
+    :param anti_heal_review: Optional healing-reduction purchase check.
     :return: Structured explanation suitable for deterministic UI rendering.
     """
 
@@ -305,4 +392,5 @@ def build_explanation(
         tuple(comparison_item_ids),
         comparisons,
         contributions,
+        anti_heal_review,
     )

@@ -190,5 +190,5 @@ def test_camille_item_policy_rejects_only_unrepresented_channels() -> None:
         camille.item_candidate_blocker(
             {"id": 2, "stats": {"ABILITY_HASTE": {}, "LIFESTEAL": {}, "MANA": {}}}
         )
-        == "CAMILLE_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,LIFESTEAL,MANA"
+        == "CAMILLE_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,MANA"
     )

@@ -200,5 +200,5 @@ def test_aphelios_item_policy_matches_represented_stat_channels() -> None:
         aphelios.item_candidate_blocker(
             {"id": 2, "stats": {"ABILITY_HASTE": {}, "LIFESTEAL": {}, "MANA": {}}}
         )
-        == "APHELIOS_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,LIFESTEAL,MANA"
+        == "APHELIOS_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,MANA"
     )

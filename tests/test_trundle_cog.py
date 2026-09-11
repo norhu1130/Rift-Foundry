@@ -118,7 +118,7 @@ def test_trundle_q_consumes_ad_and_w_consumes_attack_speed_and_movement() -> Non
     )
     assert (
         trundle.item_candidate_blocker({"id": 2, "stats": {"ABILITY_HASTE": {}, "LIFESTEAL": {}}})
-        == "TRUNDLE_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,LIFESTEAL"
+        == "TRUNDLE_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE"
     )
 
 

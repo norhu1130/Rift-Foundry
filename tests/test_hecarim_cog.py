@@ -163,5 +163,5 @@ def test_hecarim_lane_and_item_policies_remain_honest() -> None:
     )
     assert (
         cog.item_candidate_blocker({"id": 2, "stats": {"MANA": {}, "OMNIVAMP": {}}})
-        == "HECARIM_ITEM_STAT_NOT_MODELED:2:MANA,OMNIVAMP"
+        == "HECARIM_ITEM_STAT_NOT_MODELED:2:MANA"
     )

@@ -201,7 +201,7 @@ def test_corki_engagement_policy_sustain_and_item_policy_are_explicit() -> None:
         corki.item_candidate_blocker(
             {"id": 2, "stats": {"MANA": {}, "LIFESTEAL": {}, "OMNIVAMP": {}}}
         )
-        == "CORKI_ITEM_STAT_NOT_MODELED:2:LIFESTEAL,MANA,OMNIVAMP"
+        == "CORKI_ITEM_STAT_NOT_MODELED:2:MANA"
     )
     assert "CORKI_W_REACTIVE_ESCAPE_POLICY_NOT_MODELED" in (
         corki.build_reaction_plan(context).blockers

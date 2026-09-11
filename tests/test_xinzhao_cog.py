@@ -6,7 +6,12 @@ from pathlib import Path
 from lol_build.cogs import CogMaturity, ControlType, ParticipantContext
 from lol_build.cogs.base import DUEL_CAPABILITIES
 from lol_build.cogs.registry import create_default_registry
-from lol_build.core.timeline import CurrentHealthDamageOutput, DamageOutput, EntityId
+from lol_build.core.timeline import (
+    CurrentHealthDamageOutput,
+    DamageOutput,
+    EntityId,
+    HealOutput,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -56,6 +61,17 @@ def test_xinzhao_metadata_empowered_attacks_and_sweep_are_explicit() -> None:
     r_outputs = _event(plan, "XINZHAO_R_CRESCENT_GUARD").outputs
     assert isinstance(r_outputs[0], DamageOutput)
     assert isinstance(r_outputs[1], CurrentHealthDamageOutput)
+    attacks = sorted(
+        (event for event in plan.events if event.channel.value == "BASIC_ATTACK"),
+        key=lambda event: (event.at_ms, event.sequence),
+    )
+    snapshot = _context().snapshot
+    for index, event in enumerate(attacks):
+        heals = [output for output in event.outputs if isinstance(output, HealOutput)]
+        if index % 3 == 2:
+            assert heals == [HealOutput(EntityId.ACTOR, Decimal("0.05") * snapshot.max_hp)]
+        else:
+            assert heals == []
 
 
 def test_xinzhao_reaction_plan_exposes_the_q_knockup() -> None:

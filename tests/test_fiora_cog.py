@@ -180,5 +180,5 @@ def test_fiora_item_policy_tracks_only_modeled_channels() -> None:
         fiora.item_candidate_blocker(
             {"id": 2, "stats": {"CRITICAL_STRIKE_CHANCE": {}, "LIFESTEAL": {}}}
         )
-        == "FIORA_ITEM_STAT_NOT_MODELED:2:CRITICAL_STRIKE_CHANCE,LIFESTEAL"
+        == "FIORA_ITEM_STAT_NOT_MODELED:2:CRITICAL_STRIKE_CHANCE"
     )

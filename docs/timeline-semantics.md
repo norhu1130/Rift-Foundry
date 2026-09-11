@@ -18,9 +18,47 @@ prevented.
 2. Skip a cancelled action before processing any output.
 3. Skip actions whose source is dead or whose required opponent is dead.
 4. Process each output in declared order.
-5. Damage is mitigated, then absorbed by shield, then removes HP.
-6. Healing is capped at maximum HP.
+5. Damage is mitigated, then absorbed by shield, then removes HP. The source
+   then heals from that post-mitigation amount through vamp (see below).
+6. Healing is reduced by the recipient's active `HEALING_REDUCTION`, amplified by
+   `HEALING_RECEIVED_INCREASE_PERCENT`, and capped at maximum HP.
 7. Shields add to the current shield pool.
+
+Before each timestamp's events — and once more at the encounter end — every
+living participant regenerates health continuously since its previous accrual,
+and any triggered death-prevention heal that has come due is applied.
+
+## Healing, vamp, and healing reduction
+
+Every restoration path goes through one resolver, so Grievous Wounds reduces all
+of them the same way it does in the client:
+
+- **Ability heals** — `HealOutput` (fixed) and `MissingHealthHealOutput`
+  (`base_amount` plus a fraction of the recipient's missing health, read when the
+  event resolves, not when it is scheduled — Darius's Decimate).
+- **Vamp** — after a damage output resolves, its source heals for the
+  post-mitigation amount (before shields absorb it) times the sum of:
+  life steal (`Combatant.life_steal` plus `LIFESTEAL` modifiers) on the
+  `BASIC_ATTACK` channel; omnivamp (`Combatant.omnivamp` plus `OMNIVAMP`
+  modifiers) on every channel; `ABILITY_VAMP` modifiers on the `ABILITY` and
+  `PASSIVE` channels; and the output's own `source_heal_ratio` (spells that heal
+  for their own damage, such as Hemoplague). Item effects resolve on the
+  `ITEM_ACTIVE` channel, so item on-hit damage does not yet receive life steal.
+- **Regeneration** — `Combatant.health_regen_per_second` (Data Dragon base
+  regeneration per five seconds, level growth, and base-regeneration item
+  modifiers) accrues between events. The reduction active at the start of an
+  interval applies to that whole interval.
+- **Triggered death prevention** — a `DeathPreventionOutput` with a trigger is
+  consumed the first time it stops lethal damage: the recipient enters stasis
+  for `trigger_stasis_ms` and then receives `trigger_heal` (Chronoshift).
+- **Heal on spell-shield block** — a `SPELL_SHIELD_HEAL` status travelling with
+  `SPELL_SHIELD` heals its magnitude only when the shield is consumed by an
+  enemy `ABILITY` event; an unused shield expires without healing (Sivir E).
+
+`HEALING_REDUCTION` does not stack. A weaker application refreshes the duration
+but keeps the stronger magnitude and the participant who applied it. Healing a
+reduction removes is recorded per recipient and credited to that participant;
+only healing the maximum-health cap would have allowed counts as prevented.
 
 All events at exactly the horizon are included in horizon metrics and state.
 Events after a required opponent dies are not executed. The final damaging event
@@ -39,7 +77,11 @@ The result separately exposes:
 - post-mitigation damage to the target over the full encounter;
 - actor and target HP, shield, and death state at the horizon and encounter end;
 - an ordered log containing raw damage, mitigated damage, shield absorption, HP
-  delta, and state after every output.
+  delta, and state after every output, including `VAMP_HEAL` entries;
+- health restored per participant (`healing_by_entity`), healing removed by
+  reductions per recipient (`healing_prevented_by_entity`), and that prevented
+  healing credited to whoever applied the reduction
+  (`healing_prevented_by_source`).
 
 ## CC adjustment boundary
 
@@ -78,7 +120,6 @@ source action.
 
 ## Deferred behavior
 
-Shield expiry, heal amplification, regeneration ticks, damage-over-time ticks,
-resource costs, attack scheduling, and CC-derived cancellation are not silently
-approximated. Later tasks may generate these same typed events or mark them
+Resource costs, attack scheduling, heal-and-shield power, and CC-derived
+cancellation are not silently approximated. Later tasks may generate these same typed events or mark them
 cancelled, but must preserve this processing contract.

@@ -122,6 +122,9 @@ class ChampionSnapshot:
     flat_magic_penetration: Decimal = Decimal(0)
     tenacity: Decimal = Decimal(0)
     ability_haste: Decimal = Decimal(0)
+    life_steal: Decimal = Decimal(0)
+    omnivamp: Decimal = Decimal(0)
+    health_regen_per_second: Decimal = Decimal(0)
 
 
 @dataclass(frozen=True)
@@ -503,6 +506,16 @@ class ChampionCog:
             items.get("FLAT_MAGIC_PENETRATION", Decimal(0)),
             items.get("TENACITY", Decimal(0)),
             items.get("ABILITY_HASTE", Decimal(0)),
+            items.get("LIFESTEAL", Decimal(0)),
+            items.get("OMNIVAMP", Decimal(0)),
+            # Data Dragon records base regeneration per five seconds; items with
+            # a base-regeneration modifier scale only that base value.
+            (
+                Decimal(str(stats.get("hpregen", 0)))
+                + Decimal(str(stats.get("hpregenperlevel", 0))) * growth
+            )
+            / Decimal(5)
+            * (Decimal(1) + items.get("BASE_HEALTH_REGEN_PERCENT", Decimal(0))),
         )
 
     @staticmethod

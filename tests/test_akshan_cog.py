@@ -187,5 +187,5 @@ def test_akshan_engagement_reaction_and_item_policy_preserve_boundaries() -> Non
     )
     assert (
         akshan.item_candidate_blocker({"id": 2, "stats": {"ABILITY_HASTE": {}, "LIFESTEAL": {}}})
-        == "AKSHAN_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,LIFESTEAL"
+        == "AKSHAN_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE"
     )

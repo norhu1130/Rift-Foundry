@@ -48,7 +48,7 @@ class AhriCog(ChampionCog):
         """
         stats = item["stats"]
         assert isinstance(stats, dict)
-        unsupported = {"AD", "CRITICAL_STRIKE_CHANCE", "LIFESTEAL"} & stats.keys()
+        unsupported = {"AD", "CRITICAL_STRIKE_CHANCE"} & stats.keys()
         if unsupported:
             return f"AHRI_ITEM_STAT_NOT_MODELED:{item['id']}:{','.join(sorted(unsupported))}"
         return None

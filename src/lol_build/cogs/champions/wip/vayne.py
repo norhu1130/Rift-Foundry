@@ -69,9 +69,10 @@ class VayneCog(ChampionCog):
         """Reject item channels absent from the deterministic Vayne model.
 
         Attack damage, attack speed, ability power, defenses, penetration,
-        movement, and lane life steal feed represented calculations. Critical
-        strikes, combat sustain outputs, mana consumption, and ability-haste
-        rescheduling are intentionally not inferred by this fixed rotation.
+        movement, life steal, and omnivamp feed represented calculations; the
+        shared timeline resolves vamp from each damage output. Critical strikes,
+        heal and shield power, mana consumption, and ability-haste rescheduling
+        are intentionally not inferred by this fixed rotation.
 
         :param item: Normalized candidate item from the locked catalog.
         :return: Champion-scoped blocker, or ``None`` when represented.
@@ -83,7 +84,6 @@ class VayneCog(ChampionCog):
             "CRITICAL_STRIKE_CHANCE",
             "HEAL_SHIELD_POWER",
             "MANA",
-            "OMNIVAMP",
         } & stats.keys()
         if unsupported:
             names = ",".join(sorted(unsupported))

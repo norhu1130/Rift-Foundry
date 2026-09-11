@@ -7,6 +7,7 @@ from lol_build.cogs.mechanics.primitives import (
     healing,
     health_cost,
     maximum_health,
+    missing_health_healing,
     movement_speed,
     shielding,
 )
@@ -18,6 +19,7 @@ __all__ = [
     "healing",
     "health_cost",
     "maximum_health",
+    "missing_health_healing",
     "movement_speed",
     "shielding",
 ]

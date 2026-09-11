@@ -9,7 +9,7 @@ from lol_build.cogs.base import DUEL_CAPABILITIES
 from lol_build.core.timeline import (
     DamageOutput,
     EntityId,
-    HealOutput,
+    MissingHealthHealOutput,
     ShieldOutput,
 )
 
@@ -63,7 +63,7 @@ def test_volibear_rotation_is_deterministic_and_keeps_w_at_five_seconds() -> Non
         event for event in faster.events if event.id.startswith("VOLIBEAR_PASSIVE_ATTACK")
     )
     assert len(faster_attacks) > len(baseline_attacks)
-    assert "VOLIBEAR_W2_MISSING_HEALTH_HEAL_NOT_EVALUATED" in baseline.blockers
+    assert "VOLIBEAR_W2_MISSING_HEALTH_HEAL_NOT_EVALUATED" not in baseline.blockers
 
 
 def test_volibear_locked_formulas_respond_to_ad_ap_health_and_target_health() -> None:
@@ -97,8 +97,9 @@ def test_volibear_locked_formulas_respond_to_ad_ap_health_and_target_health() ->
     )
     assert w1.outputs[0].amount == expected_w1
     assert w2.outputs[0].amount == expected_w1 * Decimal("1.75")
-    assert isinstance(w2.outputs[1], HealOutput)
-    assert w2.outputs[1].amount == 80
+    assert w2.outputs[1] == MissingHealthHealOutput(
+        EntityId.ACTOR, Decimal("0.20"), base_amount=Decimal(80)
+    )
     assert e.outputs[0].amount == (
         Decimal(80)
         + Decimal("0.70") * context.snapshot.ability_power

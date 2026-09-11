@@ -80,10 +80,8 @@ class NunuCog(ChampionCog):
         unsupported = {
             "ABILITY_HASTE",
             "HEAL_SHIELD_POWER",
-            "LIFESTEAL",
             "MANA",
             "MANA_REGEN",
-            "OMNIVAMP",
         } & stats.keys()
         return (
             f"NUNU_ITEM_STAT_NOT_MODELED:{item['id']}:{','.join(sorted(unsupported))}"

@@ -6,7 +6,12 @@ from pathlib import Path
 from lol_build.cogs import CogMaturity, ControlType, ParticipantContext
 from lol_build.cogs.base import DUEL_CAPABILITIES
 from lol_build.cogs.registry import create_default_registry
-from lol_build.core.timeline import DamageOutput, EntityId, HealOutput, RemoveStatusOutput
+from lol_build.core.timeline import (
+    DamageOutput,
+    EntityId,
+    MissingHealthHealOutput,
+    RemoveStatusOutput,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -71,7 +76,9 @@ def test_gangplank_rotation_models_barrel_reset_citrus_and_twelve_waves() -> Non
     assert barrel_damage.percent_resistance_penetration == Decimal("0.40")
     citrus = _event(plan, "GANGPLANK_W_REMOVE_SCURVY")
     assert any(isinstance(output, RemoveStatusOutput) for output in citrus.outputs)
-    assert any(isinstance(output, HealOutput) for output in citrus.outputs)
+    heal = next(o for o in citrus.outputs if isinstance(o, MissingHealthHealOutput))
+    assert heal.missing_health_ratio == Decimal("0.13")
+    assert heal.base_amount == Decimal(45)
     assert "GANGPLANK_BARREL_FORTY_PERCENT_ARMOR_IGNORE_NOT_MODELED" not in plan.blockers
 
 

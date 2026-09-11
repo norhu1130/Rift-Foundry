@@ -102,5 +102,5 @@ def test_wukong_role_reversal_and_item_policy_are_honest() -> None:
     assert "MONKEY_KING_PASSIVE_ARMOR_AND_REGEN_STACKS_NOT_MODELED" in plan.blockers
     assert (
         cog.item_candidate_blocker({"id": 4, "stats": {"MANA": {}, "OMNIVAMP": {}}})
-        == "MONKEY_KING_ITEM_STAT_NOT_MODELED:4:MANA,OMNIVAMP"
+        == "MONKEY_KING_ITEM_STAT_NOT_MODELED:4:MANA"
     )
