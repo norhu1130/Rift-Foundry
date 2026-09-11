@@ -28,9 +28,10 @@ SPEED = Decimal(340)
 def test_reach_decides_whether_a_target_retreats() -> None:
     """Let an opponent kite only when its reach rewards kiting."""
     assert _fleeing_move_speed(MELEE, RANGED, SPEED, "range_aware") == SPEED
-    assert _fleeing_move_speed(MELEE, MELEE, SPEED, "range_aware") == 0
-    # A ranged actor chasing a melee opponent is not kited either.
-    assert _fleeing_move_speed(RANGED, MELEE, SPEED, "range_aware") == 0
+    # A target that does not outrange the actor has to close to fight, so it
+    # advances instead of waiting (a negative retreat speed).
+    assert _fleeing_move_speed(MELEE, MELEE, SPEED, "range_aware") == -SPEED
+    assert _fleeing_move_speed(RANGED, MELEE, SPEED, "range_aware") == -SPEED
 
 
 def test_the_other_pursuit_policies_stay_available_and_unambiguous() -> None:

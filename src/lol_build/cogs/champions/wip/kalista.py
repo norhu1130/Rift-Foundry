@@ -73,6 +73,7 @@ class KalistaCog(ChampionCog):
                         context.opponent_entity,
                         context.snapshot.attack_damage * Decimal("0.90"),
                         DamageType.PHYSICAL,
+                        can_crit=True,
                     ),
                     StatusOutput(context.opponent_entity, "KALISTA_REND_SPEAR", 4000),
                 ),

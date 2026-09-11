@@ -423,9 +423,10 @@ def _with_expected_critical_strikes(
     """Scale plain basic attacks by their expected critical-strike damage.
 
     A plain attack is a basic-attack event whose physical damage output equals
-    the attacker's attack damage exactly; a Cog that already folds critical
-    strikes into an attack's amount changes that amount and is left alone, so
-    nothing is counted twice. Expected damage is ``1 + chance × (critical
+    the attacker's attack damage exactly, or any output a Cog marks
+    ``can_crit`` (a reduced or empowered attack such as Kalista's). A Cog that
+    already folds critical strikes into an attack's amount changes that amount
+    and leaves it unmarked, so nothing is counted twice. Expected damage is ``1 + chance × (critical
     damage − 1)``: the client rolls critical strikes pseudo-randomly, which a
     deterministic timeline replaces with the average.
 
@@ -444,10 +445,12 @@ def _with_expected_critical_strikes(
         if event.channel is ActionChannel.BASIC_ATTACK and event.source is entity:
             outputs = list(event.outputs)
             for index, output in enumerate(outputs):
-                if (
-                    isinstance(output, DamageOutput)
-                    and output.damage_type is DamageType.PHYSICAL
-                    and output.amount == snapshot.attack_damage
+                if isinstance(output, DamageOutput) and (
+                    output.can_crit
+                    or (
+                        output.damage_type is DamageType.PHYSICAL
+                        and output.amount == snapshot.attack_damage
+                    )
                 ):
                     outputs[index] = replace(output, amount=output.amount * multiplier)
                     changed = True

@@ -106,7 +106,7 @@ class YuumiCog(ChampionCog):
         for index, at_ms in enumerate(
             range(self._FIRST_ATTACK_MS, context.duration_ms + 1, interval)
         ):
-            outputs = [damage(context.opponent_entity, snapshot.attack_damage, DamageType.MAGIC)]
+            outputs = [damage(context.opponent_entity, snapshot.attack_damage, DamageType.PHYSICAL)]
             if index == 0:
                 outputs.append(healing(context.self_entity, passive_heal))
             events.append(
@@ -132,7 +132,6 @@ class YuumiCog(ChampionCog):
                 "YUUMI_Q_BASE_DAMAGE_ABSENT_FROM_LOCKED_DATA_VALUES",
                 "YUUMI_R_WAVE_HEALING_AND_W_ATTACH_REQUIRE_ALLY",
                 "YUUMI_E_ATTACK_SPEED_NOT_APPLIED_TO_CADENCE",
-                "YUUMI_BASIC_ATTACK_MAGIC_DAMAGE_ASSUMED",
                 "YUUMI_ROTATION_AND_HIT_TIMING_UNVERIFIED",
             ),
         )

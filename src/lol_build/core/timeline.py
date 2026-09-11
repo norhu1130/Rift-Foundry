@@ -108,6 +108,9 @@ class DamageOutput:
     percent_resistance_penetration: Decimal = Decimal(0)
     flat_resistance_penetration: Decimal = Decimal(0)
     source_heal_ratio: Decimal = Decimal(0)
+    #: Marks attack damage that can critically strike even when its amount is
+    #: not exactly the attacker's attack damage (a reduced or empowered attack).
+    can_crit: bool = False
 
 
 @dataclass(frozen=True)

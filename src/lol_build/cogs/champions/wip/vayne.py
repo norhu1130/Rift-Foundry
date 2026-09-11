@@ -153,6 +153,7 @@ class VayneCog(ChampionCog):
                         context.opponent_entity,
                         combat_attack_damage,
                         DamageType.PHYSICAL,
+                        can_crit=True,
                     )
                 )
                 if hit_kind == "Q":

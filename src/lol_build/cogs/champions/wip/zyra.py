@@ -127,7 +127,9 @@ class ZyraCog(ChampionCog):
                     source=context.self_entity,
                     channel=ActionChannel.BASIC_ATTACK,
                     outputs=(
-                        damage(context.opponent_entity, snapshot.attack_damage, DamageType.MAGIC),
+                        damage(
+                            context.opponent_entity, snapshot.attack_damage, DamageType.PHYSICAL
+                        ),
                     ),
                 )
             )

@@ -134,7 +134,13 @@ actives, momentum, and forward dashes. It returns distance closed, contact
 state, contact time, and the remaining combat-window fraction. The pursuit
 window equals the encounter duration, so a champion who needs four seconds to
 close the gap still fights for the remaining four instead of being scored as
-never reaching a three-second window. A champion Cog contributes its own kit
+never reaching a three-second window. Under `range_aware` a target that
+outranges the actor kites away at its speed, while one that does not must close
+to fight and advances toward the actor, so the gap shrinks at both speeds
+combined. `DAMAGE_TOTAL_8S` credits a stage's health removal in full when the
+kill still lands inside the encounter after the approach delay, and scales it
+by uptime only when the opponent survives — arriving a moment later does not
+undo a kill. A champion Cog contributes its own kit
 through `engagement_speed_multiplier`, `engagement_dash_distance` (dashes and
 pulls), and `engagement_target_slow_fraction` (kit slows, combined
 multiplicatively with item slows). Summoner spells

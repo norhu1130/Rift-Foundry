@@ -77,6 +77,9 @@ uv run pytest && uv run ruff check . && uv run ruff format --check .
 # 로컬 Web UI
 uv run python -m lol_build.application.web
 
+# 메모리가 부족한 환경: 추천 탐색 워커 수 제한 (결과는 워커 수와 무관)
+LOL_BUILD_WORKERS=2 uv run python -m lol_build.application.web
+
 # 1대1 CLI — 역할 대칭 매치업 디스패치
 uv run python -m lol_build.application.matchup Garen Aatrox \
   --actor-items 6631 --opponent-items 3071 --recommend

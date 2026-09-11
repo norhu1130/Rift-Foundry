@@ -101,7 +101,7 @@ class ZeriCog(ChampionCog):
         for index, at_ms in enumerate(
             range(self._FIRST_BURST_MS, context.duration_ms + 1, interval)
         ):
-            outputs = [damage(context.opponent_entity, burst, DamageType.PHYSICAL)]
+            outputs = [damage(context.opponent_entity, burst, DamageType.PHYSICAL, can_crit=True)]
             if self._E_AT_MS <= at_ms < self._E_AT_MS + self._E_DURATION_MS:
                 outputs.append(damage(context.opponent_entity, energized, DamageType.MAGIC))
             if self._R_AT_MS <= at_ms < self._R_AT_MS + self._R_DURATION_MS:
@@ -130,7 +130,6 @@ class ZeriCog(ChampionCog):
                 "ZERI_W_WALL_LASER_REQUIRES_TERRAIN",
                 "ZERI_E_PIERCE_REQUIRES_MORE_TARGETS",
                 "ZERI_R_ATTACK_SPEED_AND_CHAIN_LIGHTNING_NOT_MODELED",
-                "ZERI_CRITICAL_STRIKE_NOT_MODELED",
                 "ZERI_ROTATION_AND_HIT_TIMING_UNVERIFIED",
             ),
         )

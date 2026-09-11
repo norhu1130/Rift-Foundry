@@ -284,7 +284,9 @@ def create_server(
 
     if max_concurrent_recommendations < 1:
         raise ValueError("max_concurrent_recommendations must be at least one")
-    cores = os.cpu_count() or 1
+    # LOL_BUILD_WORKERS caps the worker budget on memory-constrained hosts;
+    # every worker holds its own engine, and results do not depend on the count.
+    cores = int(os.environ.get("LOL_BUILD_WORKERS", "0")) or os.cpu_count() or 1
     bound_handler = type(
         "BoundWebHandler",
         (WebHandler,),

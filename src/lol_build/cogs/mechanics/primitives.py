@@ -71,6 +71,7 @@ def damage(
     percent_resistance_penetration: Decimal = Decimal(0),
     flat_resistance_penetration: Decimal = Decimal(0),
     source_heal_ratio: Decimal = Decimal(0),
+    can_crit: bool = False,
 ) -> DamageOutput:
     """Create fixed raw damage without pre-applying target resistance.
 
@@ -80,6 +81,8 @@ def damage(
     :param percent_resistance_penetration: Event-local resistance fraction ignored.
     :param flat_resistance_penetration: Event-local resistance amount ignored.
     :param source_heal_ratio: Fraction of the dealt damage healed back to the source.
+    :param can_crit: Whether this attack damage can critically strike although
+        its amount differs from the attacker's attack damage.
     :return: Atomic damage output for an action event.
     """
     if amount < 0:
@@ -93,6 +96,7 @@ def damage(
         percent_resistance_penetration,
         flat_resistance_penetration,
         source_heal_ratio,
+        can_crit,
     )
 
 

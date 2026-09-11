@@ -135,6 +135,20 @@ class _StageRecord:
     healing_prevented: Decimal = Decimal(0)
     kill_margin_ms: Decimal = Decimal(0)
 
+    @property
+    def effective_damage(self) -> Decimal:
+        """Credit the duel's health removal after the pursuit approach.
+
+        A kill that still lands inside the encounter once the approach delay is
+        added counts in full: arriving a moment later does not undo the kill.
+        Otherwise the approach delay cuts the fight short, scaled by uptime.
+
+        :return: Health removal credited to this stage.
+        """
+        if self.kill_margin_ms > 0:
+            return self.opponent_hp_lost
+        return self.opponent_hp_lost * self.uptime
+
 
 def _prefix_cache_key(path: tuple[int, ...], core: int) -> tuple[tuple[int, ...], int, int]:
     """Identify the stage outcome a build prefix produces at one core.
@@ -468,7 +482,7 @@ def _evaluate_ordered_path_state(
         weight = Decimal(stage_weights[core - 1])
         state = _BeamState(
             prefix,
-            state.damage_weighted + record.opponent_hp_lost * record.uptime * weight,
+            state.damage_weighted + record.effective_damage * weight,
             state.survival_weighted + record.actor_end_hp * weight,
             state.survival_ms_weighted + Decimal(record.actor_survival_ms) * weight,
             state.engagement_weighted + record.uptime * weight,
@@ -698,8 +712,9 @@ def generic_cog_build_preview(
     :param engine: Matchup engine providing locked items and two-sided evaluation.
     :param request: Matchup request whose actor receives the recommendation.
     :param workers: Worker processes used to evaluate distinct build prefixes.
-        ``None`` uses every available core, and ``1`` keeps the search in this
-        process. Results do not depend on this value.
+        ``None`` uses the ``LOL_BUILD_WORKERS`` environment variable when set,
+        otherwise every available core; ``1`` keeps the search in this process.
+        Results do not depend on this value.
     :param budgets: Cumulative gold ceilings at one, two, and three cores.
     :param stage_weights: Integer importance weights for each core timing.
     :param defense_max_primary_loss_fraction: Largest damage loss accepted by defense.
@@ -707,7 +722,11 @@ def generic_cog_build_preview(
     :return: Three deterministic branches with blockers and scope metadata.
     :raises ValueError: If no legal core exists.
     """
-    workers = (os.cpu_count() or 1) if workers is None else max(1, workers)
+    if workers is None:
+        # Each worker holds its own matchup engine, so memory-constrained hosts
+        # can cap the pool with LOL_BUILD_WORKERS; results do not depend on it.
+        workers = int(os.environ.get("LOL_BUILD_WORKERS", "0")) or os.cpu_count() or 1
+    workers = max(1, workers)
     root = engine.root
     actor_cog = engine.registry.require_cog(request.actor)
     opponent_cog = engine.registry.require_cog(request.opponent)
@@ -735,6 +754,10 @@ def generic_cog_build_preview(
     evaluated = 0
     excluded_duplicate_group = False
     prefix_cache: dict[tuple[tuple[int, ...], int, int], _StageRecord] = {}
+    # Hundreds of thousands of candidate states share a handful of distinct
+    # blocker sets; interning them per search keeps one copy of each instead of
+    # one per state. Values are unchanged, so results are unaffected.
+    interned_blockers: dict[frozenset[str], frozenset[str]] = {}
     with _stage_pool(workers, root, request, progress) as pool:
         for core in range(1, 4):
             expanded: list[_BeamState] = []
@@ -775,14 +798,17 @@ def generic_cog_build_preview(
                 expanded.append(
                     _BeamState(
                         path,
-                        state.damage_weighted + record.opponent_hp_lost * record.uptime * weight,
+                        state.damage_weighted + record.effective_damage * weight,
                         state.survival_weighted + record.actor_end_hp * weight,
                         state.survival_ms_weighted + Decimal(record.actor_survival_ms) * weight,
                         state.engagement_weighted + record.uptime * weight,
                         state.sustain_weighted + record.lane_recovered * weight,
                         state.chassis_weighted + record.mixed_ehp * weight,
                         state.completion_gold_weighted + Decimal(total_gold) * weight,
-                        state.blockers | record.blockers,
+                        interned_blockers.setdefault(
+                            state.blockers | record.blockers,
+                            state.blockers | record.blockers,
+                        ),
                         state.all_core_contact and record.contact,
                         state.all_core_chassis and record.chassis_ready,
                         state.all_core_item_ready and record.item_ready,
@@ -1292,8 +1318,11 @@ def _fleeing_move_speed(
     :param actor_attack_range: Reach of the pursuing participant.
     :param target_attack_range: Reach of the participant being pursued.
     :param target_move_speed: Speed the target would flee at.
-    :param policy: One of :data:`PURSUIT_TARGET_POLICIES`.
-    :return: Retreat speed fed to the pursuit benchmark.
+    :param policy: One of :data:`PURSUIT_TARGET_POLICIES`. Under
+        ``range_aware`` a target that outranges the actor kites away, and one
+        that does not advances to fight (returned as a negative retreat speed).
+    :return: Retreat speed fed to the pursuit benchmark; negative when the
+        target approaches.
     :raises ValueError: If the policy is not recognized.
     """
     if policy == "always_flees":
@@ -1304,7 +1333,9 @@ def _fleeing_move_speed(
         raise ValueError(f"unknown pursuit target policy: {policy}")
     if target_attack_range > actor_attack_range:
         return target_move_speed
-    return Decimal(0)
+    # A target that must close to deal damage walks toward the actor instead of
+    # waiting, so the gap shrinks at both speeds combined (a negative retreat).
+    return -target_move_speed
 
 
 def _stage_noncombat_metrics(
