@@ -234,6 +234,7 @@ class LilliaCog(ChampionCog):
             ),
             action(
                 "LILLIA_R_LILTING_LULLABY_SLEEP",
+                origin_event_id="LILLIA_R_LILTING_LULLABY_DROWSY",
                 at_ms=self._SLEEP_AT_MS,
                 sequence=base + 2,
                 source=context.self_entity,

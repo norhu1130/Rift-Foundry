@@ -171,6 +171,7 @@ class LockeCog(ChampionCog):
         events.append(
             action(
                 "LOCKE_W_SOUL_IGNITION_END_RECOVERY",
+                origin_event_id="LOCKE_W_SOUL_IGNITION_START",
                 at_ms=self._W_END_MS,
                 sequence=base + 20,
                 source=context.self_entity,

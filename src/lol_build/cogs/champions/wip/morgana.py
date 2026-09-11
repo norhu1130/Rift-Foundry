@@ -209,6 +209,7 @@ class MorganaCog(ChampionCog):
             ),
             action(
                 "MORGANA_R_SOUL_SHACKLES_FINISH",
+                origin_event_id="MORGANA_R_SOUL_SHACKLES_INITIAL",
                 at_ms=self._R_FINISH_MS,
                 sequence=base + 3,
                 source=context.self_entity,

@@ -113,6 +113,7 @@ class EvelynnCog(ChampionCog):
             ),
             action(
                 "EVELYNN_W_ALLURE_FULL_TRIGGER",
+                origin_event_id="EVELYNN_W_ALLURE_MARK",
                 at_ms=self._W_TRIGGER_AT_MS,
                 sequence=base + 1,
                 source=context.self_entity,

@@ -222,6 +222,7 @@ class GragasCog(ChampionCog):
             ),
             action(
                 "GRAGAS_W_DRUNKEN_RAGE_READY",
+                origin_event_id="GRAGAS_W_DRUNKEN_RAGE_CAST",
                 at_ms=self._W_COMPLETE_MS,
                 sequence=base + 101,
                 source=context.self_entity,

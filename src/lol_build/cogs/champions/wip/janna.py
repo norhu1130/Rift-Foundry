@@ -240,6 +240,7 @@ class JannaCog(ChampionCog):
                 ),
                 action(
                     "JANNA_R_MONSOON_SELF_HEAL_COMPLETE",
+                    origin_event_id="JANNA_R_MONSOON_KNOCKBACK",
                     at_ms=self._R_HEAL_AT_MS,
                     sequence=base + 501,
                     source=context.self_entity,

@@ -263,6 +263,7 @@ class KarthusCog(ChampionCog):
                 events.append(
                     action(
                         "KARTHUS_R_REQUIEM_SINGLE_REPRESENTED_TARGET",
+                        origin_event_id="KARTHUS_R_REQUIEM_CHANNEL_START",
                         at_ms=self._R_DAMAGE_AT_MS,
                         sequence=base + 301,
                         source=context.self_entity,

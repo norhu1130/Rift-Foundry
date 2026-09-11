@@ -220,6 +220,7 @@ class NaafiriCog(ChampionCog):
             ),
             action(
                 "NAAFIRI_Q_BLEED_TICK_BEFORE_RECAST",
+                origin_event_id="NAAFIRI_Q_DARKIN_DAGGERS_FIRST",
                 at_ms=self._FIRST_Q_AT_MS + 500,
                 sequence=base + 3,
                 source=context.self_entity,

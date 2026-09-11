@@ -229,6 +229,7 @@ class BlitzcrankCog(ChampionCog):
             ),
             action(
                 "BLITZCRANK_W_OVERDRIVE_SELF_SLOW",
+                origin_event_id="BLITZCRANK_W_OVERDRIVE_START",
                 at_ms=self._W_END_MS,
                 sequence=base + 4,
                 source=context.self_entity,

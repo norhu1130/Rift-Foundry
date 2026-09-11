@@ -186,6 +186,7 @@ class KarmaCog(ChampionCog):
             ),
             action(
                 "KARMA_W_FOCUSED_RESOLVE_COMPLETE",
+                origin_event_id="KARMA_W_FOCUSED_RESOLVE_INITIAL",
                 at_ms=self._W_COMPLETE_AT_MS,
                 sequence=base + 3,
                 source=context.self_entity,

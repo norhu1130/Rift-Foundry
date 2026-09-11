@@ -220,6 +220,7 @@ class IreliaCog(ChampionCog):
             ),
             action(
                 "IRELIA_R_VANGUARDS_EDGE_WALL_CROSS",
+                origin_event_id="IRELIA_R_VANGUARDS_EDGE_MISSILE",
                 at_ms=1500,
                 sequence=base + 2,
                 source=context.self_entity,

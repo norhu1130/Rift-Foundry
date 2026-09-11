@@ -184,6 +184,7 @@ class NeekoCog(ChampionCog):
             ),
             action(
                 "NEEKO_R_POP_BLOSSOM_AIRBORNE",
+                origin_event_id="NEEKO_R_POP_BLOSSOM_PREPARE",
                 at_ms=self._R_AIRBORNE_AT_MS,
                 sequence=base + 3,
                 source=context.self_entity,
@@ -192,6 +193,7 @@ class NeekoCog(ChampionCog):
             ),
             action(
                 "NEEKO_R_POP_BLOSSOM_LAND",
+                origin_event_id="NEEKO_R_POP_BLOSSOM_PREPARE",
                 at_ms=self._R_LAND_AT_MS,
                 sequence=base + 4,
                 source=context.self_entity,

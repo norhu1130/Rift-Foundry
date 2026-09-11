@@ -224,6 +224,7 @@ class SorakaCog(ChampionCog):
             ),
             action(
                 "SORAKA_E_EQUINOX_EXPIRE",
+                origin_event_id="SORAKA_E_EQUINOX_INITIAL",
                 at_ms=self._E_EXPIRE_AT_MS,
                 sequence=base + 2,
                 source=context.self_entity,
