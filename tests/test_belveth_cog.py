@@ -236,5 +236,5 @@ def test_belveth_item_policy_accepts_only_represented_stat_channels() -> None:
         belveth.item_candidate_blocker(
             {"id": 2, "stats": {"AP": {}, "CRITICAL_STRIKE_CHANCE": {}, "LIFESTEAL": {}}}
         )
-        == "BELVETH_ITEM_STAT_NOT_MODELED:2:AP,CRITICAL_STRIKE_CHANCE"
+        == "BELVETH_ITEM_STAT_NOT_MODELED:2:AP"
     )

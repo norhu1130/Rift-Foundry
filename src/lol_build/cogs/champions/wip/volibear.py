@@ -98,10 +98,9 @@ class VolibearCog(ChampionCog):
     def item_candidate_blocker(self, item: dict[str, object]) -> str | None:
         """Reject item stats whose value this fixed rotation cannot represent.
 
-        Ability haste cannot reschedule the fixed spell policy, mana is not
-        consumed, and critical strike and heal/shield power need output
-        attribution absent from the current snapshot contract. Life steal and
-        omnivamp are resolved by the shared timeline from each damage output.
+        Ability haste cannot reschedule the fixed spell policy and mana is not
+        consumed. Life steal, omnivamp, heal and shield power, and plain-attack
+        expected critical-strike damage are resolved by the shared timeline.
 
         :param item: Normalized item candidate from the locked catalog.
         :return: Champion-scoped blocker code, or ``None`` when representable.
@@ -110,7 +109,6 @@ class VolibearCog(ChampionCog):
         assert isinstance(stats, dict)
         unsupported = {
             "ABILITY_HASTE",
-            "CRITICAL_STRIKE_CHANCE",
             "MANA",
         } & stats.keys()
         if unsupported:

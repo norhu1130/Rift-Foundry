@@ -243,6 +243,15 @@
     12개는 근접 사거리이거나 슬롯을 특정 못함. 추가 보류 사유: Data Dragon
     사거리가 비정상인 경우(Janna W 4294967295)가 섞여 있고, 궁극기 슬로우는
     접촉 전 사용 여부를 챔피언별로 판단해야 한다.
+- 13차 수정 (치명타 아이템 거절 해제): 10차 수정으로 엔진이 순수 평타의
+  기대 치명타를 계산하게 됐지만, 88개 Cog가 여전히 `CRITICAL_STRIKE_CHANCE`
+  아이템을 후보에서 거절하고 있었다(원거리 딜러 Vayne·Kindred·Ezreal·
+  Kog'Maw·Azir·Jayce·Teemo·Ashe 포함). 스킬 치명타 상호작용이 남은
+  Tryndamere·Ashe·Gangplank을 제외한 87개(Darius·Aatrox 포함)에서 거절을
+  풀었다. 이제 치명타 아이템은 평타 기대 피해만큼 평가된다(스킬 치명타는
+  여전히 과소평가 — 해당 Cog의 blocker로 남음). 테스트 기대 문자열 10개,
+  치명타만으로 거절을 확인하던 Briar·Fiora 테스트(여전히 거절되는 `MANA`로
+  교체), 낡은 docstring 12곳(Lux·Karma의 치유 증폭 문구 포함)을 고쳤다.
 - 12차 수정 (게임 규칙: 치유·보호막 강화): 아래 발견대로 고쳤다 — 카탈로그
   `mPercentHealingAmountMod → HEAL_SHIELD_POWER`, 스냅샷·`Combatant`에
   `heal_shield_power`, 타임라인이 시전자 강화를 회복(`HealOutput`, 잃은 체력

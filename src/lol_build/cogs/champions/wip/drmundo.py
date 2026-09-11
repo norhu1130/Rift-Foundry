@@ -110,7 +110,6 @@ class DrMundoCog(ChampionCog):
         unsupported = {
             "ABILITY_HASTE",
             "AP",
-            "CRITICAL_STRIKE_CHANCE",
             "MANA",
             "MANA_REGEN",
         } & stats.keys()

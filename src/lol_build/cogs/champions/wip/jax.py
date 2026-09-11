@@ -53,8 +53,8 @@ class JaxCog(ChampionCog):
         Defensive stats, attack speed, attack damage, ability power, penetration,
         movement, tenacity, health regeneration, life steal, and omnivamp are
         evaluated by the shared engine. Ability haste and mana need
-        resource-aware spell scheduling, while critical strikes need output
-        attribution.
+        resource-aware spell scheduling; plain attacks deal expected
+        critical-strike damage through the shared engine.
 
         :param item: Normalized item candidate from the locked catalog.
         :return: A champion-scoped blocker for unsupported stats, otherwise ``None``.
@@ -63,7 +63,6 @@ class JaxCog(ChampionCog):
         assert isinstance(stats, dict)
         unsupported = {
             "ABILITY_HASTE",
-            "CRITICAL_STRIKE_CHANCE",
             "MANA",
         } & stats.keys()
         if unsupported:

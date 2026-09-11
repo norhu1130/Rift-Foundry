@@ -51,7 +51,6 @@ class KindredCog(ChampionCog):
         stats = item["stats"]
         assert isinstance(stats, dict)
         unsupported = {
-            "CRITICAL_STRIKE_CHANCE",
             "MANA",
             "MANA_REGEN",
         } & stats.keys()

@@ -77,8 +77,9 @@ class EvelynnCog(ChampionCog):
         """Reject item channels absent from Evelynn's fixed event policy.
 
         AP, AD, attack speed, haste, penetration, movement, health, and resists
-        affect represented events or snapshots. Critical strikes, resource
-        budgets, and generic sustain modifiers are deliberately not inferred.
+        affect represented events or snapshots, and plain attacks deal expected
+        critical-strike damage through the shared engine. Resource budgets and
+        generic sustain modifiers are deliberately not inferred.
 
         :param item: Normalized candidate from the locked item catalog.
         :return: Evelynn-scoped blocker for unsupported stats, otherwise ``None``.
@@ -86,7 +87,6 @@ class EvelynnCog(ChampionCog):
         stats = item["stats"]
         assert isinstance(stats, dict)
         unsupported = {
-            "CRITICAL_STRIKE_CHANCE",
             "MANA",
             "MANA_REGEN",
         } & stats.keys()

@@ -183,7 +183,7 @@ def test_azir_engagement_item_policy_and_control_are_explicit() -> None:
         azir.item_candidate_blocker(
             {"id": 2, "stats": {"AD": {}, "MANA": {}, "CRITICAL_STRIKE_CHANCE": {}}}
         )
-        == "AZIR_ITEM_STAT_NOT_MODELED:2:AD,CRITICAL_STRIKE_CHANCE,MANA"
+        == "AZIR_ITEM_STAT_NOT_MODELED:2:AD,MANA"
     )
     slow = reaction.cast_block_windows[0]
     knockback = next(

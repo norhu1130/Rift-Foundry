@@ -25,7 +25,9 @@ class YunaraCog(ChampionCog):
     ``RW_CDR``. Cultivation of Spirit's passive adds its rank-five on-hit
     magic damage to every attack, and after four champion hits fill its
     resource the active adds its on-hit damage again for ``Buff_Duration``.
-    Critical strikes and the active's attack speed and spread are excluded.
+    Plain attacks deal expected critical-strike damage through the shared
+    engine; Cultivation's critical magic damage and the active's attack speed
+    and spread are excluded.
     """
 
     maturity = CogMaturity.MODELED_UNVERIFIED

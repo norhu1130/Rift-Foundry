@@ -205,10 +205,8 @@ def test_briar_item_policy_and_lane_sustain_keep_state_honest() -> None:
         is None
     )
     assert (
-        briar.item_candidate_blocker(
-            {"id": 2, "stats": {"CRITICAL_STRIKE_CHANCE": {}, "LIFESTEAL": {}}}
-        )
-        == "BRIAR_ITEM_STAT_NOT_MODELED:2:CRITICAL_STRIKE_CHANCE"
+        briar.item_candidate_blocker({"id": 2, "stats": {"CRITICAL_STRIKE_CHANCE": {}, "MANA": {}}})
+        == "BRIAR_ITEM_STAT_NOT_MODELED:2:MANA"
     )
     amount, blockers = briar.lane_sustain_extra_health(
         _context(),

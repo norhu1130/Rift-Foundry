@@ -213,7 +213,7 @@ def test_evelynn_sustain_engagement_and_item_policy_remain_state_honest() -> Non
         evelynn.item_candidate_blocker(
             {"id": 2, "stats": {"CRITICAL_STRIKE_CHANCE": {}, "MANA": {}}}
         )
-        == "EVELYNN_ITEM_STAT_NOT_MODELED:2:CRITICAL_STRIKE_CHANCE,MANA"
+        == "EVELYNN_ITEM_STAT_NOT_MODELED:2:MANA"
     )
     baseline, blockers = evelynn.lane_sustain_extra_health(
         _context(), duration_ms=30_000, no_damage_delay_ms=8_000

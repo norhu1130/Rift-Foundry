@@ -56,7 +56,6 @@ class LeeSinCog(ChampionCog):
         s = item["stats"]
         assert isinstance(s, dict)
         u = {
-            "CRITICAL_STRIKE_CHANCE",
             "MANA",
             "MANA_REGEN",
         } & s.keys()

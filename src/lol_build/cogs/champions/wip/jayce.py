@@ -68,7 +68,6 @@ class JayceCog(ChampionCog):
         unsupported = {
             "ABILITY_HASTE",
             "ATTACK_SPEED",
-            "CRITICAL_STRIKE_CHANCE",
             "MANA",
             "MANA_REGEN",
         } & stats.keys()

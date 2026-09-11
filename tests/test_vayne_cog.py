@@ -197,5 +197,5 @@ def test_vayne_item_policy_rejects_unrepresented_stat_channels() -> None:
         vayne.item_candidate_blocker(
             {"id": 2, "stats": {"ABILITY_HASTE": {}, "CRITICAL_STRIKE_CHANCE": {}}}
         )
-        == "VAYNE_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,CRITICAL_STRIKE_CHANCE"
+        == "VAYNE_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE"
     )

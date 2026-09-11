@@ -202,7 +202,7 @@ def test_ekko_policy_and_lane_sustain_keep_state_honest() -> None:
     )
     assert (
         ekko.item_candidate_blocker({"id": 2, "stats": {"CRITICAL_STRIKE_CHANCE": {}, "MANA": {}}})
-        == "EKKO_ITEM_STAT_NOT_MODELED:2:CRITICAL_STRIKE_CHANCE,MANA"
+        == "EKKO_ITEM_STAT_NOT_MODELED:2:MANA"
     )
     amount, blockers = ekko.lane_sustain_extra_health(
         _context(),

@@ -172,13 +172,11 @@ def test_fiora_against_teemo_blind_preserves_ability_damage() -> None:
 
 
 def test_fiora_item_policy_tracks_only_modeled_channels() -> None:
-    """Allow haste and damage while rejecting random crit and item sustain."""
+    """Allow haste, damage, and crit while rejecting unmodeled mana."""
     fiora = _fiora()
 
     assert fiora.item_candidate_blocker({"id": 1, "stats": {"AD": {}, "ABILITY_HASTE": {}}}) is None
     assert (
-        fiora.item_candidate_blocker(
-            {"id": 2, "stats": {"CRITICAL_STRIKE_CHANCE": {}, "LIFESTEAL": {}}}
-        )
-        == "FIORA_ITEM_STAT_NOT_MODELED:2:CRITICAL_STRIKE_CHANCE"
+        fiora.item_candidate_blocker({"id": 2, "stats": {"CRITICAL_STRIKE_CHANCE": {}, "MANA": {}}})
+        == "FIORA_ITEM_STAT_NOT_MODELED:2:MANA"
     )

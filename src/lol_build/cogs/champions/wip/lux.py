@@ -54,8 +54,9 @@ class LuxCog(ChampionCog):
 
         AP, attack damage, attack speed, defenses, penetration, movement, and
         tenacity reach the shared snapshot or modeled events. Haste and resource
-        stats cannot change the fixed spell policy, critical strikes are not
-        sampled, and healing amplification is not applied to the shield output.
+        stats cannot change the fixed spell policy. Plain attacks deal expected
+        critical-strike damage, and heal and shield power amplifies the shield,
+        both through the shared engine.
 
         :param item: Normalized candidate item from the locked item catalog.
         :return: Lux-scoped blocker for unsupported stats, otherwise ``None``.
@@ -64,7 +65,6 @@ class LuxCog(ChampionCog):
         assert isinstance(stats, dict)
         unsupported = {
             "ABILITY_HASTE",
-            "CRITICAL_STRIKE_CHANCE",
             "MANA",
             "MANA_REGEN",
         } & stats.keys()

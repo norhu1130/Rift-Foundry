@@ -243,7 +243,7 @@ def test_fizz_item_policy_engagement_and_lane_sustain_are_explicit() -> None:
     )
     assert (
         fizz.item_candidate_blocker({"id": 2, "stats": {"CRITICAL_STRIKE_CHANCE": {}, "MANA": {}}})
-        == "FIZZ_ITEM_STAT_NOT_MODELED:2:CRITICAL_STRIKE_CHANCE,MANA"
+        == "FIZZ_ITEM_STAT_NOT_MODELED:2:MANA"
     )
     assert fizz.lane_sustain_extra_health(
         context,

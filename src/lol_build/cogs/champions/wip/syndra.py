@@ -54,10 +54,10 @@ class SyndraCog(ChampionCog):
     def item_candidate_blocker(self, item: dict[str, object]) -> str | None:
         """Reject item channels absent from Syndra's fixed event policy.
 
-        Ability haste and mana cannot alter the fixed schedule, critical strikes
-        are not sampled, and attack healing is not resolved by plain damage
-        events. AP, penetration, chassis, movement, AD, and attack speed reach a
-        shared snapshot or a modeled output.
+        Ability haste and mana cannot alter the fixed schedule; plain attacks
+        deal expected critical-strike damage through the shared engine. AP,
+        penetration, chassis, movement, AD, and attack speed reach a shared
+        snapshot or a modeled output.
 
         :param item: Normalized candidate from the locked item catalog.
         :return: Syndra-scoped blocker for unsupported stats, otherwise ``None``.
@@ -66,7 +66,6 @@ class SyndraCog(ChampionCog):
         assert isinstance(stats, dict)
         unsupported = {
             "ABILITY_HASTE",
-            "CRITICAL_STRIKE_CHANCE",
             "MANA",
             "MANA_REGEN",
         } & stats.keys()

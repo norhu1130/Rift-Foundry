@@ -183,7 +183,7 @@ def test_ezreal_policy_engagement_and_reaction_keep_boundaries_explicit() -> Non
         ezreal.item_candidate_blocker(
             {"id": 2, "stats": {"CRITICAL_STRIKE_CHANCE": {}, "MANA": {}}}
         )
-        == "EZREAL_ITEM_STAT_NOT_MODELED:2:CRITICAL_STRIKE_CHANCE,MANA"
+        == "EZREAL_ITEM_STAT_NOT_MODELED:2:MANA"
     )
     reaction = ezreal.build_reaction_plan(context)
     assert reaction.events == ()

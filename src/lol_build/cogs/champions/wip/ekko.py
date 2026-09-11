@@ -111,8 +111,9 @@ class EkkoCog(ChampionCog):
         """Reject item channels absent from Ekko's fixed event policy.
 
         AP, attack speed, ability haste, penetration, AD, and chassis stats
-        affect represented snapshots or events. Resource use, critical strikes,
-        and generic healing modifiers are deliberately not inferred.
+        affect represented snapshots or events, and plain attacks deal expected
+        critical-strike damage through the shared engine. Resource use and
+        generic healing modifiers are deliberately not inferred.
 
         :param item: Normalized candidate from the locked item catalog.
         :return: Ekko-scoped blocker for unsupported stats, otherwise ``None``.
@@ -120,7 +121,6 @@ class EkkoCog(ChampionCog):
         stats = item["stats"]
         assert isinstance(stats, dict)
         unsupported = {
-            "CRITICAL_STRIKE_CHANCE",
             "MANA",
             "MANA_REGEN",
         } & stats.keys()

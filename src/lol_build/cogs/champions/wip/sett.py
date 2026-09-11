@@ -68,8 +68,9 @@ class SettCog(ChampionCog):
 
         Health, attack damage, attack speed, defenses, penetration, movement,
         and tenacity flow through the shared snapshot or Sett formulas. Fixed
-        cast times cannot value haste, while critical strikes and healing
-        attribution are outside this action model.
+        cast times cannot value haste, and healing attribution is outside this
+        action model; plain attacks deal expected critical-strike damage
+        through the shared engine.
 
         :param item: Normalized item candidate from the locked catalog.
         :return: Champion-scoped blocker for unsupported stats, otherwise ``None``.
@@ -78,7 +79,6 @@ class SettCog(ChampionCog):
         assert isinstance(stats, dict)
         unsupported = {
             "ABILITY_HASTE",
-            "CRITICAL_STRIKE_CHANCE",
             "MANA",
         } & stats.keys()
         if unsupported:

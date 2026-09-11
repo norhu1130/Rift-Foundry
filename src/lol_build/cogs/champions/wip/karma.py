@@ -64,9 +64,10 @@ class KarmaCog(ChampionCog):
         """Reject item channels absent from Karma's fixed duel policy.
 
         AP changes every modeled spell and shield, while attack damage and
-        attack speed reach ordinary attacks. The fixed schedule does not spend
-        mana, scale cooldowns, sample critical strikes, or apply sustain and
-        shield amplification stats that are absent from champion snapshots.
+        attack speed reach ordinary attacks, which deal expected critical-strike
+        damage, and heal and shield power amplifies her shield, both through the
+        shared engine. The fixed schedule does not spend mana or scale
+        cooldowns.
 
         :param item: Normalized candidate from the locked item catalog.
         :return: Karma-scoped blocker, or ``None`` for represented channels.
@@ -75,7 +76,6 @@ class KarmaCog(ChampionCog):
         assert isinstance(stats, dict)
         unsupported = {
             "ABILITY_HASTE",
-            "CRITICAL_STRIKE_CHANCE",
             "MANA",
             "MANA_REGEN",
         } & stats.keys()

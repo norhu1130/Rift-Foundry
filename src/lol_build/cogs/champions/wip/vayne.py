@@ -71,9 +71,9 @@ class VayneCog(ChampionCog):
         Attack damage, attack speed, ability power, defenses, penetration,
         movement, life steal, and omnivamp feed represented calculations; the
         shared timeline resolves vamp from each damage output, and heal and
-        shield power amplifies cast heals and shields. Critical strikes, mana
-        consumption, and ability-haste rescheduling are intentionally not
-        inferred by this fixed rotation.
+        shield power amplifies cast heals and shields; plain attacks deal
+        expected critical-strike damage. Mana consumption and ability-haste
+        rescheduling are intentionally not inferred by this fixed rotation.
 
         :param item: Normalized candidate item from the locked catalog.
         :return: Champion-scoped blocker, or ``None`` when represented.
@@ -82,7 +82,6 @@ class VayneCog(ChampionCog):
         assert isinstance(stats, dict)
         unsupported = {
             "ABILITY_HASTE",
-            "CRITICAL_STRIKE_CHANCE",
             "MANA",
         } & stats.keys()
         if unsupported:

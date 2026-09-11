@@ -204,7 +204,7 @@ def test_ambessa_item_and_lane_sustain_policies_are_explicit() -> None:
         ambessa.item_candidate_blocker(
             {"id": 2, "stats": {"AP": {}, "CRITICAL_STRIKE_CHANCE": {}, "MANA": {}}}
         )
-        == "AMBESSA_ITEM_STAT_NOT_MODELED:2:AP,CRITICAL_STRIKE_CHANCE,MANA"
+        == "AMBESSA_ITEM_STAT_NOT_MODELED:2:AP,MANA"
     )
     recovered, blockers = ambessa.lane_sustain_extra_health(
         _context(),

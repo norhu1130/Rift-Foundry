@@ -54,7 +54,7 @@ class AatroxCog(ChampionCog):
         """
         stats = item["stats"]
         assert isinstance(stats, dict)
-        unsupported = {"AP", "MANA", "CRITICAL_STRIKE_CHANCE"} & stats.keys()
+        unsupported = {"AP", "MANA"} & stats.keys()
         if unsupported:
             return f"AATROX_ITEM_STAT_NOT_MODELED:{item['id']}:{','.join(sorted(unsupported))}"
         return None
