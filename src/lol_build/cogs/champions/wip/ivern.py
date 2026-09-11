@@ -165,6 +165,7 @@ class IvernCog(ChampionCog):
             ),
             action(
                 "IVERN_E_TRIGGERSEED_DETONATE",
+                origin_event_id="IVERN_E_TRIGGERSEED_SELF",
                 at_ms=self._E_DETONATE_AT_MS,
                 sequence=base + 3,
                 source=context.self_entity,

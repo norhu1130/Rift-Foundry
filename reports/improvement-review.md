@@ -332,6 +332,28 @@
   - 후속 과제: 후속 타격으로 보이는 이벤트가 81개 Cog에 220종(RETURN, TICK,
     EXPLOSION, DETONATE, SECOND, RECAST 등) 있다. 이름만으로 자동 표시하면
     원래 시전을 잘못 짚을 수 있어 Cog별로 표시해야 한다.
+  - 17차 수정 (후속 이벤트 표시 확대): 같은 챔피언·슬롯의 원래 시전과 짝지어지는
+    19개 후보 중, 스스로 이어지는 후속 타격 10개에 `origin_event_id`를 달았다 —
+    Ambessa R 착지, Draven R 복귀, Ekko W 폭발, Hwei R 폭발, Ivern E 폭발,
+    Lux W 복귀, Sylas Q 폭발, Talon W·R 복귀, Vladimir R 폭발. 재시전(Vex R,
+    Naafiri Q, Warwick E, Dr. Mundo W)은 플레이어가 다시 누르는 새 시전이라
+    게임에서도 침묵에 막히므로 표시하지 않았다. 자동인지 재시전인지 Cog만으로
+    알 수 없는 폭발(Lux E, Sion W, Shyvana W)과 짝을 못 찾은 22개는 보류.
+    Garen(Q 침묵) 상대 확인: Ambessa·Draven·Ekko·Hwei·Lux·Vladimir의 후속
+    타격은 원래 시전이 침묵 전에 끝나 적중하고, Ivern E 폭발·Sylas Q 폭발·
+    Talon W 복귀는 원래 시전이 침묵에 막혀 `ORIGIN_CAST_CANCELLED`로 함께
+    취소된다. 특히 Ivern E 폭발은 패시브 채널이라 전에는 침묵 대상이 아니어서,
+    씨앗을 심지 못했는데도 폭발 피해가 들어가는 과대평가가 있었다 — 이번
+    표시는 과소·과대평가를 모두 바로잡는다.
+  - 같은 유형의 과대평가 조사: 스킬 슬롯 이름을 가졌는데 패시브 채널로
+    모델링돼 침묵 대상에서 빠지는 이벤트가 19개였다. 시전 뒤에 이어지는 효과
+    14개(Blitzcrank W 종료 슬로우, Evelynn W 매혹 발동, Gragas W 완료, Irelia R
+    벽 통과, Janna R 회복 완료, Karma W 완료, Karthus R 피해, Lillia R 수면,
+    Locke W 종료 회복, Morgana R 종료, Naafiri Q 출혈 틱, Neeko R 에어본·착지,
+    Soraka E 종료)에 원래 시전을 표시한다. 스킬을 쓰지 않아도 존재하는 패시브
+    (Blitzcrank R 전기 충격, Galio W 마법 보호막), 짝이 되는 시전이 계획에
+    없는 덫(Caitlyn W, Jinx E), 어느 시전의 후속인지 애매한 Nami W 연계는
+    표시하지 않는다.
 - 10차 수정 (게임 규칙: 치명타): 엔진 코어·애플리케이션·Cog 기반 어디에도
   치명타 피해 적용이 없었다. 치명타 확률을 스스로 계산하지도, 치명타
   아이템을 거절하지도 않는 Cog가 70개(원거리 딜러 14명: Kalista, Samira,

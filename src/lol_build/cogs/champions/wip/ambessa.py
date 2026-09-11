@@ -407,6 +407,7 @@ class AmbessaCog(ChampionCog):
             ),
             action(
                 "AMBESSA_R_PUBLIC_EXECUTION_IMPACT",
+                origin_event_id="AMBESSA_R_PUBLIC_EXECUTION_CAST",
                 at_ms=950,
                 sequence=base + 1,
                 source=context.self_entity,

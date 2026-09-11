@@ -169,6 +169,7 @@ class HweiCog(ChampionCog):
             events.append(
                 action(
                     "HWEI_R_SPIRALING_DESPAIR_EXPLOSION",
+                    origin_event_id="HWEI_R_SPIRALING_DESPAIR_ATTACH",
                     at_ms=explosion_ms,
                     sequence=base + 30,
                     source=context.self_entity,

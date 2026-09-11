@@ -108,6 +108,7 @@ class VladimirCog(ChampionCog):
             fixed.append(
                 action(
                     "VLADIMIR_R_HEMOPLAGUE_DETONATION",
+                    origin_event_id="VLADIMIR_R_HEMOPLAGUE",
                     at_ms=self._R_AT_MS + self._R_INFECTION_MS,
                     sequence=base + 4,
                     source=context.self_entity,

@@ -82,6 +82,7 @@ class TalonCog(ChampionCog):
             ),
             action(
                 "TALON_W_RAKE_RETURN",
+                origin_event_id="TALON_W_RAKE_INITIAL",
                 at_ms=self._W_AT_MS + self._W_RETURN_DELAY_MS,
                 sequence=base + 2,
                 source=context.self_entity,
@@ -103,6 +104,7 @@ class TalonCog(ChampionCog):
             fixed.append(
                 action(
                     "TALON_R_SHADOW_ASSAULT_RETURN",
+                    origin_event_id="TALON_R_SHADOW_ASSAULT_CAST",
                     at_ms=r_return_ms,
                     sequence=base + 4,
                     source=context.self_entity,

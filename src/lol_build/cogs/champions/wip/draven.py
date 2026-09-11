@@ -261,6 +261,7 @@ class DravenCog(ChampionCog):
             fixed_events.append(
                 action(
                     "DRAVEN_R_WHIRLING_DEATH_RETURN",
+                    origin_event_id="DRAVEN_R_WHIRLING_DEATH_OUTWARD",
                     at_ms=1400,
                     sequence=base + 3,
                     source=context.self_entity,

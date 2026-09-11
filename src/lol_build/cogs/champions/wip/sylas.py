@@ -126,6 +126,7 @@ class SylasCog(ChampionCog):
             ),
             action(
                 "SYLAS_Q_CHAIN_LASH_EXPLOSION",
+                origin_event_id="SYLAS_Q_CHAIN_LASH",
                 at_ms=self._Q_AT_MS + self._Q_DETONATION_DELAY_MS,
                 sequence=base + 2,
                 source=context.self_entity,

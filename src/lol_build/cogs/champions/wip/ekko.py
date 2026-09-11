@@ -342,6 +342,7 @@ class EkkoCog(ChampionCog):
             ),
             action(
                 "EKKO_W_PARALLEL_CONVERGENCE_DETONATE",
+                origin_event_id="EKKO_W_PARALLEL_CONVERGENCE_ARM",
                 at_ms=self._W_DETONATE_AT_MS,
                 sequence=base + 1,
                 source=context.self_entity,

@@ -220,6 +220,7 @@ class LuxCog(ChampionCog):
             ),
             action(
                 "LUX_W_PRISMATIC_BARRIER_RETURN_SELF",
+                origin_event_id="LUX_W_PRISMATIC_BARRIER_OUTBOUND_SELF",
                 at_ms=3700,
                 sequence=base + 5,
                 source=context.self_entity,
