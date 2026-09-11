@@ -86,7 +86,9 @@ def test_active_scaling_is_reported_rather_than_applied_silently() -> None:
         )
 
 
-def test_a_melee_mirror_reaches_contact_without_movement_items() -> None:
+def test_a_melee_mirror_reaches_contact_without_movement_items(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Stop the engagement metric from measuring movement items alone.
 
     Against an equally fast melee opponent that always flees, a build with no
@@ -96,6 +98,9 @@ def test_a_melee_mirror_reaches_contact_without_movement_items() -> None:
     with one (Darius's Apprehend) reaches contact even against a fleeing target.
     """
     engine = MatchupEngine(ROOT)
+    # Hold Yorick's kit neutral so only movement items could reach contact.
+    yorick = type(engine.registry.require_cog("Yorick"))
+    monkeypatch.setattr(yorick, "engagement_target_slow_fraction", lambda self, ctx: Decimal(0))
     tank = (3143, 3083, 3742)
 
     def uptime(policy: str) -> Decimal:

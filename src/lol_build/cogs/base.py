@@ -21,6 +21,7 @@ from lol_build.core.timeline import (
     DamageModifierWindow,
     DamageOutput,
     EntityId,
+    StatusOutput,
     opponent_sequence_offset,
 )
 
@@ -264,6 +265,7 @@ class ChampionCog:
         self.document = champion_document
         self.detail_root = detail_root
         self.detail_document = detail_document
+        self._kit_slow_cache: dict[int, Decimal] = {}
         self.champion_id = int(champion_document["key"])
         self.champion_key = str(champion_document["id"])
         self.name = str(champion_document["name"])
@@ -662,11 +664,78 @@ class ChampionCog:
 
         Combined multiplicatively with item slows in the pursuit benchmark, so a
         kit slow closes distance without being disguised as self movement speed.
+        By default the Cog's own action plan is read: each basic ability (not the
+        ultimate) that slows the opponent counts once, at its strongest cast,
+        when its locked cast range exceeds the attacker's range — a slow that
+        needs contact cannot help reach it. Each counts as its magnitude
+        averaged over the encounter (``magnitude x min(1, duration / window)``),
+        and slots combine multiplicatively. Cogs with a curated reading override
+        this method.
 
         :param context: Concrete participant context.
         :return: Slow fraction in ``[0, 1)``.
         """
-        return Decimal(0)
+        cached = self._kit_slow_cache.get(context.snapshot.level)
+        if cached is not None:
+            return cached
+        window = Decimal(context.duration_ms)
+        strongest: dict[str, Decimal] = {}
+        prefix = f"{self.champion_key.upper()}_"
+        for event in self.build_action_plan(context).events:
+            if (
+                event.channel is not ActionChannel.ABILITY
+                or event.source is not context.self_entity
+            ):
+                continue
+            if not event.id.startswith(prefix):
+                continue
+            slot = event.id[len(prefix) : len(prefix) + 1]
+            if slot not in "QWE" or event.id[len(prefix) + 1 : len(prefix) + 2] != "_":
+                continue
+            reach = self._slot_cast_range(slot)
+            if reach is None or reach <= context.snapshot.attack_range or reach >= Decimal(2500):
+                continue
+            for output in event.outputs:
+                if (
+                    isinstance(output, StatusOutput)
+                    and output.status == "CC_SLOW"
+                    and output.recipient is context.opponent_entity
+                ):
+                    averaged = output.magnitude * min(
+                        Decimal(1), Decimal(output.duration_ms) / window
+                    )
+                    strongest[slot] = max(strongest.get(slot, Decimal(0)), averaged)
+        remaining = Decimal(1)
+        for averaged in strongest.values():
+            remaining *= Decimal(1) - min(averaged, Decimal("0.99"))
+        result = Decimal(1) - remaining
+        self._kit_slow_cache[context.snapshot.level] = result
+        return result
+
+    def _slot_cast_range(self, slot: str) -> Decimal | None:
+        """Read one ability slot's locked cast range from the character record.
+
+        :param slot: Ability slot letter.
+        :return: Rank-one cast range in game units, or ``None`` when absent.
+        """
+        spells = (self.detail_root or {}).get("spells")
+        index = ABILITY_SLOTS.index(slot)
+        if not isinstance(spells, list) or index >= len(spells):
+            return None
+        tail = spells[index].split("/")[-1]
+        record = next(
+            (
+                value
+                for key, value in (self.detail_document or {}).items()
+                if key.endswith(f"/{tail}") and isinstance(value, dict)
+            ),
+            None,
+        )
+        spell = record.get("mSpell") if isinstance(record, dict) else None
+        ranges = spell.get("castRange") if isinstance(spell, dict) else None
+        if not isinstance(ranges, list) or not ranges:
+            return None
+        return Decimal(str(ranges[1] if len(ranges) > 1 else ranges[0]))
 
     def lane_sustain_extra_health(
         self,

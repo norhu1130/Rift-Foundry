@@ -883,6 +883,8 @@ def _validate_event(event: ActionEvent, *, duration_ms: int) -> None:
             if output.amount < 0:
                 raise TimelineError(f"event {event.id!r} output amount must be non-negative")
             if isinstance(output, DamageOutput):
+                if not isinstance(output.damage_type, DamageType):
+                    raise TimelineError(f"event {event.id!r} damage requires a DamageType")
                 _finite_decimal(
                     output.percent_resistance_penetration,
                     name=(f"event {event.id}.outputs[{index}].percent_resistance_penetration"),
@@ -913,6 +915,8 @@ def _validate_event(event: ActionEvent, *, duration_ms: int) -> None:
                 if output.decay_delay_ms is not None and output.duration_ms is None:
                     raise TimelineError("decaying shield requires duration")
         elif isinstance(output, CurrentHealthDamageOutput):
+            if not isinstance(output.damage_type, DamageType):
+                raise TimelineError("current-health damage requires a DamageType")
             _finite_decimal(output.ratio, name=f"event {event.id}.outputs[{index}].ratio")
             if not Decimal(0) <= output.ratio <= Decimal(1):
                 raise TimelineError("current-health damage ratio must be within [0, 1]")
@@ -939,6 +943,8 @@ def _validate_event(event: ActionEvent, *, duration_ms: int) -> None:
             if output.duration_ms <= 0:
                 raise TimelineError("maximum-health modifier duration must be positive")
         elif isinstance(output, MissingHealthDamageOutput):
+            if not isinstance(output.damage_type, DamageType):
+                raise TimelineError("missing-health damage requires a DamageType")
             _finite_decimal(output.base_amount, name="missing-health damage base amount")
             _finite_decimal(output.missing_health_ratio, name="missing-health damage ratio")
             if output.base_amount < 0:

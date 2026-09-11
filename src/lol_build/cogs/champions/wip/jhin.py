@@ -85,7 +85,7 @@ class JhinCog(ChampionCog):
             if index == 4:
                 outputs.append(
                     MissingHealthDamageOutput(
-                        context.opponent_entity, Decimal("0.25"), DamageType.PHYSICAL, Decimal(1)
+                        context.opponent_entity, Decimal(0), Decimal("0.25"), DamageType.PHYSICAL
                     )
                 )
                 outputs.append(
