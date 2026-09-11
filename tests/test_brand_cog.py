@@ -89,9 +89,8 @@ def test_brand_rotation_is_deterministic_and_models_three_blaze_stacks() -> None
     assert q.outputs[0].amount == 255
     assert isinstance(q.outputs[1], StatusOutput)
     assert (q.outputs[1].status, q.outputs[1].duration_ms) == ("CC_STUN", 1750)
-    assert (
-        _event(first, "BRAND_W_PILLAR_EMPOWERED_APPLY_BLAZE_3").outputs[0].amount
-        == Decimal("406.25")
+    assert _event(first, "BRAND_W_PILLAR_EMPOWERED_APPLY_BLAZE_3").outputs[0].amount == Decimal(
+        "406.25"
     )
     ultimate = _event(first, "BRAND_R_PYROCLASM_INITIAL_ABLAZE_HIT")
     assert ultimate.outputs[0].amount == 205
@@ -101,11 +100,7 @@ def test_brand_rotation_is_deterministic_and_models_three_blaze_stacks() -> None
     tick = _event(first, "BRAND_PASSIVE_BLAZE_THREE_STACK_TICK_1")
     assert tick.outputs[0].amount == context.opponent_snapshot.max_hp * Decimal("0.015")
     explosion = _event(first, "BRAND_PASSIVE_BLAZE_THREE_STACK_EXPLOSION")
-    expected_ratio = (
-        Decimal(6) / Decimal(100)
-        + Decimal(6 * 12) / Decimal(1700)
-        + Decimal("0.02")
-    )
+    expected_ratio = Decimal(6) / Decimal(100) + Decimal(6 * 12) / Decimal(1700) + Decimal("0.02")
     assert explosion.outputs[0].amount == context.opponent_snapshot.max_hp * expected_ratio
     assert "BRAND_R_REPEAT_BOUNCES_REQUIRE_UNIT_GEOMETRY" in first.blockers
     assert "BRAND_PASSIVE_TICK_PHASE_AND_REFRESH_UNVERIFIED" in first.blockers
@@ -131,12 +126,8 @@ def test_brand_ap_and_attack_speed_reach_only_represented_channels() -> None:
             - _event(baseline, event_id).outputs[0].amount
             == expected
         )
-    baseline_attacks = tuple(
-        event for event in baseline.events if "BASIC_ATTACK" in event.id
-    )
-    powered_attacks = tuple(
-        event for event in powered.events if "BASIC_ATTACK" in event.id
-    )
+    baseline_attacks = tuple(event for event in baseline.events if "BASIC_ATTACK" in event.id)
+    powered_attacks = tuple(event for event in powered.events if "BASIC_ATTACK" in event.id)
     assert len(powered_attacks) > len(baseline_attacks)
     assert (
         _event(powered, "BRAND_PASSIVE_BLAZE_THREE_STACK_EXPLOSION").outputs[0].amount
@@ -163,14 +154,12 @@ def test_brand_control_and_matchup_models_follow_role_reversal() -> None:
     actor_e = next(
         entry
         for entry in as_actor.timeline.log
-        if entry.event_id == "BRAND_E_CONFLAGRATION_APPLY_BLAZE_1"
-        and entry.operation == "DAMAGE"
+        if entry.event_id == "BRAND_E_CONFLAGRATION_APPLY_BLAZE_1" and entry.operation == "DAMAGE"
     )
     target_e = next(
         entry
         for entry in as_target.timeline.log
-        if entry.event_id == "BRAND_E_CONFLAGRATION_APPLY_BLAZE_1"
-        and entry.operation == "DAMAGE"
+        if entry.event_id == "BRAND_E_CONFLAGRATION_APPLY_BLAZE_1" and entry.operation == "DAMAGE"
     )
     assert actor_e.recipient is EntityId.TARGET
     assert target_e.recipient is EntityId.ACTOR
@@ -183,8 +172,7 @@ def test_teemo_blind_cancels_brand_attacks_but_not_combo_or_passive() -> None:
     )
 
     assert any(
-        entry.event_id.startswith("BRAND_BASIC_ATTACK_")
-        and entry.status == "CANCELLED"
+        entry.event_id.startswith("BRAND_BASIC_ATTACK_") and entry.status == "CANCELLED"
         for entry in evaluation.timeline.log
     )
     for event_id in (
@@ -194,9 +182,7 @@ def test_teemo_blind_cancels_brand_attacks_but_not_combo_or_passive() -> None:
         "BRAND_PASSIVE_BLAZE_THREE_STACK_EXPLOSION",
     ):
         assert any(
-            entry.event_id == event_id
-            and entry.operation == "DAMAGE"
-            and entry.status == "APPLIED"
+            entry.event_id == event_id and entry.operation == "DAMAGE" and entry.status == "APPLIED"
             for entry in evaluation.timeline.log
         )
 
@@ -205,9 +191,11 @@ def test_brand_item_policy_rejects_unrepresented_fixed_rotation_stats() -> None:
     """Allow AP and attack speed while blocking haste and resource stats."""
     brand = _registry_with_brand().require_cog("Brand")
 
-    assert brand.item_candidate_blocker(
-        {"id": 1, "stats": {"AP": {}, "HP": {}, "ATTACK_SPEED": {}}}
-    ) is None
-    assert brand.item_candidate_blocker(
-        {"id": 2, "stats": {"ABILITY_HASTE": {}, "MANA": {}}}
-    ) == "BRAND_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,MANA"
+    assert (
+        brand.item_candidate_blocker({"id": 1, "stats": {"AP": {}, "HP": {}, "ATTACK_SPEED": {}}})
+        is None
+    )
+    assert (
+        brand.item_candidate_blocker({"id": 2, "stats": {"ABILITY_HASTE": {}, "MANA": {}}})
+        == "BRAND_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,MANA"
+    )

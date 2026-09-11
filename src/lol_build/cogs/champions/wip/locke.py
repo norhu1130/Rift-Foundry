@@ -68,9 +68,7 @@ class LockeCog(ChampionCog):
         :param context: Snapshot supplying Locke's level.
         :return: Fractional attack-speed bonus during the six-second effect.
         """
-        return self._level_interpolation(
-            context.snapshot.level, Decimal("0.40"), Decimal("0.70")
-        )
+        return self._level_interpolation(context.snapshot.level, Decimal("0.40"), Decimal("0.70"))
 
     @staticmethod
     def _passive_minimum_on_hit(context: ParticipantContext) -> Decimal:
@@ -79,9 +77,7 @@ class LockeCog(ChampionCog):
         :param context: Snapshot supplying Locke's level and ability power.
         :return: Raw magic damage at the lower passive endpoint.
         """
-        level_base = LockeCog._level_interpolation(
-            context.snapshot.level, Decimal(5), Decimal(40)
-        )
+        level_base = LockeCog._level_interpolation(context.snapshot.level, Decimal(5), Decimal(40))
         return level_base + Decimal("0.10") * context.snapshot.ability_power
 
     @staticmethod
@@ -150,9 +146,7 @@ class LockeCog(ChampionCog):
                 sequence=base,
                 source=context.self_entity,
                 channel=ActionChannel.ABILITY,
-                outputs=(
-                    StatusOutput(context.self_entity, "LOCKE_SOUL_IGNITION", 6000),
-                ),
+                outputs=(StatusOutput(context.self_entity, "LOCKE_SOUL_IGNITION", 6000),),
                 requires_living_opponent=False,
             )
         ]
@@ -173,9 +167,7 @@ class LockeCog(ChampionCog):
                     requires_living_opponent=False,
                 )
             )
-        deterministic_recovery = (
-            Decimal(40) + context.snapshot.ability_power
-        )
+        deterministic_recovery = Decimal(40) + context.snapshot.ability_power
         events.append(
             action(
                 "LOCKE_W_SOUL_IGNITION_END_RECOVERY",

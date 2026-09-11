@@ -32,8 +32,7 @@ def test_registry_resolves_every_champion_by_name_and_numeric_id() -> None:
     assert registry.require_cog("Garen").snapshot(level=13).attack_damage > 100
     assert len(registered) == 173
     assert all(
-        cog.__class__.__module__.startswith("lol_build.cogs.champions.")
-        for cog in registered
+        cog.__class__.__module__.startswith("lol_build.cogs.champions.") for cog in registered
     )
     assert all(cog.detail_root is not None for cog in registered)
 

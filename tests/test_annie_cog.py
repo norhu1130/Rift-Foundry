@@ -68,9 +68,7 @@ def test_annie_rotation_is_deterministic_and_uses_locked_rank_values() -> None:
         output = event.outputs[0]
         assert isinstance(output, DamageOutput)
         assert output.amount == amount
-    shield_event = next(
-        event for event in first.events if event.id == "ANNIE_E_MOLTEN_SHIELD"
-    )
+    shield_event = next(event for event in first.events if event.id == "ANNIE_E_MOLTEN_SHIELD")
     shield = shield_event.outputs[0]
     assert isinstance(shield, ShieldOutput)
     assert shield.amount == 100
@@ -85,18 +83,10 @@ def test_annie_ap_changes_spells_and_shield_but_not_basic_attacks() -> None:
     baseline = annie.build_action_plan(_context())
     powered = annie.build_action_plan(_context(item_stats={"AP": Decimal(100)}))
 
-    baseline_q = next(
-        event for event in baseline.events if event.id == "ANNIE_Q_DISINTEGRATE_1"
-    )
-    powered_q = next(
-        event for event in powered.events if event.id == "ANNIE_Q_DISINTEGRATE_1"
-    )
-    baseline_attack = next(
-        event for event in baseline.events if event.id == "ANNIE_BASIC_ATTACK_1"
-    )
-    powered_attack = next(
-        event for event in powered.events if event.id == "ANNIE_BASIC_ATTACK_1"
-    )
+    baseline_q = next(event for event in baseline.events if event.id == "ANNIE_Q_DISINTEGRATE_1")
+    powered_q = next(event for event in powered.events if event.id == "ANNIE_Q_DISINTEGRATE_1")
+    baseline_attack = next(event for event in baseline.events if event.id == "ANNIE_BASIC_ATTACK_1")
+    powered_attack = next(event for event in powered.events if event.id == "ANNIE_BASIC_ATTACK_1")
     assert powered_q.outputs[0].amount - baseline_q.outputs[0].amount == 80
     assert powered_attack.outputs[0].amount == baseline_attack.outputs[0].amount
 
@@ -137,9 +127,7 @@ def test_teemo_blind_cancels_annie_attacks_without_cancelling_abilities() -> Non
     evaluation = MatchupEngine(ROOT).evaluate(MatchupRequest("Annie", "Teemo"))
 
     first_attack = next(
-        entry
-        for entry in evaluation.timeline.log
-        if entry.event_id == "ANNIE_BASIC_ATTACK_1"
+        entry for entry in evaluation.timeline.log if entry.event_id == "ANNIE_BASIC_ATTACK_1"
     )
     first_q = next(
         entry
@@ -155,6 +143,7 @@ def test_annie_item_policy_rejects_only_unrepresented_stat_channels() -> None:
     annie = create_default_registry(ROOT).require_cog("Annie")
 
     assert annie.item_candidate_blocker({"id": 1, "stats": {"AP": {}}}) is None
-    assert annie.item_candidate_blocker(
-        {"id": 2, "stats": {"ABILITY_HASTE": {}, "MANA": {}}}
-    ) == "ANNIE_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,MANA"
+    assert (
+        annie.item_candidate_blocker({"id": 2, "stats": {"ABILITY_HASTE": {}, "MANA": {}}})
+        == "ANNIE_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,MANA"
+    )

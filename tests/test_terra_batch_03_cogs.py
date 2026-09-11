@@ -27,6 +27,7 @@ def expected_capabilities(champion: str) -> frozenset[CogCapability]:
         return DUEL_CAPABILITIES | {CogCapability.MULTI_TARGET}
     return DUEL_CAPABILITIES
 
+
 EXPECTED_EVENT_TOKENS = {
     "Kayn": ("_Q_", "_W_", "_R_"),
     "Kennen": ("_Q_", "_W_", "_R_"),

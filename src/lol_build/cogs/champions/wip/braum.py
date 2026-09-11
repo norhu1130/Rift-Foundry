@@ -58,9 +58,9 @@ class BraumCog(ChampionCog):
         :return: Deterministic effective cooldown in milliseconds.
         """
         return int(
-            (
-                base_seconds * Decimal(100000) / (Decimal(100) + haste)
-            ).to_integral_value(rounding=ROUND_HALF_EVEN)
+            (base_seconds * Decimal(100000) / (Decimal(100) + haste)).to_integral_value(
+                rounding=ROUND_HALF_EVEN
+            )
         )
 
     def _bonus_resistance(self, context: ParticipantContext, stat: str) -> Decimal:
@@ -72,11 +72,7 @@ class BraumCog(ChampionCog):
         """
         native = self.snapshot(level=context.snapshot.level)
         native_value = native.armor if stat == "ARMOR" else native.magic_resistance
-        current = (
-            context.snapshot.armor
-            if stat == "ARMOR"
-            else context.snapshot.magic_resistance
-        )
+        current = context.snapshot.armor if stat == "ARMOR" else context.snapshot.magic_resistance
         return max(Decimal(0), current - native_value)
 
     def _w_self_resistance(self, context: ParticipantContext, stat: str) -> Decimal:
@@ -326,8 +322,7 @@ class BraumCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(250)
-                        + Decimal("0.60") * context.snapshot.ability_power,
+                        Decimal(250) + Decimal("0.60") * context.snapshot.ability_power,
                         DamageType.MAGIC,
                     ),
                     crowd_control(

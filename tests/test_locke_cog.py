@@ -103,9 +103,7 @@ def test_locke_control_role_reversal_and_sustain_are_honest() -> None:
     reaction = cog.build_reaction_plan(_context())
     reversed_plan = cog.build_action_plan(_context(as_actor=False))
 
-    assert all(
-        window.control_type is ControlType.SLOW for window in reaction.cast_block_windows
-    )
+    assert all(window.control_type is ControlType.SLOW for window in reaction.cast_block_windows)
     assert all(event.source is EntityId.TARGET for event in reversed_plan.events)
     assert any(
         isinstance(output, DamageOutput) and output.recipient is EntityId.ACTOR
@@ -124,9 +122,7 @@ def test_locke_item_policy_rejects_unrepresented_resource_channels() -> None:
     cog = create_default_registry(ROOT).require_cog("Locke")
 
     assert (
-        cog.item_candidate_blocker(
-            {"id": 1, "stats": {"AP": {}, "ATTACK_SPEED": {}, "HP": {}}}
-        )
+        cog.item_candidate_blocker({"id": 1, "stats": {"AP": {}, "ATTACK_SPEED": {}, "HP": {}}})
         is None
     )
     assert (

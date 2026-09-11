@@ -27,6 +27,8 @@ def expected_capabilities(champion: str) -> frozenset[CogCapability]:
     if champion in _PROMOTED_TO_MULTI_TARGET:
         return DUEL_CAPABILITIES | {CogCapability.MULTI_TARGET}
     return DUEL_CAPABILITIES
+
+
 CHAMPIONS = (
     "JarvanIV",
     "Jayce",

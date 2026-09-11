@@ -91,9 +91,7 @@ class JaxCog(ChampionCog):
         empower_index = 1
         at_ms = 450
         while at_ms <= context.duration_ms:
-            attack_shapes.append(
-                (at_ms, f"JAX_GENERIC_ATTACK_W_EMPOWER_{empower_index}", True)
-            )
+            attack_shapes.append((at_ms, f"JAX_GENERIC_ATTACK_W_EMPOWER_{empower_index}", True))
             empower_index += 1
             at_ms += 3000
 

@@ -180,9 +180,7 @@ class FiddlesticksCog(ChampionCog):
         :return: Channel start plus in-horizon Crowstorm damage events.
         """
         sequence = self._sequence_base(context) + 10
-        tick_damage = (
-            Decimal(250) + Decimal("0.50") * context.snapshot.ability_power
-        ) / Decimal(4)
+        tick_damage = (Decimal(250) + Decimal("0.50") * context.snapshot.ability_power) / Decimal(4)
         events = [
             action(
                 "FIDDLESTICKS_R_CROWSTORM_CHANNEL_START",
@@ -277,9 +275,7 @@ class FiddlesticksCog(ChampionCog):
         :return: Channel marker and eight drain tick events.
         """
         sequence = self._sequence_base(context) + 200
-        tick_damage = (
-            Decimal(180) + Decimal("0.45") * context.snapshot.ability_power
-        ) / Decimal(4)
+        tick_damage = (Decimal(180) + Decimal("0.45") * context.snapshot.ability_power) / Decimal(4)
         tick_heal = Decimal("0.55") * self._post_mitigation_magic(context, tick_damage)
         events = [
             action(

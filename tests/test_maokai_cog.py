@@ -69,9 +69,7 @@ def test_maokai_hp_ap_and_control_types_reach_distinct_mechanics() -> None:
     """Exercise AP/bonus-health scaling and typed displacement windows."""
     cog = create_default_registry(ROOT).require_cog("Maokai")
     base = cog.build_action_plan(_context())
-    powered = cog.build_action_plan(
-        _context(item_stats={"AP": Decimal(100), "HP": Decimal(500)})
-    )
+    powered = cog.build_action_plan(_context(item_stats={"AP": Decimal(100), "HP": Decimal(500)}))
     base_e = next(
         output.amount
         for output in _event(base, "MAOKAI_E_SAPLING_NORMAL_EXPLOSION").outputs

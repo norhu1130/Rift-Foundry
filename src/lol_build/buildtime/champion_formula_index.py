@@ -323,9 +323,7 @@ def _bin_slot_records(
                 if not isinstance(spell_path, str):
                     continue
                 prefix = spell_path.rsplit("/", 1)[0] + "/"
-                matching = [
-                    key for key in document if key == spell_path or key.startswith(prefix)
-                ]
+                matching = [key for key in document if key == spell_path or key.startswith(prefix)]
                 assigned[slot].extend((key, DetectionStatus.AUTO_DETECTED) for key in matching)
         passive_path = root.get("mCharacterPassiveSpell") if isinstance(root, dict) else None
         if isinstance(passive_path, str) and passive_path:
@@ -333,9 +331,7 @@ def _bin_slot_records(
             matching = [
                 key for key in document if key == passive_path or key.startswith(passive_prefix)
             ]
-            assigned["P"].extend(
-                (key, DetectionStatus.AUTO_DETECTED) for key in matching
-            )
+            assigned["P"].extend((key, DetectionStatus.AUTO_DETECTED) for key in matching)
     return {slot: tuple(records) for slot, records in assigned.items()}
 
 
@@ -456,9 +452,7 @@ def index_champion_formula_documents(
     return ChampionFormulaIndex(champion.key, champion.numeric_id, tuple(indexes))
 
 
-def _locked_source_paths(
-    lock: dict[str, Any], champion: ChampionIdentity
-) -> tuple[str, str, str]:
+def _locked_source_paths(lock: dict[str, Any], champion: ChampionIdentity) -> tuple[str, str, str]:
     """Resolve the three required snapshot paths from verified lock entries.
 
     :param lock: Verified patch-lock document.

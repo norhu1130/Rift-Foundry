@@ -108,9 +108,7 @@ class TeemoCog(ChampionCog):
         ]
         sequence += 1
         interval_ms = self._attack_interval_ms(context.snapshot.attack_speed)
-        for index, at_ms in enumerate(
-            range(400, context.duration_ms + 1, interval_ms), start=1
-        ):
+        for index, at_ms in enumerate(range(400, context.duration_ms + 1, interval_ms), start=1):
             events.append(
                 action(
                     f"TEEMO_E_ATTACK_{index}",
@@ -129,9 +127,7 @@ class TeemoCog(ChampionCog):
                 )
             )
             sequence += 1
-        for index, at_ms in enumerate(
-            range(1400, context.duration_ms + 1, 1000), start=1
-        ):
+        for index, at_ms in enumerate(range(1400, context.duration_ms + 1, 1000), start=1):
             events.append(
                 action(
                     f"TEEMO_E_POISON_TICK_{index}",

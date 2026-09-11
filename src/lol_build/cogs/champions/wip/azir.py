@@ -60,9 +60,7 @@ class AzirCog(ChampionCog):
             1,
             int(
                 (
-                    Decimal(base_ms)
-                    * Decimal(100)
-                    / (Decimal(100) + ability_haste)
+                    Decimal(base_ms) * Decimal(100) / (Decimal(100) + ability_haste)
                 ).to_integral_value(ROUND_HALF_EVEN)
             ),
         )
@@ -282,16 +280,20 @@ class AzirCog(ChampionCog):
         )
         r_end = min(self._R_AT_MS + self._R_DISPLACEMENT_FIXTURE_MS, context.duration_ms)
         r_windows = (
-            CastBlockWindow(
-                "azir_r_emperors_divide_knockback",
-                self._R_AT_MS,
-                r_end,
-                (ActionChannel.BASIC_ATTACK, ActionChannel.ABILITY, ActionChannel.MOVEMENT),
-                "AZIR_R_EMPERORS_DIVIDE",
-                False,
-                ControlType.AIRBORNE,
-            ),
-        ) if context.duration_ms > self._R_AT_MS else ()
+            (
+                CastBlockWindow(
+                    "azir_r_emperors_divide_knockback",
+                    self._R_AT_MS,
+                    r_end,
+                    (ActionChannel.BASIC_ATTACK, ActionChannel.ABILITY, ActionChannel.MOVEMENT),
+                    "AZIR_R_EMPERORS_DIVIDE",
+                    False,
+                    ControlType.AIRBORNE,
+                ),
+            )
+            if context.duration_ms > self._R_AT_MS
+            else ()
+        )
         return ReactionPlan(
             "azir_q5_r2_control_fixture_reaction_v1",
             cast_block_windows=(*q_windows, *r_windows),

@@ -141,8 +141,7 @@ def test_briar_ad_as_haste_hp_and_target_hp_change_outputs() -> None:
     assert len(scaled_qs) > len(baseline_qs)
     assert scaled_bite.outputs[0].base_amount > baseline_bite.outputs[0].base_amount
     assert (
-        scaled_bite.outputs[0].missing_health_ratio
-        > baseline_bite.outputs[0].missing_health_ratio
+        scaled_bite.outputs[0].missing_health_ratio > baseline_bite.outputs[0].missing_health_ratio
     )
     assert scaled_e.outputs[1].amount - baseline_e.outputs[1].amount == Decimal(50)
 
@@ -190,8 +189,7 @@ def test_briar_against_teemo_blind_preserves_ability_damage() -> None:
     )
     assert q_entry.status == "APPLIED"
     assert any(
-        entry.event_id.startswith("BRIAR_W_FRENZY_ATTACK_")
-        and entry.status == "CANCELLED"
+        entry.event_id.startswith("BRIAR_W_FRENZY_ATTACK_") and entry.status == "CANCELLED"
         for entry in result.timeline.log
     )
 
@@ -200,12 +198,18 @@ def test_briar_item_policy_and_lane_sustain_keep_state_honest() -> None:
     """Allow represented inputs while retaining dynamic lane blockers."""
     briar = _briar()
 
-    assert briar.item_candidate_blocker(
-        {"id": 1, "stats": {"AD": {}, "AP": {}, "ATTACK_SPEED": {}, "HP": {}}}
-    ) is None
-    assert briar.item_candidate_blocker(
-        {"id": 2, "stats": {"CRITICAL_STRIKE_CHANCE": {}, "LIFESTEAL": {}}}
-    ) == "BRIAR_ITEM_STAT_NOT_MODELED:2:CRITICAL_STRIKE_CHANCE,LIFESTEAL"
+    assert (
+        briar.item_candidate_blocker(
+            {"id": 1, "stats": {"AD": {}, "AP": {}, "ATTACK_SPEED": {}, "HP": {}}}
+        )
+        is None
+    )
+    assert (
+        briar.item_candidate_blocker(
+            {"id": 2, "stats": {"CRITICAL_STRIKE_CHANCE": {}, "LIFESTEAL": {}}}
+        )
+        == "BRIAR_ITEM_STAT_NOT_MODELED:2:CRITICAL_STRIKE_CHANCE,LIFESTEAL"
+    )
     amount, blockers = briar.lane_sustain_extra_health(
         _context(),
         duration_ms=30_000,

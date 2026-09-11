@@ -99,9 +99,7 @@ class ShenCog(ChampionCog):
                 channel=ActionChannel.ABILITY,
                 outputs=(
                     damage(context.opponent_entity, e_damage, DamageType.PHYSICAL),
-                    crowd_control(
-                        context.opponent_entity, "TAUNT", duration_ms=self._E_TAUNT_MS
-                    ),
+                    crowd_control(context.opponent_entity, "TAUNT", duration_ms=self._E_TAUNT_MS),
                 ),
             ),
         ]

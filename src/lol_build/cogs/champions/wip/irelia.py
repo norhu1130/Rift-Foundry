@@ -209,9 +209,7 @@ class IreliaCog(ChampionCog):
                 sequence=base,
                 source=context.self_entity,
                 channel=ActionChannel.ABILITY,
-                outputs=(
-                    damage(context.opponent_entity, Decimal(200) + ap, DamageType.MAGIC),
-                ),
+                outputs=(damage(context.opponent_entity, Decimal(200) + ap, DamageType.MAGIC),),
             ),
             action(
                 "IRELIA_E_FLAWLESS_DUET",

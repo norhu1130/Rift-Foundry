@@ -66,8 +66,7 @@ class OrnnCog(ChampionCog):
             base,
             armor=base.armor + Decimal("0.10") * items.get("ARMOR", Decimal(0)),
             magic_resistance=(
-                base.magic_resistance
-                + Decimal("0.10") * items.get("MAGIC_RESISTANCE", Decimal(0))
+                base.magic_resistance + Decimal("0.10") * items.get("MAGIC_RESISTANCE", Decimal(0))
             ),
         )
 

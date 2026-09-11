@@ -114,12 +114,8 @@ def test_amumu_ap_attack_speed_haste_and_defenses_reach_their_channels() -> None
     baseline_context = _context()
     baseline = amumu.build_action_plan(baseline_context)
     powered = amumu.build_action_plan(_context(item_stats={"AP": Decimal(100)}))
-    faster = amumu.build_action_plan(
-        _context(item_stats={"ATTACK_SPEED": Decimal("0.50")})
-    )
-    hasted = amumu.build_action_plan(
-        _context(item_stats={"ABILITY_HASTE": Decimal(100)})
-    )
+    faster = amumu.build_action_plan(_context(item_stats={"ATTACK_SPEED": Decimal("0.50")}))
+    hasted = amumu.build_action_plan(_context(item_stats={"ABILITY_HASTE": Decimal(100)}))
     defended = amumu.snapshot(
         level=13,
         item_stats={"ARMOR": Decimal(50), "MAGIC_RESISTANCE": Decimal(40)},
@@ -133,9 +129,11 @@ def test_amumu_ap_attack_speed_haste_and_defenses_reach_their_channels() -> None
     assert len(_events_with_prefix(faster, "AMUMU_BASIC_ATTACK_")) > len(
         _events_with_prefix(baseline, "AMUMU_BASIC_ATTACK_")
     )
-    assert [
-        event.at_ms for event in _events_with_prefix(hasted, "AMUMU_E_TANTRUM_")
-    ] == [1700, 4200, 6700]
+    assert [event.at_ms for event in _events_with_prefix(hasted, "AMUMU_E_TANTRUM_")] == [
+        1700,
+        4200,
+        6700,
+    ]
     assert defended.armor == baseline_context.snapshot.armor + 50
     assert defended.magic_resistance == baseline_context.snapshot.magic_resistance + 40
 
@@ -209,9 +207,7 @@ def test_teemo_blind_cancels_amumu_attacks_but_not_abilities() -> None:
         "AMUMU_W_DESPAIR_TICK_1",
     ):
         assert any(
-            entry.event_id == event_id
-            and entry.operation == "DAMAGE"
-            and entry.status == "APPLIED"
+            entry.event_id == event_id and entry.operation == "DAMAGE" and entry.status == "APPLIED"
             for entry in result.timeline.log
         )
 
@@ -220,20 +216,26 @@ def test_amumu_item_policy_accepts_live_stats_and_rejects_model_gaps() -> None:
     """Allow represented stats while blocking resource and sustain gaps."""
     amumu = create_default_registry(ROOT).require_cog("Amumu")
 
-    assert amumu.item_candidate_blocker(
-        {
-            "id": 1,
-            "stats": {
-                "AP": {},
-                "AD": {},
-                "ATTACK_SPEED": {},
-                "ABILITY_HASTE": {},
-                "HP": {},
-                "ARMOR": {},
-                "MAGIC_RESISTANCE": {},
-            },
-        }
-    ) is None
-    assert amumu.item_candidate_blocker(
-        {"id": 2, "stats": {"HEAL_SHIELD_POWER": {}, "MANA": {}, "OMNIVAMP": {}}}
-    ) == "AMUMU_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA,OMNIVAMP"
+    assert (
+        amumu.item_candidate_blocker(
+            {
+                "id": 1,
+                "stats": {
+                    "AP": {},
+                    "AD": {},
+                    "ATTACK_SPEED": {},
+                    "ABILITY_HASTE": {},
+                    "HP": {},
+                    "ARMOR": {},
+                    "MAGIC_RESISTANCE": {},
+                },
+            }
+        )
+        is None
+    )
+    assert (
+        amumu.item_candidate_blocker(
+            {"id": 2, "stats": {"HEAL_SHIELD_POWER": {}, "MANA": {}, "OMNIVAMP": {}}}
+        )
+        == "AMUMU_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA,OMNIVAMP"
+    )

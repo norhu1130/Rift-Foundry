@@ -61,21 +61,11 @@ def test_lux_rotation_is_deterministic_and_uses_locked_rank_values() -> None:
     first = lux.build_action_plan(context)
     second = lux.build_action_plan(context)
     q = next(event for event in first.events if event.id == "LUX_Q_LIGHT_BINDING")
-    e = next(
-        event
-        for event in first.events
-        if event.id == "LUX_E_LUCENT_SINGULARITY_DETONATE"
-    )
+    e = next(event for event in first.events if event.id == "LUX_E_LUCENT_SINGULARITY_DETONATE")
     r = next(event for event in first.events if event.id == "LUX_R_FINAL_SPARK")
-    w = next(
-        event
-        for event in first.events
-        if event.id == "LUX_W_PRISMATIC_BARRIER_OUTBOUND_SELF"
-    )
+    w = next(event for event in first.events if event.id == "LUX_W_PRISMATIC_BARRIER_OUTBOUND_SELF")
     passive_attack = next(
-        event
-        for event in first.events
-        if event.id == "LUX_PASSIVE_ILLUMINATION_Q_ATTACK"
+        event for event in first.events if event.id == "LUX_PASSIVE_ILLUMINATION_Q_ATTACK"
     )
 
     assert first == second
@@ -92,9 +82,7 @@ def test_lux_rotation_is_deterministic_and_uses_locked_rank_values() -> None:
     assert w.outputs[0].amount == Decimal(80)
     assert w.outputs[0].duration_ms == 2500
     returning_w = next(
-        event
-        for event in first.events
-        if event.id == "LUX_W_PRISMATIC_BARRIER_RETURN_SELF"
+        event for event in first.events if event.id == "LUX_W_PRISMATIC_BARRIER_RETURN_SELF"
     )
     assert isinstance(returning_w.outputs[0], ShieldOutput)
     assert returning_w.outputs[0].amount == Decimal(80)
@@ -167,14 +155,12 @@ def test_lux_root_slow_and_outputs_follow_role_reversal() -> None:
     actor_shield = next(
         entry
         for entry in as_actor.timeline.log
-        if entry.event_id == "LUX_W_PRISMATIC_BARRIER_OUTBOUND_SELF"
-        and entry.operation == "SHIELD"
+        if entry.event_id == "LUX_W_PRISMATIC_BARRIER_OUTBOUND_SELF" and entry.operation == "SHIELD"
     )
     opponent_shield = next(
         entry
         for entry in as_opponent.timeline.log
-        if entry.event_id == "LUX_W_PRISMATIC_BARRIER_OUTBOUND_SELF"
-        and entry.operation == "SHIELD"
+        if entry.event_id == "LUX_W_PRISMATIC_BARRIER_OUTBOUND_SELF" and entry.operation == "SHIELD"
     )
     assert actor_shield.recipient is EntityId.ACTOR
     assert opponent_shield.recipient is EntityId.TARGET
@@ -185,8 +171,7 @@ def test_teemo_blind_cancels_lux_attacks_without_cancelling_abilities() -> None:
     result = MatchupEngine(ROOT).evaluate(MatchupRequest("Lux", "Teemo"))
 
     assert any(
-        entry.event_id == "LUX_PASSIVE_ILLUMINATION_Q_ATTACK"
-        and entry.status == "CANCELLED"
+        entry.event_id == "LUX_PASSIVE_ILLUMINATION_Q_ATTACK" and entry.status == "CANCELLED"
         for entry in result.timeline.log
     )
     for event_id in (
@@ -195,9 +180,7 @@ def test_teemo_blind_cancels_lux_attacks_without_cancelling_abilities() -> None:
         "LUX_R_FINAL_SPARK",
     ):
         assert any(
-            entry.event_id == event_id
-            and entry.operation == "DAMAGE"
-            and entry.status == "APPLIED"
+            entry.event_id == event_id and entry.operation == "DAMAGE" and entry.status == "APPLIED"
             for entry in result.timeline.log
         )
 
@@ -206,9 +189,15 @@ def test_lux_item_policy_rejects_only_unrepresented_stat_channels() -> None:
     """Allow AP and chassis stats while rejecting fixed-policy gaps."""
     lux = create_default_registry(ROOT).require_cog("Lux")
 
-    assert lux.item_candidate_blocker(
-        {"id": 1, "stats": {"AP": {}, "AD": {}, "ATTACK_SPEED": {}, "HP": {}}}
-    ) is None
-    assert lux.item_candidate_blocker(
-        {"id": 2, "stats": {"ABILITY_HASTE": {}, "HEAL_SHIELD_POWER": {}}}
-    ) == "LUX_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,HEAL_SHIELD_POWER"
+    assert (
+        lux.item_candidate_blocker(
+            {"id": 1, "stats": {"AP": {}, "AD": {}, "ATTACK_SPEED": {}, "HP": {}}}
+        )
+        is None
+    )
+    assert (
+        lux.item_candidate_blocker(
+            {"id": 2, "stats": {"ABILITY_HASTE": {}, "HEAL_SHIELD_POWER": {}}}
+        )
+        == "LUX_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,HEAL_SHIELD_POWER"
+    )

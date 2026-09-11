@@ -67,9 +67,7 @@ def test_cassiopeia_declares_modeled_capabilities_and_locked_evidence() -> None:
 
     assert cassiopeia.maturity is CogMaturity.MODELED_UNVERIFIED
     assert cassiopeia.capabilities == DUEL_CAPABILITIES
-    assert cassiopeia.verification_blockers() == (
-        "COG_MODEL_UNVERIFIED:Cassiopeia",
-    )
+    assert cassiopeia.verification_blockers() == ("COG_MODEL_UNVERIFIED:Cassiopeia",)
     assert cassiopeia.evidence_refs == (
         "data/raw/16.17.1/en_US/champion/Cassiopeia.json",
         "data/raw/16.17.1/communitydragon/champions/69.json",
@@ -86,19 +84,9 @@ def test_cassiopeia_rotation_is_deterministic_and_tracks_poisoned_fangs() -> Non
 
     assert first == cassiopeia.build_action_plan(context)
     assert first.model_id == "cassiopeia_e5_q5_w1_r2_level13_poison_v1"
-    assert (
-        _event(first, "CASSIOPEIA_R_PETRIFYING_GAZE_FACING_STUN")
-        .outputs[0]
-        .amount
-        == 300
-    )
+    assert _event(first, "CASSIOPEIA_R_PETRIFYING_GAZE_FACING_STUN").outputs[0].amount == 300
     assert _event(first, "CASSIOPEIA_Q_NOXIOUS_BLAST_1").outputs[0].amount == 280
-    assert (
-        _event(first, "CASSIOPEIA_W_MIASMA_ONE_SECOND_CONTACT")
-        .outputs[0]
-        .amount
-        == 30
-    )
+    assert _event(first, "CASSIOPEIA_W_MIASMA_ONE_SECOND_CONTACT").outputs[0].amount == 30
     plain = _event(first, "CASSIOPEIA_E_TWIN_FANG_400_UNPOISONED")
     poisoned = _event(first, "CASSIOPEIA_E_TWIN_FANG_1200_POISONED")
     assert plain.outputs[0].amount == 110
@@ -134,12 +122,7 @@ def test_cassiopeia_ap_attack_speed_and_haste_reach_supported_channels() -> None
     assert len(powered_fangs) > len(baseline_fangs)
     assert len(powered_q) > len(baseline_q)
     assert powered_q[0].outputs[0].amount - baseline_q[0].outputs[0].amount == 65
-    assert (
-        _event(powered, "CASSIOPEIA_E_TWIN_FANG_1200_POISONED")
-        .outputs[1]
-        .amount
-        == 16
-    )
+    assert _event(powered, "CASSIOPEIA_E_TWIN_FANG_1200_POISONED").outputs[1].amount == 16
 
 
 def test_cassiopeia_control_and_matchup_models_follow_role_reversal() -> None:
@@ -165,14 +148,12 @@ def test_cassiopeia_control_and_matchup_models_follow_role_reversal() -> None:
     actor_q = next(
         entry
         for entry in as_actor.timeline.log
-        if entry.event_id == "CASSIOPEIA_Q_NOXIOUS_BLAST_1"
-        and entry.operation == "DAMAGE"
+        if entry.event_id == "CASSIOPEIA_Q_NOXIOUS_BLAST_1" and entry.operation == "DAMAGE"
     )
     target_q = next(
         entry
         for entry in as_target.timeline.log
-        if entry.event_id == "CASSIOPEIA_Q_NOXIOUS_BLAST_1"
-        and entry.operation == "DAMAGE"
+        if entry.event_id == "CASSIOPEIA_Q_NOXIOUS_BLAST_1" and entry.operation == "DAMAGE"
     )
     assert actor_q.recipient is EntityId.TARGET
     assert target_q.recipient is EntityId.ACTOR
@@ -202,8 +183,7 @@ def test_teemo_blind_cancels_cassiopeia_attacks_but_not_spells() -> None:
     )
 
     assert any(
-        entry.event_id.startswith("CASSIOPEIA_BASIC_ATTACK_")
-        and entry.status == "CANCELLED"
+        entry.event_id.startswith("CASSIOPEIA_BASIC_ATTACK_") and entry.status == "CANCELLED"
         for entry in evaluation.timeline.log
     )
     for event_id in (
@@ -212,9 +192,7 @@ def test_teemo_blind_cancels_cassiopeia_attacks_but_not_spells() -> None:
         "CASSIOPEIA_E_TWIN_FANG_1200_POISONED",
     ):
         assert any(
-            entry.event_id == event_id
-            and entry.operation == "DAMAGE"
-            and entry.status == "APPLIED"
+            entry.event_id == event_id and entry.operation == "DAMAGE" and entry.status == "APPLIED"
             for entry in evaluation.timeline.log
         )
 
@@ -223,24 +201,33 @@ def test_cassiopeia_item_policy_forbids_boots_and_unresolved_resources() -> None
     """Forbid boots while allowing AP, haste, and attack-speed candidates."""
     cassiopeia = _registry_with_cassiopeia().require_cog("Cassiopeia")
 
-    assert cassiopeia.item_candidate_blocker(
-        {
-            "id": 1,
-            "groups": {"purchase_limit": None},
-            "stats": {"AP": {}, "ABILITY_HASTE": {}, "ATTACK_SPEED": {}},
-        }
-    ) is None
-    assert cassiopeia.item_candidate_blocker(
-        {
-            "id": 3111,
-            "groups": {"purchase_limit": "boots"},
-            "stats": {"MAGIC_RESISTANCE": {}, "MOVE_SPEED_FLAT": {}},
-        }
-    ) == "CASSIOPEIA_BOOTS_FORBIDDEN:3111"
-    assert cassiopeia.item_candidate_blocker(
-        {
-            "id": 2,
-            "groups": {"purchase_limit": None},
-            "stats": {"MANA": {}, "MANA_REGEN": {}},
-        }
-    ) == "CASSIOPEIA_ITEM_STAT_NOT_MODELED:2:MANA,MANA_REGEN"
+    assert (
+        cassiopeia.item_candidate_blocker(
+            {
+                "id": 1,
+                "groups": {"purchase_limit": None},
+                "stats": {"AP": {}, "ABILITY_HASTE": {}, "ATTACK_SPEED": {}},
+            }
+        )
+        is None
+    )
+    assert (
+        cassiopeia.item_candidate_blocker(
+            {
+                "id": 3111,
+                "groups": {"purchase_limit": "boots"},
+                "stats": {"MAGIC_RESISTANCE": {}, "MOVE_SPEED_FLAT": {}},
+            }
+        )
+        == "CASSIOPEIA_BOOTS_FORBIDDEN:3111"
+    )
+    assert (
+        cassiopeia.item_candidate_blocker(
+            {
+                "id": 2,
+                "groups": {"purchase_limit": None},
+                "stats": {"MANA": {}, "MANA_REGEN": {}},
+            }
+        )
+        == "CASSIOPEIA_ITEM_STAT_NOT_MODELED:2:MANA,MANA_REGEN"
+    )

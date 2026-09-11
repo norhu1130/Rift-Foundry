@@ -152,12 +152,16 @@ def test_corki_ad_ap_attack_speed_and_haste_reach_represented_channels() -> None
         )
     )
 
-    assert _damages(_event(scaled, "CORKI_Q_PHOSPHORUS_BOMB_1"))[0].amount - (
-        _damages(_event(baseline, "CORKI_Q_PHOSPHORUS_BOMB_1"))[0].amount
-    ) == 150
-    assert _damages(_event(scaled, "CORKI_W_VALKYRIE_FULL_TRAIL"))[0].amount - (
-        _damages(_event(baseline, "CORKI_W_VALKYRIE_FULL_TRAIL"))[0].amount
-    ) == 230
+    assert (
+        _damages(_event(scaled, "CORKI_Q_PHOSPHORUS_BOMB_1"))[0].amount
+        - (_damages(_event(baseline, "CORKI_Q_PHOSPHORUS_BOMB_1"))[0].amount)
+        == 150
+    )
+    assert (
+        _damages(_event(scaled, "CORKI_W_VALKYRIE_FULL_TRAIL"))[0].amount
+        - (_damages(_event(baseline, "CORKI_W_VALKYRIE_FULL_TRAIL"))[0].amount)
+        == 230
+    )
     assert len(
         [event for event in scaled.events if event.id.startswith("CORKI_RAPID_RELOAD_ATTACK_")]
     ) > len(
@@ -213,8 +217,7 @@ def test_corki_role_reversal_and_teemo_blind_preserve_ability_channels() -> None
     assert as_actor.actor_action_model == as_opponent.opponent_action_model
     assert as_actor.actor_reaction_model == as_opponent.opponent_reaction_model
     assert any(
-        entry.event_id.startswith("CORKI_RAPID_RELOAD_ATTACK_")
-        and entry.status == "CANCELLED"
+        entry.event_id.startswith("CORKI_RAPID_RELOAD_ATTACK_") and entry.status == "CANCELLED"
         for entry in as_actor.timeline.log
     )
     assert any(

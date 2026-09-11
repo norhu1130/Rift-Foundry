@@ -47,9 +47,7 @@ def test_a_promoted_cog_is_unchanged_in_a_duel() -> None:
     """Leave one-versus-one damage exactly where it was before the fan-out."""
     engine = MatchupEngine(ROOT)
     for name in PROMOTED:
-        duel = engine.evaluate(
-            MatchupRequest(name, "Garen", opponent_item_ids=(3071, 3053))
-        )
+        duel = engine.evaluate(MatchupRequest(name, "Garen", opponent_item_ids=(3071, 3053)))
         # A duel holds one opponent, so the area helper yields one output and
         # the whole opposing side's loss is the primary target's loss.
         assert len(duel.opponents_hp_lost) == 1
@@ -84,9 +82,7 @@ def test_an_unpromoted_cog_still_reports_its_single_target_limit() -> None:
     """Keep the honest blocker for kits whose area effects are not modeled yet."""
     engine = MatchupEngine(ROOT)
     team = engine.evaluate(
-        MatchupRequest(
-            "Garen", "Darius", opponent_item_ids=(3071, 3053), additional_opponents=TEAM
-        )
+        MatchupRequest("Garen", "Darius", opponent_item_ids=(3071, 3053), additional_opponents=TEAM)
     )
     secondary = [
         value for entity, value in team.opponents_hp_lost.items() if entity.value != "TARGET"

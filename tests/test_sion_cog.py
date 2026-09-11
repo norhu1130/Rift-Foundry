@@ -52,9 +52,7 @@ def test_sion_metadata_shield_detonate_shred_and_two_stuns_are_explicit() -> Non
     assert cog.capabilities == DUEL_CAPABILITIES
     assert all((ROOT / ref).is_file() for ref in cog.evidence_refs)
     assert plan == cog.build_action_plan(_context())
-    assert isinstance(
-        _event(plan, "SION_W_SOUL_FURNACE_SHIELD").outputs[0], ShieldOutput
-    )
+    assert isinstance(_event(plan, "SION_W_SOUL_FURNACE_SHIELD").outputs[0], ShieldOutput)
     assert isinstance(_event(plan, "SION_Q_DECIMATING_SMASH").outputs[0], DamageOutput)
     assert isinstance(_event(plan, "SION_R_UNSTOPPABLE_ONSLAUGHT").outputs[0], DamageOutput)
 

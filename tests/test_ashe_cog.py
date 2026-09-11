@@ -57,9 +57,7 @@ def test_ashe_plan_is_deterministic_and_uses_locked_rank_values() -> None:
     volley = next(event for event in first.events if event.id == "ASHE_W_VOLLEY_1")
     frost = next(event for event in first.events if event.id == "ASHE_FROST_ATTACK_1")
     flurry = next(event for event in first.events if event.id == "ASHE_Q_FLURRY_ATTACK_1")
-    arrow = next(
-        event for event in first.events if event.id == "ASHE_R_ENCHANTED_CRYSTAL_ARROW"
-    )
+    arrow = next(event for event in first.events if event.id == "ASHE_R_ENCHANTED_CRYSTAL_ARROW")
 
     assert first == second
     assert first.model_id == "ashe_w5_q4_e1_r2_level13_locked_v1"
@@ -85,9 +83,7 @@ def test_ashe_attack_damage_and_attack_speed_change_the_modeled_rotation() -> No
     ashe = create_default_registry(ROOT).require_cog("Ashe")
     baseline = ashe.build_action_plan(_context())
     more_ad = ashe.build_action_plan(_context(item_stats={"AD": Decimal(50)}))
-    more_speed = ashe.build_action_plan(
-        _context(item_stats={"ATTACK_SPEED": Decimal("0.50")})
-    )
+    more_speed = ashe.build_action_plan(_context(item_stats={"ATTACK_SPEED": Decimal("0.50")}))
 
     baseline_w = next(event for event in baseline.events if event.id == "ASHE_W_VOLLEY_1")
     more_ad_w = next(event for event in more_ad.events if event.id == "ASHE_W_VOLLEY_1")
@@ -107,9 +103,7 @@ def test_ashe_r_reaction_is_reducible_and_follows_role_reversal() -> None:
     engine = MatchupEngine(ROOT)
     as_actor = engine.evaluate(MatchupRequest("Ashe", "Garen"))
     as_opponent = engine.evaluate(MatchupRequest("Garen", "Ashe"))
-    reaction = create_default_registry(ROOT).require_cog("Ashe").build_reaction_plan(
-        _context()
-    )
+    reaction = create_default_registry(ROOT).require_cog("Ashe").build_reaction_plan(_context())
 
     stun = reaction.cast_block_windows[0]
     assert stun.tenacity_reducible is True
@@ -120,14 +114,12 @@ def test_ashe_r_reaction_is_reducible_and_follows_role_reversal() -> None:
     actor_arrow = next(
         entry
         for entry in as_actor.timeline.log
-        if entry.event_id == "ASHE_R_ENCHANTED_CRYSTAL_ARROW"
-        and entry.operation == "DAMAGE"
+        if entry.event_id == "ASHE_R_ENCHANTED_CRYSTAL_ARROW" and entry.operation == "DAMAGE"
     )
     opponent_arrow = next(
         entry
         for entry in as_opponent.timeline.log
-        if entry.event_id == "ASHE_R_ENCHANTED_CRYSTAL_ARROW"
-        and entry.operation == "DAMAGE"
+        if entry.event_id == "ASHE_R_ENCHANTED_CRYSTAL_ARROW" and entry.operation == "DAMAGE"
     )
     assert actor_arrow.recipient is EntityId.TARGET
     assert opponent_arrow.recipient is EntityId.ACTOR
@@ -143,20 +135,27 @@ def test_teemo_blind_cancels_ashe_attacks_but_not_her_abilities() -> None:
         and entry.status == "CANCELLED"
         for entry in result.timeline.log
     )
-    assert next(
-        entry
-        for entry in result.timeline.log
-        if entry.event_id == "ASHE_W_VOLLEY_1" and entry.operation == "DAMAGE"
-    ).status == "APPLIED"
+    assert (
+        next(
+            entry
+            for entry in result.timeline.log
+            if entry.event_id == "ASHE_W_VOLLEY_1" and entry.operation == "DAMAGE"
+        ).status
+        == "APPLIED"
+    )
 
 
 def test_ashe_item_policy_blocks_only_unrepresented_stat_channels() -> None:
     """Keep candidate eligibility aligned with actually consumed item stats."""
     ashe = create_default_registry(ROOT).require_cog("Ashe")
 
-    assert ashe.item_candidate_blocker(
-        {"id": 1, "stats": {"AD": {}, "AP": {}, "ATTACK_SPEED": {}}}
-    ) is None
-    assert ashe.item_candidate_blocker(
-        {"id": 2, "stats": {"ABILITY_HASTE": {}, "CRITICAL_STRIKE_CHANCE": {}}}
-    ) == "ASHE_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,CRITICAL_STRIKE_CHANCE"
+    assert (
+        ashe.item_candidate_blocker({"id": 1, "stats": {"AD": {}, "AP": {}, "ATTACK_SPEED": {}}})
+        is None
+    )
+    assert (
+        ashe.item_candidate_blocker(
+            {"id": 2, "stats": {"ABILITY_HASTE": {}, "CRITICAL_STRIKE_CHANCE": {}}}
+        )
+        == "ASHE_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,CRITICAL_STRIKE_CHANCE"
+    )

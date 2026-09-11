@@ -115,9 +115,7 @@ class LissandraCog(ChampionCog):
                     ),
                 ),
             )
-            for index, at_ms in enumerate(
-                range(5500, context.duration_ms + 1, interval), start=1
-            )
+            for index, at_ms in enumerate(range(5500, context.duration_ms + 1, interval), start=1)
         )
 
     def engagement_speed_multiplier(self, context: ParticipantContext) -> Decimal:

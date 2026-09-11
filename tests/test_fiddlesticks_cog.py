@@ -102,9 +102,7 @@ def test_fiddlesticks_declares_modeled_capabilities_and_locked_evidence() -> Non
 
     assert fiddlesticks.maturity is CogMaturity.MODELED_UNVERIFIED
     assert fiddlesticks.capabilities == DUEL_CAPABILITIES
-    assert fiddlesticks.verification_blockers() == (
-        "COG_MODEL_UNVERIFIED:Fiddlesticks",
-    )
+    assert fiddlesticks.verification_blockers() == ("COG_MODEL_UNVERIFIED:Fiddlesticks",)
     assert fiddlesticks.evidence_refs == (
         "data/raw/16.17.1/en_US/champion/Fiddlesticks.json",
         "data/raw/16.17.1/communitydragon/champions/9.json",
@@ -155,20 +153,14 @@ def test_fiddlesticks_ap_haste_and_target_hp_reach_modeled_channels() -> None:
     fiddlesticks = create_default_registry(ROOT).require_cog("Fiddlesticks")
     baseline = fiddlesticks.build_action_plan(_context())
     powered = fiddlesticks.build_action_plan(_context(item_stats={"AP": Decimal(100)}))
-    hasted = fiddlesticks.build_action_plan(
-        _context(item_stats={"ABILITY_HASTE": Decimal(100)})
-    )
+    hasted = fiddlesticks.build_action_plan(_context(item_stats={"ABILITY_HASTE": Decimal(100)}))
 
-    assert (
-        _event(powered, "FIDDLESTICKS_R_CROWSTORM_TICK_1").outputs[0].amount
-        - _event(baseline, "FIDDLESTICKS_R_CROWSTORM_TICK_1").outputs[0].amount
-        == Decimal("12.5")
-    )
-    assert (
-        _event(powered, "FIDDLESTICKS_W_BOUNTIFUL_HARVEST_TICK_1").outputs[0].amount
-        - _event(baseline, "FIDDLESTICKS_W_BOUNTIFUL_HARVEST_TICK_1").outputs[0].amount
-        == Decimal("11.25")
-    )
+    assert _event(powered, "FIDDLESTICKS_R_CROWSTORM_TICK_1").outputs[0].amount - _event(
+        baseline, "FIDDLESTICKS_R_CROWSTORM_TICK_1"
+    ).outputs[0].amount == Decimal("12.5")
+    assert _event(powered, "FIDDLESTICKS_W_BOUNTIFUL_HARVEST_TICK_1").outputs[0].amount - _event(
+        baseline, "FIDDLESTICKS_W_BOUNTIFUL_HARVEST_TICK_1"
+    ).outputs[0].amount == Decimal("11.25")
     assert _event(hasted, "FIDDLESTICKS_E_REAP_CENTER_2").at_ms == 7150
 
     normal_hp = _fiddlesticks_only_timeline(_context())
@@ -199,14 +191,10 @@ def test_fiddlesticks_reaction_exposes_fear_silence_and_slow_semantics() -> None
 
     fear = reaction.cast_block_windows[0]
     silences = tuple(
-        window
-        for window in reaction.cast_block_windows
-        if window.control_type.value == "SILENCE"
+        window for window in reaction.cast_block_windows if window.control_type.value == "SILENCE"
     )
     slows = tuple(
-        window
-        for window in reaction.cast_block_windows
-        if window.control_type.value == "SLOW"
+        window for window in reaction.cast_block_windows if window.control_type.value == "SLOW"
     )
     assert fear.control_type.value == "FEAR"
     assert fear.tenacity_reducible is True
@@ -265,21 +253,27 @@ def test_fiddlesticks_item_policy_sustain_and_engagement_are_state_honest() -> N
 
     assert fiddlesticks.engagement_speed_multiplier(context) == 1
     assert fiddlesticks.engagement_dash_distance(context) == 800
-    assert fiddlesticks.item_candidate_blocker(
-        {
-            "id": 1,
-            "stats": {
-                "AP": {},
-                "ABILITY_HASTE": {},
-                "ATTACK_SPEED": {},
-                "HP": {},
-                "MAGIC_PENETRATION": {},
-            },
-        }
-    ) is None
-    assert fiddlesticks.item_candidate_blocker(
-        {"id": 2, "stats": {"HEAL_SHIELD_POWER": {}, "MANA": {}, "OMNIVAMP": {}}}
-    ) == "FIDDLESTICKS_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA,OMNIVAMP"
+    assert (
+        fiddlesticks.item_candidate_blocker(
+            {
+                "id": 1,
+                "stats": {
+                    "AP": {},
+                    "ABILITY_HASTE": {},
+                    "ATTACK_SPEED": {},
+                    "HP": {},
+                    "MAGIC_PENETRATION": {},
+                },
+            }
+        )
+        is None
+    )
+    assert (
+        fiddlesticks.item_candidate_blocker(
+            {"id": 2, "stats": {"HEAL_SHIELD_POWER": {}, "MANA": {}, "OMNIVAMP": {}}}
+        )
+        == "FIDDLESTICKS_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA,OMNIVAMP"
+    )
     amount, blockers = fiddlesticks.lane_sustain_extra_health(
         context,
         duration_ms=30_000,

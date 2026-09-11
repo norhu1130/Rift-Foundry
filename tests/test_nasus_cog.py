@@ -82,8 +82,7 @@ def test_nasus_q_fixture_reset_and_r_cooldown_are_deterministic() -> None:
     assert tuple(event.at_ms for event in q_events) == (450, 2200, 3950, 5700, 7450)
     assert all(event.channel is ActionChannel.BASIC_ATTACK for event in q_events)
     assert all(
-        event.outputs[0].amount == context.snapshot.attack_damage + 420
-        for event in q_events
+        event.outputs[0].amount == context.snapshot.attack_damage + 420 for event in q_events
     )
     assert "NASUS_Q_STACK_FIXTURE_300_ASSUMED" in first.blockers
     assert "NASUS_R_MAXIMUM_HEALTH_450_NOT_APPLIED" in first.blockers
@@ -129,8 +128,7 @@ def test_nasus_w_progressively_slows_opponent_attack_cadence() -> None:
         Decimal("0.6475"),
     )
     assert all(
-        window.source_event_id == "NASUS_W_WITHER"
-        for window in reaction.attack_cadence_windows
+        window.source_event_id == "NASUS_W_WITHER" for window in reaction.attack_cadence_windows
     )
 
     result = MatchupEngine(ROOT).evaluate(MatchupRequest("Nasus", "Teemo"))
@@ -156,12 +154,10 @@ def test_nasus_r_resistance_windows_cover_both_damage_channels() -> None:
     )
     assert abs(armor.multiplier - expected_armor) < Decimal("1e-26")
     assert magic_resistance.damage_types == (DamageType.MAGIC,)
-    expected_magic_resistance = (
-        Decimal(100) + context.snapshot.magic_resistance
-    ) / (Decimal(155) + context.snapshot.magic_resistance)
-    assert abs(magic_resistance.multiplier - expected_magic_resistance) < Decimal(
-        "1e-26"
+    expected_magic_resistance = (Decimal(100) + context.snapshot.magic_resistance) / (
+        Decimal(155) + context.snapshot.magic_resistance
     )
+    assert abs(magic_resistance.multiplier - expected_magic_resistance) < Decimal("1e-26")
 
 
 def test_nasus_role_reversal_and_teemo_blind_preserve_action_ownership() -> None:
@@ -173,8 +169,7 @@ def test_nasus_role_reversal_and_teemo_blind_preserve_action_ownership() -> None
     assert as_actor.actor_action_model == as_opponent.opponent_action_model
     assert as_actor.actor_reaction_model == as_opponent.opponent_reaction_model
     assert any(
-        entry.event_id.startswith("NASUS_Q_SIPHONING_STRIKE")
-        and entry.status == "CANCELLED"
+        entry.event_id.startswith("NASUS_Q_SIPHONING_STRIKE") and entry.status == "CANCELLED"
         for entry in as_actor.timeline.log
     )
     for event_id in (
@@ -182,16 +177,13 @@ def test_nasus_role_reversal_and_teemo_blind_preserve_action_ownership() -> None
         "NASUS_R_SANDSTORM_TICK_1",
     ):
         assert any(
-            entry.event_id == event_id
-            and entry.operation == "DAMAGE"
-            and entry.status == "APPLIED"
+            entry.event_id == event_id and entry.operation == "DAMAGE" and entry.status == "APPLIED"
             for entry in as_actor.timeline.log
         )
     opponent_r = next(
         entry
         for entry in as_opponent.timeline.log
-        if entry.event_id == "NASUS_R_SANDSTORM_TICK_1"
-        and entry.operation == "DAMAGE"
+        if entry.event_id == "NASUS_R_SANDSTORM_TICK_1" and entry.operation == "DAMAGE"
     )
     assert opponent_r.recipient is EntityId.ACTOR
 
@@ -213,9 +205,13 @@ def test_nasus_item_policy_is_honest_about_haste_and_stat_sensitivity() -> None:
     )
     assert attack_q.outputs[0].amount - baseline_q.outputs[0].amount == 40
     assert health_context.snapshot.max_hp - baseline_context.snapshot.max_hp == 500
-    assert nasus.item_candidate_blocker(
-        {"id": 1, "stats": {"AD": {}, "AP": {}, "HP": {}, "ATTACK_SPEED": {}}}
-    ) is None
-    assert nasus.item_candidate_blocker(
-        {"id": 2, "stats": {"ABILITY_HASTE": {}, "MANA": {}}}
-    ) == "NASUS_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,MANA"
+    assert (
+        nasus.item_candidate_blocker(
+            {"id": 1, "stats": {"AD": {}, "AP": {}, "HP": {}, "ATTACK_SPEED": {}}}
+        )
+        is None
+    )
+    assert (
+        nasus.item_candidate_blocker({"id": 2, "stats": {"ABILITY_HASTE": {}, "MANA": {}}})
+        == "NASUS_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,MANA"
+    )

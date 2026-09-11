@@ -103,9 +103,13 @@ def test_galio_item_policy_rejects_unrepresented_resource_stats() -> None:
     """Accept represented tank stats and reject unmodeled resource channels."""
     galio = create_default_registry(ROOT).require_cog("Galio")
 
-    assert galio.item_candidate_blocker(
-        {"id": 1, "stats": {"AP": {}, "HP": {}, "MAGIC_RESISTANCE": {}}}
-    ) is None
-    assert galio.item_candidate_blocker(
-        {"id": 2, "stats": {"MANA": {}, "HEAL_SHIELD_POWER": {}}}
-    ) == "GALIO_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA"
+    assert (
+        galio.item_candidate_blocker(
+            {"id": 1, "stats": {"AP": {}, "HP": {}, "MAGIC_RESISTANCE": {}}}
+        )
+        is None
+    )
+    assert (
+        galio.item_candidate_blocker({"id": 2, "stats": {"MANA": {}, "HEAL_SHIELD_POWER": {}}})
+        == "GALIO_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA"
+    )

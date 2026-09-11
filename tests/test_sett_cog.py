@@ -56,9 +56,7 @@ def test_sett_rotation_is_deterministic_and_alternates_punches() -> None:
 
     first = sett.build_action_plan(context)
     second = sett.build_action_plan(context)
-    punches = tuple(
-        event for event in first.events if event.channel is ActionChannel.BASIC_ATTACK
-    )
+    punches = tuple(event for event in first.events if event.channel is ActionChannel.BASIC_ATTACK)
 
     assert first == second
     assert first.model_id == "sett_q5_w5_e1_r2_level13_synthetic_v1"
@@ -143,13 +141,11 @@ def test_sett_suppression_and_outputs_follow_role_reversal() -> None:
     assert actor_w.recipient is EntityId.ACTOR
     assert opponent_w.recipient is EntityId.TARGET
     assert any(
-        entry.status == "CANCELLED"
-        and entry.detail == "OPPONENT_CAST_BLOCK:sett_r_suppression"
+        entry.status == "CANCELLED" and entry.detail == "OPPONENT_CAST_BLOCK:sett_r_suppression"
         for entry in as_actor.timeline.log
     )
     assert any(
-        entry.status == "CANCELLED"
-        and entry.detail == "OPPONENT_CAST_BLOCK:sett_r_suppression"
+        entry.status == "CANCELLED" and entry.detail == "OPPONENT_CAST_BLOCK:sett_r_suppression"
         for entry in as_opponent.timeline.log
     )
 
@@ -158,9 +154,13 @@ def test_sett_item_policy_accepts_chassis_stats_and_rejects_fixed_policy_gaps() 
     """Allow supported Sett scaling while excluding unmodeled item channels."""
     sett = create_default_registry(ROOT).require_cog("Sett")
 
-    assert sett.item_candidate_blocker(
-        {"id": 1, "stats": {"AD": {}, "HP": {}, "ATTACK_SPEED": {}}}
-    ) is None
-    assert sett.item_candidate_blocker(
-        {"id": 2, "stats": {"ABILITY_HASTE": {}, "HEAL_SHIELD_POWER": {}}}
-    ) == "SETT_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,HEAL_SHIELD_POWER"
+    assert (
+        sett.item_candidate_blocker({"id": 1, "stats": {"AD": {}, "HP": {}, "ATTACK_SPEED": {}}})
+        is None
+    )
+    assert (
+        sett.item_candidate_blocker(
+            {"id": 2, "stats": {"ABILITY_HASTE": {}, "HEAL_SHIELD_POWER": {}}}
+        )
+        == "SETT_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,HEAL_SHIELD_POWER"
+    )

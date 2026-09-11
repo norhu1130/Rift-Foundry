@@ -136,10 +136,10 @@ class GnarCog(ChampionCog):
                 outputs.extend(
                     (
                         crowd_control(
-                        context.opponent_entity,
-                        "SLOW",
-                        duration_ms=500,
-                        magnitude=Decimal("0.80"),
+                            context.opponent_entity,
+                            "SLOW",
+                            duration_ms=500,
+                            magnitude=Decimal("0.80"),
                         ),
                         StatusOutput(
                             context.self_entity,

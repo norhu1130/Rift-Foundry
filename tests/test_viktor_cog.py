@@ -52,9 +52,7 @@ def test_viktor_metadata_shield_empowered_attack_laser_and_storm() -> None:
     assert cog.capabilities == DUEL_CAPABILITIES
     assert all((ROOT / ref).is_file() for ref in cog.evidence_refs)
     assert plan == cog.build_action_plan(_context())
-    assert isinstance(
-        _event(plan, "VIKTOR_Q_SIPHON_POWER_SHIELD").outputs[0], ShieldOutput
-    )
+    assert isinstance(_event(plan, "VIKTOR_Q_SIPHON_POWER_SHIELD").outputs[0], ShieldOutput)
     assert len(_event(plan, "VIKTOR_Q_SIPHON_POWER_EMPOWERED_ATTACK").outputs) == 2
     assert len([e for e in plan.events if "R_ARCANE_STORM" in e.id]) == 4
 

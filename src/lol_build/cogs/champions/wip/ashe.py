@@ -133,9 +133,7 @@ class AsheCog(ChampionCog):
         base = self._sequence_base(context)
         slow = self._frost_slow(context)
         events: list[ActionEvent] = []
-        for index, at_ms in enumerate(
-            range(100, context.duration_ms + 1, 4000), start=1
-        ):
+        for index, at_ms in enumerate(range(100, context.duration_ms + 1, 4000), start=1):
             events.append(
                 action(
                     f"ASHE_W_VOLLEY_{index}",
@@ -191,8 +189,7 @@ class AsheCog(ChampionCog):
                 )
                 q_attack_speed = min(
                     Decimal("2.5"),
-                    context.snapshot.attack_speed
-                    + Decimal("0.658") * Decimal("0.50"),
+                    context.snapshot.attack_speed + Decimal("0.658") * Decimal("0.50"),
                 )
                 q_interval = self._attack_interval_ms(q_attack_speed)
                 q_attack_ms = q_at_ms + 1
@@ -221,8 +218,7 @@ class AsheCog(ChampionCog):
                     outputs=(
                         damage(
                             context.opponent_entity,
-                            Decimal(400)
-                            + Decimal("1.20") * context.snapshot.ability_power,
+                            Decimal(400) + Decimal("1.20") * context.snapshot.ability_power,
                             DamageType.MAGIC,
                         ),
                         crowd_control(

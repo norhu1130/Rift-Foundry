@@ -59,9 +59,7 @@ class GravesCog(ChampionCog):
             1,
             int(
                 (
-                    Decimal(base_ms)
-                    * Decimal(100)
-                    / (Decimal(100) + ability_haste)
+                    Decimal(base_ms) * Decimal(100) / (Decimal(100) + ability_haste)
                 ).to_integral_value(ROUND_HALF_EVEN)
             ),
         )
@@ -82,9 +80,7 @@ class GravesCog(ChampionCog):
             context.snapshot.critical_strike_chance * cls._EXPECTED_CRIT_BONUS
         )
         first = (
-            context.snapshot.attack_damage
-            * cls._LEVEL_13_SINGLE_PELLET_AD_RATIO
-            * expected_crit
+            context.snapshot.attack_damage * cls._LEVEL_13_SINGLE_PELLET_AD_RATIO * expected_crit
         )
         secondary = first * cls._SECONDARY_PELLET_RATIO
         return (first, secondary, secondary, secondary)
@@ -171,9 +167,7 @@ class GravesCog(ChampionCog):
                         sequence=base + cast_number * 2 + 1,
                         source=context.self_entity,
                         channel=ActionChannel.PASSIVE,
-                        outputs=(
-                            damage(context.opponent_entity, explosion, DamageType.PHYSICAL),
-                        ),
+                        outputs=(damage(context.opponent_entity, explosion, DamageType.PHYSICAL),),
                     )
                 )
             cast_ms += cooldown_ms
@@ -235,9 +229,7 @@ class GravesCog(ChampionCog):
                 outputs=(
                     StatusOutput(context.self_entity, "GRAVES_E_RELOADED_ONE_SHELL", 1),
                     StatModifierOutput(context.self_entity, "ARMOR", Decimal(38), 4000),
-                    StatModifierOutput(
-                        context.self_entity, "MAGIC_RESISTANCE", Decimal(19), 4000
-                    ),
+                    StatModifierOutput(context.self_entity, "MAGIC_RESISTANCE", Decimal(19), 4000),
                 ),
                 requires_living_opponent=False,
             ),

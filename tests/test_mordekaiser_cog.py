@@ -55,9 +55,7 @@ def test_mordekaiser_declares_modeled_capabilities_and_three_sources() -> None:
 
     assert mordekaiser.maturity is CogMaturity.MODELED_UNVERIFIED
     assert mordekaiser.capabilities == DUEL_CAPABILITIES
-    assert mordekaiser.verification_blockers() == (
-        "COG_MODEL_UNVERIFIED:Mordekaiser",
-    )
+    assert mordekaiser.verification_blockers() == ("COG_MODEL_UNVERIFIED:Mordekaiser",)
     assert len(mordekaiser.evidence_refs) == 3
     assert all((ROOT / path).is_file() for path in mordekaiser.evidence_refs)
 
@@ -69,14 +67,8 @@ def test_mordekaiser_rotation_is_deterministic_and_activates_passive_at_three_hi
 
     first = mordekaiser.build_action_plan(context)
     second = mordekaiser.build_action_plan(context)
-    attacks = tuple(
-        event for event in first.events if event.channel is ActionChannel.BASIC_ATTACK
-    )
-    aura = tuple(
-        event
-        for event in first.events
-        if event.id.startswith("MORDEKAISER_PASSIVE_AURA")
-    )
+    attacks = tuple(event for event in first.events if event.channel is ActionChannel.BASIC_ATTACK)
+    aura = tuple(event for event in first.events if event.id.startswith("MORDEKAISER_PASSIVE_AURA"))
 
     assert first == second
     assert first.model_id == "mordekaiser_p_q5_w1_e5_r2_level13_synthetic_v1"
@@ -97,31 +89,17 @@ def test_mordekaiser_q_e_passive_and_w_respond_to_ap_and_health() -> None:
     baseline = mordekaiser.build_action_plan(baseline_context)
     scaled = mordekaiser.build_action_plan(scaled_context)
 
-    baseline_q = next(
-        event for event in baseline.events if event.id.endswith("OBLITERATE_1")
-    )
-    scaled_q = next(
-        event for event in scaled.events if event.id.endswith("OBLITERATE_1")
-    )
-    baseline_e = next(
-        event for event in baseline.events if event.id.endswith("DEATHS_GRASP")
-    )
-    scaled_e = next(
-        event for event in scaled.events if event.id.endswith("DEATHS_GRASP")
-    )
-    shield_event = next(
-        event for event in scaled.events if event.id.endswith("SHIELD")
-    )
+    baseline_q = next(event for event in baseline.events if event.id.endswith("OBLITERATE_1"))
+    scaled_q = next(event for event in scaled.events if event.id.endswith("OBLITERATE_1"))
+    baseline_e = next(event for event in baseline.events if event.id.endswith("DEATHS_GRASP"))
+    scaled_e = next(event for event in scaled.events if event.id.endswith("DEATHS_GRASP"))
+    shield_event = next(event for event in scaled.events if event.id.endswith("SHIELD"))
     heal_event = next(event for event in scaled.events if event.id.endswith("HEAL"))
     first_attack = next(
-        event
-        for event in scaled.events
-        if event.id.startswith("MORDEKAISER_BASIC_ATTACK")
+        event for event in scaled.events if event.id.startswith("MORDEKAISER_BASIC_ATTACK")
     )
     first_aura = next(
-        event
-        for event in scaled.events
-        if event.id.startswith("MORDEKAISER_PASSIVE_AURA")
+        event for event in scaled.events if event.id.startswith("MORDEKAISER_PASSIVE_AURA")
     )
 
     realm_ad = (
@@ -133,10 +111,7 @@ def test_mordekaiser_q_e_passive_and_w_respond_to_ap_and_health() -> None:
         + Decimal("0.10") * scaled_context.opponent_snapshot.ability_power
     )
     expected_q = Decimal("1.50") * (
-        Decimal(220)
-        + Decimal(20)
-        + Decimal("1.20") * realm_ad
-        + Decimal("0.70") * realm_ap
+        Decimal(220) + Decimal(20) + Decimal("1.20") * realm_ad + Decimal("0.70") * realm_ap
     )
     assert isinstance(scaled_q.outputs[0], DamageOutput)
     assert scaled_q.outputs[0].amount == expected_q
@@ -144,13 +119,9 @@ def test_mordekaiser_q_e_passive_and_w_respond_to_ap_and_health() -> None:
     assert scaled_e.outputs[0].amount == Decimal(140) + Decimal("0.45") * realm_ap
     assert scaled_e.outputs[0].amount > baseline_e.outputs[0].amount
     assert isinstance(shield_event.outputs[0], ShieldOutput)
-    assert shield_event.outputs[0].amount == (
-        Decimal("0.05") * scaled_context.snapshot.max_hp
-    )
+    assert shield_event.outputs[0].amount == (Decimal("0.05") * scaled_context.snapshot.max_hp)
     assert isinstance(heal_event.outputs[0], HealOutput)
-    assert heal_event.outputs[0].amount == (
-        Decimal("0.35") * shield_event.outputs[0].amount
-    )
+    assert heal_event.outputs[0].amount == (Decimal("0.35") * shield_event.outputs[0].amount)
     assert first_attack.outputs[0].amount == realm_ad
     assert first_attack.outputs[1].amount == Decimal("0.40") * realm_ap
     assert first_aura.outputs[0].damage_type is DamageType.MAGIC
@@ -182,14 +153,12 @@ def test_mordekaiser_actions_and_sustain_follow_role_reversal() -> None:
     actor_q = next(
         entry
         for entry in as_actor.timeline.log
-        if entry.event_id == "MORDEKAISER_Q_OBLITERATE_1"
-        and entry.operation == "DAMAGE"
+        if entry.event_id == "MORDEKAISER_Q_OBLITERATE_1" and entry.operation == "DAMAGE"
     )
     opponent_q = next(
         entry
         for entry in as_opponent.timeline.log
-        if entry.event_id == "MORDEKAISER_Q_OBLITERATE_1"
-        and entry.operation == "DAMAGE"
+        if entry.event_id == "MORDEKAISER_Q_OBLITERATE_1" and entry.operation == "DAMAGE"
     )
     actor_shield = next(
         entry
@@ -209,54 +178,50 @@ def test_mordekaiser_actions_and_sustain_follow_role_reversal() -> None:
 
 def test_teemo_blind_cancels_mordekaiser_attacks_but_not_spells_or_aura() -> None:
     """Keep blind scoped to attacks while preserving ability and passive channels."""
-    evaluation = MatchupEngine(ROOT).evaluate(
-        MatchupRequest("Mordekaiser", "Teemo")
-    )
+    evaluation = MatchupEngine(ROOT).evaluate(MatchupRequest("Mordekaiser", "Teemo"))
 
     first_attack = next(
         entry
         for entry in evaluation.timeline.log
-        if entry.event_id == "MORDEKAISER_BASIC_ATTACK_1"
-        and entry.operation == "ACTION"
+        if entry.event_id == "MORDEKAISER_BASIC_ATTACK_1" and entry.operation == "ACTION"
     )
     q = next(
         entry
         for entry in evaluation.timeline.log
-        if entry.event_id == "MORDEKAISER_Q_OBLITERATE_1"
-        and entry.operation == "DAMAGE"
+        if entry.event_id == "MORDEKAISER_Q_OBLITERATE_1" and entry.operation == "DAMAGE"
     )
     aura = next(
         entry
         for entry in evaluation.timeline.log
-        if entry.event_id == "MORDEKAISER_PASSIVE_AURA_TICK_1"
-        and entry.operation == "DAMAGE"
+        if entry.event_id == "MORDEKAISER_PASSIVE_AURA_TICK_1" and entry.operation == "DAMAGE"
     )
 
     assert first_attack.status == "CANCELLED"
     assert q.status == "APPLIED"
     assert aura.status == "APPLIED"
-    assert (
-        "MORDEKAISER_PASSIVE_ACTIVATION_DEPENDENCY_NOT_EVALUATED"
-        in evaluation.blockers
-    )
+    assert "MORDEKAISER_PASSIVE_ACTIVATION_DEPENDENCY_NOT_EVALUATED" in evaluation.blockers
 
 
 def test_mordekaiser_item_policy_and_lane_sustain_are_state_honest() -> None:
     """Accept represented chassis stats and reject dynamic sustain claims."""
     mordekaiser = create_default_registry(ROOT).require_cog("Mordekaiser")
 
-    assert mordekaiser.item_candidate_blocker(
-        {"id": 1, "stats": {"AP": {}, "HP": {}, "ATTACK_SPEED": {}}}
-    ) is None
-    assert mordekaiser.item_candidate_blocker(
-        {"id": 2, "stats": {"ABILITY_HASTE": {}, "HEAL_SHIELD_POWER": {}}}
-    ) == "MORDEKAISER_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,HEAL_SHIELD_POWER"
+    assert (
+        mordekaiser.item_candidate_blocker(
+            {"id": 1, "stats": {"AP": {}, "HP": {}, "ATTACK_SPEED": {}}}
+        )
+        is None
+    )
+    assert (
+        mordekaiser.item_candidate_blocker(
+            {"id": 2, "stats": {"ABILITY_HASTE": {}, "HEAL_SHIELD_POWER": {}}}
+        )
+        == "MORDEKAISER_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,HEAL_SHIELD_POWER"
+    )
     amount, blockers = mordekaiser.lane_sustain_extra_health(
         _context(),
         duration_ms=30_000,
         no_damage_delay_ms=8_000,
     )
     assert amount == 0
-    assert blockers == (
-        "MORDEKAISER_LANE_W_DYNAMIC_SHIELD_RESOURCE_NOT_MODELED",
-    )
+    assert blockers == ("MORDEKAISER_LANE_W_DYNAMIC_SHIELD_RESOURCE_NOT_MODELED",)

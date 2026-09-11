@@ -133,9 +133,7 @@ class BardCog(ChampionCog):
         :param context: Bard snapshot supplying AP, haste, and entity roles.
         :return: Q damage events with a first-cast stun and later-cast slows.
         """
-        cooldown_ms = self._cooldown_ms(
-            self._Q_BASE_COOLDOWN_MS, context.snapshot.ability_haste
-        )
+        cooldown_ms = self._cooldown_ms(self._Q_BASE_COOLDOWN_MS, context.snapshot.ability_haste)
         amount = Decimal(240) + Decimal("0.80") * context.snapshot.ability_power
         base = self._sequence_base(context)
         events: list[ActionEvent] = []
@@ -288,9 +286,7 @@ class BardCog(ChampionCog):
         :return: Q control plus action and damage suppression for target-only R.
         """
         q_windows: list[CastBlockWindow] = []
-        cooldown_ms = self._cooldown_ms(
-            self._Q_BASE_COOLDOWN_MS, context.snapshot.ability_haste
-        )
+        cooldown_ms = self._cooldown_ms(self._Q_BASE_COOLDOWN_MS, context.snapshot.ability_haste)
         at_ms = self._Q_FIRST_AT_MS
         while at_ms <= context.duration_ms:
             index = len(q_windows) + 1

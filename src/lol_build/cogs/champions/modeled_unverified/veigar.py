@@ -64,9 +64,7 @@ class VeigarCog(ChampionCog):
                 source=context.self_entity,
                 channel=ActionChannel.ABILITY,
                 outputs=(
-                    crowd_control(
-                        context.opponent_entity, "STUN", duration_ms=self._E_STUN_MS
-                    ),
+                    crowd_control(context.opponent_entity, "STUN", duration_ms=self._E_STUN_MS),
                 ),
             ),
             action(

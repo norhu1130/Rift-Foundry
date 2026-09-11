@@ -127,9 +127,16 @@ def test_chogath_rotation_is_deterministic_and_uses_locked_spell_values() -> Non
     assert tuple(
         event.at_ms for event in first.events if event.id.startswith("CHOGATH_Q_RUPTURE_")
     ) == (800, 6800)
-    assert len(
-        [event for event in first.events if event.id.startswith("CHOGATH_E_VORPAL_SPIKES_ATTACK_")]
-    ) == 3
+    assert (
+        len(
+            [
+                event
+                for event in first.events
+                if event.id.startswith("CHOGATH_E_VORPAL_SPIKES_ATTACK_")
+            ]
+        )
+        == 3
+    )
 
 
 def test_chogath_ap_attack_speed_haste_and_health_are_causally_visible() -> None:
@@ -214,21 +221,27 @@ def test_chogath_item_and_lane_sustain_policies_are_scope_honest() -> None:
     chogath = create_default_registry(ROOT).require_cog("Chogath")
     context = _context()
 
-    assert chogath.item_candidate_blocker(
-        {
-            "id": 1,
-            "stats": {
-                "AD": {},
-                "AP": {},
-                "ATTACK_SPEED": {},
-                "ABILITY_HASTE": {},
-                "HP": {},
-            },
-        }
-    ) is None
-    assert chogath.item_candidate_blocker(
-        {"id": 2, "stats": {"HEAL_SHIELD_POWER": {}, "MANA": {}, "OMNIVAMP": {}}}
-    ) == "CHOGATH_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA,OMNIVAMP"
+    assert (
+        chogath.item_candidate_blocker(
+            {
+                "id": 1,
+                "stats": {
+                    "AD": {},
+                    "AP": {},
+                    "ATTACK_SPEED": {},
+                    "ABILITY_HASTE": {},
+                    "HP": {},
+                },
+            }
+        )
+        is None
+    )
+    assert (
+        chogath.item_candidate_blocker(
+            {"id": 2, "stats": {"HEAL_SHIELD_POWER": {}, "MANA": {}, "OMNIVAMP": {}}}
+        )
+        == "CHOGATH_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA,OMNIVAMP"
+    )
     recovered, blockers = chogath.lane_sustain_extra_health(
         context,
         duration_ms=30000,

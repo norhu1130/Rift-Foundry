@@ -83,8 +83,10 @@ class AmbessaCog(ChampionCog):
         """
         bonus_ad = context.snapshot.bonus_attack_damage
         max_health_ratio = Decimal("0.06") + Decimal("0.0003") * bonus_ad
-        return Decimal(120) + Decimal("0.60") * bonus_ad + (
-            max_health_ratio * context.opponent_snapshot.max_hp
+        return (
+            Decimal(120)
+            + Decimal("0.60") * bonus_ad
+            + (max_health_ratio * context.opponent_snapshot.max_hp)
         )
 
     @staticmethod
@@ -96,8 +98,10 @@ class AmbessaCog(ChampionCog):
         """
         bonus_ad = context.snapshot.bonus_attack_damage
         max_health_ratio = Decimal("0.06") + Decimal("0.0004") * bonus_ad
-        return Decimal(150) + Decimal("0.90") * bonus_ad + (
-            max_health_ratio * context.opponent_snapshot.max_hp
+        return (
+            Decimal(150)
+            + Decimal("0.90") * bonus_ad
+            + (max_health_ratio * context.opponent_snapshot.max_hp)
         )
 
     @staticmethod
@@ -108,8 +112,10 @@ class AmbessaCog(ChampionCog):
         :return: Raw shield strength before generic item amplification.
         """
         level_fraction = Decimal(context.snapshot.level - 1) / Decimal(17)
-        return Decimal(50) + Decimal(270) * level_fraction + (
-            Decimal("1.50") * context.snapshot.bonus_attack_damage
+        return (
+            Decimal(50)
+            + Decimal(270) * level_fraction
+            + (Decimal("1.50") * context.snapshot.bonus_attack_damage)
         )
 
     @staticmethod

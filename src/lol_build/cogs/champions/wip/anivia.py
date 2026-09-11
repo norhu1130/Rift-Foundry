@@ -225,9 +225,7 @@ class AniviaCog(ChampionCog):
         half_second_damage = (Decimal(75) + Decimal("0.125") * ap) / Decimal(2)
         sequence = self._sequence_base(context) + 200
         events: list[ActionEvent] = []
-        for index, at_ms in enumerate(
-            range(self._R_AT_MS, context.duration_ms + 1, 500), start=1
-        ):
+        for index, at_ms in enumerate(range(self._R_AT_MS, context.duration_ms + 1, 500), start=1):
             multiplier = Decimal(3) if at_ms >= self._R_AT_MS + 1500 else Decimal(1)
             events.append(
                 action(

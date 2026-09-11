@@ -99,9 +99,7 @@ def test_kaisa_ad_ap_and_attack_speed_affect_represented_outputs() -> None:
     baseline = kaisa.build_action_plan(_context())
     more_ad = kaisa.build_action_plan(_context(item_stats={"AD": Decimal(50)}))
     more_ap = kaisa.build_action_plan(_context(item_stats={"AP": Decimal(100)}))
-    more_speed = kaisa.build_action_plan(
-        _context(item_stats={"ATTACK_SPEED": Decimal("0.50")})
-    )
+    more_speed = kaisa.build_action_plan(_context(item_stats={"ATTACK_SPEED": Decimal("0.50")}))
 
     def event(plan: object, event_id: str) -> object:
         """Find one named action in a plan used by this sensitivity test.
@@ -112,12 +110,14 @@ def test_kaisa_ad_ap_and_attack_speed_affect_represented_outputs() -> None:
         """
         return next(candidate for candidate in plan.events if candidate.id == event_id)
 
-    assert event(more_ad, "KAISA_Q_ICATHIAN_RAIN_ISOLATED").outputs[0].amount > event(
-        baseline, "KAISA_Q_ICATHIAN_RAIN_ISOLATED"
-    ).outputs[0].amount
-    assert event(more_ap, "KAISA_W_VOID_SEEKER").outputs[0].amount > event(
-        baseline, "KAISA_W_VOID_SEEKER"
-    ).outputs[0].amount
+    assert (
+        event(more_ad, "KAISA_Q_ICATHIAN_RAIN_ISOLATED").outputs[0].amount
+        > event(baseline, "KAISA_Q_ICATHIAN_RAIN_ISOLATED").outputs[0].amount
+    )
+    assert (
+        event(more_ap, "KAISA_W_VOID_SEEKER").outputs[0].amount
+        > event(baseline, "KAISA_W_VOID_SEEKER").outputs[0].amount
+    )
     baseline_attacks = [
         item for item in baseline.events if item.channel is ActionChannel.BASIC_ATTACK
     ]
@@ -137,14 +137,12 @@ def test_kaisa_role_reversal_and_teemo_blind_are_channel_correct() -> None:
     actor_q = next(
         entry
         for entry in as_actor.timeline.log
-        if entry.event_id == "KAISA_Q_ICATHIAN_RAIN_ISOLATED"
-        and entry.operation == "DAMAGE"
+        if entry.event_id == "KAISA_Q_ICATHIAN_RAIN_ISOLATED" and entry.operation == "DAMAGE"
     )
     opponent_q = next(
         entry
         for entry in as_opponent.timeline.log
-        if entry.event_id == "KAISA_Q_ICATHIAN_RAIN_ISOLATED"
-        and entry.operation == "DAMAGE"
+        if entry.event_id == "KAISA_Q_ICATHIAN_RAIN_ISOLATED" and entry.operation == "DAMAGE"
     )
     assert actor_q.recipient is EntityId.TARGET
     assert opponent_q.recipient is EntityId.ACTOR
@@ -169,17 +167,21 @@ def test_kaisa_engagement_reaction_and_item_policy_preserve_boundaries() -> None
     assert kaisa.engagement_dash_distance(context) == Decimal(2500)
     assert reaction.model_id == "kaisa_r2_shield_e5_base_reaction_v1"
     assert reaction.events == ()
-    assert kaisa.item_candidate_blocker(
-        {
-            "id": 1,
-            "stats": {
-                "AD": {},
-                "AP": {},
-                "ATTACK_SPEED": {},
-                "CRITICAL_STRIKE_CHANCE": {},
-            },
-        }
-    ) is None
-    assert kaisa.item_candidate_blocker(
-        {"id": 2, "stats": {"ABILITY_HASTE": {}, "LIFESTEAL": {}}}
-    ) == "KAISA_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,LIFESTEAL"
+    assert (
+        kaisa.item_candidate_blocker(
+            {
+                "id": 1,
+                "stats": {
+                    "AD": {},
+                    "AP": {},
+                    "ATTACK_SPEED": {},
+                    "CRITICAL_STRIKE_CHANCE": {},
+                },
+            }
+        )
+        is None
+    )
+    assert (
+        kaisa.item_candidate_blocker({"id": 2, "stats": {"ABILITY_HASTE": {}, "LIFESTEAL": {}}})
+        == "KAISA_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,LIFESTEAL"
+    )

@@ -38,9 +38,7 @@ def test_role_priority_takes_the_most_valuable_tag() -> None:
 
     assert assassin_mage.role_priority < tank_support.role_priority
     # An unknown tag must not outrank a recognized one.
-    assert participant(EntityId.TARGET, 550, "Unknown").role_priority > (
-        tank_support.role_priority
-    )
+    assert participant(EntityId.TARGET, 550, "Unknown").role_priority > (tank_support.role_priority)
 
 
 def test_a_melee_attacker_is_held_to_the_defending_front_line() -> None:

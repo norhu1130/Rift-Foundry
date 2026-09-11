@@ -109,9 +109,7 @@ class RivenCog(ChampionCog):
                 channel=ActionChannel.ABILITY,
                 outputs=(
                     damage(context.opponent_entity, w_damage, DamageType.PHYSICAL),
-                    crowd_control(
-                        context.opponent_entity, "STUN", duration_ms=self._W_STUN_MS
-                    ),
+                    crowd_control(context.opponent_entity, "STUN", duration_ms=self._W_STUN_MS),
                 ),
             ),
             action(

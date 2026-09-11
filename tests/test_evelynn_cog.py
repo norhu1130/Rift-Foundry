@@ -105,28 +105,22 @@ def test_evelynn_ap_attack_speed_haste_and_hp_reach_modeled_channels() -> None:
     evelynn = create_default_registry(ROOT).require_cog("Evelynn")
     baseline = evelynn.build_action_plan(_context())
     powered = evelynn.build_action_plan(_context(item_stats={"AP": Decimal(100)}))
-    faster = evelynn.build_action_plan(
-        _context(item_stats={"ATTACK_SPEED": Decimal("0.50")})
-    )
-    hasted = evelynn.build_action_plan(
-        _context(item_stats={"ABILITY_HASTE": Decimal(100)})
-    )
-    healthier_target = evelynn.build_action_plan(
-        _context(opponent_item_stats={"HP": Decimal(500)})
-    )
+    faster = evelynn.build_action_plan(_context(item_stats={"ATTACK_SPEED": Decimal("0.50")}))
+    hasted = evelynn.build_action_plan(_context(item_stats={"ABILITY_HASTE": Decimal(100)}))
+    healthier_target = evelynn.build_action_plan(_context(opponent_item_stats={"HP": Decimal(500)}))
 
-    assert _damage_outputs(_event(powered, "EVELYNN_Q_HATE_SPIKE_1"))[0].amount - (
-        _damage_outputs(_event(baseline, "EVELYNN_Q_HATE_SPIKE_1"))[0].amount
-    ) == 25
+    assert (
+        _damage_outputs(_event(powered, "EVELYNN_Q_HATE_SPIKE_1"))[0].amount
+        - (_damage_outputs(_event(baseline, "EVELYNN_Q_HATE_SPIKE_1"))[0].amount)
+        == 25
+    )
     baseline_attacks = [event for event in baseline.events if event.id.startswith("EVELYNN_BASIC")]
     faster_attacks = [event for event in faster.events if event.id.startswith("EVELYNN_BASIC")]
     assert len(faster_attacks) > len(baseline_attacks)
     assert _event(baseline, "EVELYNN_Q_HATE_SPIKE_2").at_ms == 6501
     assert _event(hasted, "EVELYNN_Q_HATE_SPIKE_2").at_ms == 4501
     e_base = _damage_outputs(_event(baseline, "EVELYNN_E_EMPOWERED_WHIPLASH"))[0].amount
-    e_health = _damage_outputs(
-        _event(healthier_target, "EVELYNN_E_EMPOWERED_WHIPLASH")
-    )[0].amount
+    e_health = _damage_outputs(_event(healthier_target, "EVELYNN_E_EMPOWERED_WHIPLASH"))[0].amount
     assert e_health - e_base == 20
 
 

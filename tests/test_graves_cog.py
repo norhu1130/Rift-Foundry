@@ -116,9 +116,13 @@ def test_graves_role_reversal_and_item_policy_are_explicit() -> None:
 
     assert actor.source is EntityId.ACTOR
     assert target.source is EntityId.TARGET
-    assert graves.item_candidate_blocker(
-        {"id": 1, "stats": {"AD": {}, "CRITICAL_STRIKE_CHANCE": {}, "ABILITY_HASTE": {}}}
-    ) is None
-    assert graves.item_candidate_blocker(
-        {"id": 2, "stats": {"LIFESTEAL": {}, "MANA": {}}}
-    ) == "GRAVES_ITEM_STAT_NOT_MODELED:2:LIFESTEAL,MANA"
+    assert (
+        graves.item_candidate_blocker(
+            {"id": 1, "stats": {"AD": {}, "CRITICAL_STRIKE_CHANCE": {}, "ABILITY_HASTE": {}}}
+        )
+        is None
+    )
+    assert (
+        graves.item_candidate_blocker({"id": 2, "stats": {"LIFESTEAL": {}, "MANA": {}}})
+        == "GRAVES_ITEM_STAT_NOT_MODELED:2:LIFESTEAL,MANA"
+    )

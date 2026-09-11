@@ -187,9 +187,7 @@ class LeonaCog(ChampionCog):
                         outputs=(
                             *self.area_outputs(
                                 context,
-                                lambda entity: damage(
-                                    entity, raw_damage, DamageType.MAGIC
-                                ),
+                                lambda entity: damage(entity, raw_damage, DamageType.MAGIC),
                                 centered_on_self=True,
                             ),
                             self._sunlight(context),

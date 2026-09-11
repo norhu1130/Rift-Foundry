@@ -70,9 +70,7 @@ def test_vayne_rotation_is_deterministic_and_tumble_resets_attack_clock() -> Non
 
     first = vayne.build_action_plan(context)
     repeated = vayne.build_action_plan(context)
-    tumble_times = tuple(
-        event.at_ms for event in first.events if "Q_TUMBLE_ATTACK" in event.id
-    )
+    tumble_times = tuple(event.at_ms for event in first.events if "Q_TUMBLE_ATTACK" in event.id)
     interval = vayne._attack_interval_ms(context.snapshot.attack_speed)
 
     assert first == repeated
@@ -113,9 +111,7 @@ def test_vayne_damage_responds_to_ad_ap_attack_speed_and_target_health() -> None
     expected_combat_ad = scaled_context.snapshot.attack_damage + Decimal(50)
 
     assert scaled_q.outputs[0].amount == expected_combat_ad
-    assert scaled_q.outputs[1].amount == (
-        Decimal("1.15") * expected_combat_ad + Decimal(50)
-    )
+    assert scaled_q.outputs[1].amount == (Decimal("1.15") * expected_combat_ad + Decimal(50))
     assert scaled_q.outputs[1].amount > baseline_q.outputs[1].amount
     assert scaled_e.outputs[0].amount == Decimal(125)
     assert len(
@@ -191,9 +187,15 @@ def test_vayne_item_policy_rejects_unrepresented_stat_channels() -> None:
     """Allow represented damage stats while rejecting unresolved resources."""
     vayne = create_default_registry(ROOT).require_cog("Vayne")
 
-    assert vayne.item_candidate_blocker(
-        {"id": 1, "stats": {"AD": {}, "AP": {}, "ATTACK_SPEED": {}, "HP": {}}}
-    ) is None
-    assert vayne.item_candidate_blocker(
-        {"id": 2, "stats": {"ABILITY_HASTE": {}, "CRITICAL_STRIKE_CHANCE": {}}}
-    ) == "VAYNE_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,CRITICAL_STRIKE_CHANCE"
+    assert (
+        vayne.item_candidate_blocker(
+            {"id": 1, "stats": {"AD": {}, "AP": {}, "ATTACK_SPEED": {}, "HP": {}}}
+        )
+        is None
+    )
+    assert (
+        vayne.item_candidate_blocker(
+            {"id": 2, "stats": {"ABILITY_HASTE": {}, "CRITICAL_STRIKE_CHANCE": {}}}
+        )
+        == "VAYNE_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,CRITICAL_STRIKE_CHANCE"
+    )

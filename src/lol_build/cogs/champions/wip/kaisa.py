@@ -157,8 +157,7 @@ class KaisaCog(ChampionCog):
         e_end_ms = self._supercharge_end_ms(context)
         e_buff_end_ms = e_end_ms + 4000
         empowered_speed = (
-            context.snapshot.attack_speed
-            + self._ATTACK_SPEED_RATIO * self._E5_ATTACK_SPEED_BONUS
+            context.snapshot.attack_speed + self._ATTACK_SPEED_RATIO * self._E5_ATTACK_SPEED_BONUS
         )
         passive_base = self._passive_base_damage(context)
         passive_per_stack = self._passive_per_stack_damage(context)
@@ -186,8 +185,7 @@ class KaisaCog(ChampionCog):
                     MissingHealthDamageOutput(
                         context.opponent_entity,
                         Decimal(0),
-                        Decimal("0.15")
-                        + Decimal("0.0006") * context.snapshot.ability_power,
+                        Decimal("0.15") + Decimal("0.0006") * context.snapshot.ability_power,
                         DamageType.MAGIC,
                     )
                 )

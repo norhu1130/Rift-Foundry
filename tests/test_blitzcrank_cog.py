@@ -58,9 +58,7 @@ def _attacks(plan: ActionPlan) -> tuple[ActionEvent, ...]:
     :param plan: Blitzcrank action plan containing ordinary attacks.
     :return: Chronological ordinary basic-attack events.
     """
-    return tuple(
-        event for event in plan.events if event.id.startswith("BLITZCRANK_BASIC_ATTACK_")
-    )
+    return tuple(event for event in plan.events if event.id.startswith("BLITZCRANK_BASIC_ATTACK_"))
 
 
 def test_blitzcrank_declares_modeled_capabilities_and_three_sources() -> None:
@@ -107,12 +105,8 @@ def test_blitzcrank_ap_attack_speed_and_move_speed_reach_outputs() -> None:
     blitzcrank = create_default_registry(ROOT).require_cog("Blitzcrank")
     baseline = blitzcrank.build_action_plan(_context())
     power = blitzcrank.build_action_plan(_context(item_stats={"AP": Decimal(100)}))
-    speed = blitzcrank.build_action_plan(
-        _context(item_stats={"ATTACK_SPEED": Decimal("0.50")})
-    )
-    movement = blitzcrank.build_action_plan(
-        _context(item_stats={"MOVE_SPEED_FLAT": Decimal(100)})
-    )
+    speed = blitzcrank.build_action_plan(_context(item_stats={"ATTACK_SPEED": Decimal("0.50")}))
+    movement = blitzcrank.build_action_plan(_context(item_stats={"MOVE_SPEED_FLAT": Decimal(100)}))
 
     assert (
         _event(power, "BLITZCRANK_Q_ROCKET_GRAB_HIT").outputs[0].amount
@@ -190,16 +184,13 @@ def test_blitzcrank_role_reversal_and_teemo_blind_preserve_channels() -> None:
         "BLITZCRANK_R_STATIC_FIELD_ACTIVE",
     ):
         assert any(
-            entry.event_id == event_id
-            and entry.operation == "DAMAGE"
-            and entry.status == "APPLIED"
+            entry.event_id == event_id and entry.operation == "DAMAGE" and entry.status == "APPLIED"
             for entry in as_actor.timeline.log
         )
     opponent_q = next(
         entry
         for entry in as_opponent.timeline.log
-        if entry.event_id == "BLITZCRANK_Q_ROCKET_GRAB_HIT"
-        and entry.operation == "DAMAGE"
+        if entry.event_id == "BLITZCRANK_Q_ROCKET_GRAB_HIT" and entry.operation == "DAMAGE"
     )
     assert opponent_q.recipient is EntityId.ACTOR
 

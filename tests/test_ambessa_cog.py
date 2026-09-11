@@ -105,9 +105,7 @@ def test_ambessa_rotation_is_deterministic_and_uses_locked_formulas() -> None:
     assert isinstance(w.outputs[4], ShieldOutput)
     assert w.outputs[4].amount == Decimal(200) + Decimal(270 * 12) / Decimal(17)
     assert empowered.channel is ActionChannel.BASIC_ATTACK
-    assert empowered.outputs[1].amount == (
-        Decimal(30) + Decimal(25 * 12) / Decimal(17)
-    )
+    assert empowered.outputs[1].amount == (Decimal(30) + Decimal(25 * 12) / Decimal(17))
     assert "AMBESSA_ENERGY_LEDGER_NOT_MODELED" in first.blockers
     assert "AMBESSA_R2_NATIVE_ARMOR_PENETRATION_NOT_APPLIED_BY_TIMELINE" in first.blockers
 
@@ -134,9 +132,7 @@ def test_ambessa_ad_as_haste_and_health_change_represented_outputs() -> None:
     assert scaled_context.snapshot.max_hp == baseline_context.snapshot.max_hp + Decimal(500)
     assert len(
         [event for event in scaled.events if event.id.startswith("AMBESSA_BASIC_ATTACK_")]
-    ) > len(
-        [event for event in baseline.events if event.id.startswith("AMBESSA_BASIC_ATTACK_")]
-    )
+    ) > len([event for event in baseline.events if event.id.startswith("AMBESSA_BASIC_ATTACK_")])
     assert any(event.id == "AMBESSA_Q1_CUNNING_SWEEP_2" for event in scaled.events)
     assert any(event.id == "AMBESSA_E_LACERATE_DOUBLE_2" for event in scaled.events)
     assert not any(event.id == "AMBESSA_Q1_CUNNING_SWEEP_2" for event in baseline.events)
@@ -187,22 +183,28 @@ def test_ambessa_item_and_lane_sustain_policies_are_explicit() -> None:
     """Allow represented fighter stats and reject unsupported item channels."""
     ambessa = _ambessa()
 
-    assert ambessa.item_candidate_blocker(
-        {
-            "id": 1,
-            "stats": {
-                "AD": {},
-                "ATTACK_SPEED": {},
-                "ABILITY_HASTE": {},
-                "HP": {},
-                "ARMOR": {},
-                "MAGIC_RESISTANCE": {},
-            },
-        }
-    ) is None
-    assert ambessa.item_candidate_blocker(
-        {"id": 2, "stats": {"AP": {}, "CRITICAL_STRIKE_CHANCE": {}, "MANA": {}}}
-    ) == "AMBESSA_ITEM_STAT_NOT_MODELED:2:AP,CRITICAL_STRIKE_CHANCE,MANA"
+    assert (
+        ambessa.item_candidate_blocker(
+            {
+                "id": 1,
+                "stats": {
+                    "AD": {},
+                    "ATTACK_SPEED": {},
+                    "ABILITY_HASTE": {},
+                    "HP": {},
+                    "ARMOR": {},
+                    "MAGIC_RESISTANCE": {},
+                },
+            }
+        )
+        is None
+    )
+    assert (
+        ambessa.item_candidate_blocker(
+            {"id": 2, "stats": {"AP": {}, "CRITICAL_STRIKE_CHANCE": {}, "MANA": {}}}
+        )
+        == "AMBESSA_ITEM_STAT_NOT_MODELED:2:AP,CRITICAL_STRIKE_CHANCE,MANA"
+    )
     recovered, blockers = ambessa.lane_sustain_extra_health(
         _context(),
         duration_ms=30_000,

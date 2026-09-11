@@ -202,7 +202,5 @@ class OlafCog(ChampionCog):
                     "OLAF_R_RAGNAROK",
                 ),
             ),
-            blockers=(
-                "OLAF_R_CLEANSE_ON_CAST_NOT_MODELED",
-            ),
+            blockers=("OLAF_R_CLEANSE_ON_CAST_NOT_MODELED",),
         )

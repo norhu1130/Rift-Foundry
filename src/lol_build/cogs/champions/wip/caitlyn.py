@@ -79,10 +79,7 @@ class CaitlynCog(ChampionCog):
         :param headshot_bonus: Extra physical damage supplied by Headshot.
         :return: Basic-attack event that remains susceptible to blind.
         """
-        amount = (
-            context.snapshot.attack_damage * cls._critical_multiplier(context)
-            + headshot_bonus
-        )
+        amount = context.snapshot.attack_damage * cls._critical_multiplier(context) + headshot_bonus
         return action(
             event_id,
             at_ms=at_ms,
@@ -186,8 +183,7 @@ class CaitlynCog(ChampionCog):
                     outputs=(
                         damage(
                             context.opponent_entity,
-                            Decimal(210)
-                            + Decimal("2.05") * context.snapshot.attack_damage,
+                            Decimal(210) + Decimal("2.05") * context.snapshot.attack_damage,
                             DamageType.PHYSICAL,
                         ),
                     ),
@@ -242,9 +238,7 @@ class CaitlynCog(ChampionCog):
                     at_ms=attack_ms,
                     sequence=base + 100 + attack_index,
                     headshot_bonus=(
-                        self._headshot_bonus(context)
-                        if normal_headshot
-                        else Decimal(0)
+                        self._headshot_bonus(context) if normal_headshot else Decimal(0)
                     ),
                 )
             )
@@ -266,8 +260,7 @@ class CaitlynCog(ChampionCog):
                     outputs=(
                         damage(
                             context.opponent_entity,
-                            (Decimal(475) + context.snapshot.bonus_attack_damage)
-                            * critical_scale,
+                            (Decimal(475) + context.snapshot.bonus_attack_damage) * critical_scale,
                             DamageType.PHYSICAL,
                         ),
                     ),

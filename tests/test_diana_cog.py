@@ -110,9 +110,7 @@ def test_diana_ap_attack_speed_and_haste_reach_distinct_channels() -> None:
     diana = create_default_registry(ROOT).require_cog("Diana")
     baseline = diana.build_action_plan(_context())
     powered = diana.build_action_plan(_context(item_stats={"AP": Decimal(100)}))
-    faster = diana.build_action_plan(
-        _context(item_stats={"ATTACK_SPEED": Decimal("0.50")})
-    )
+    faster = diana.build_action_plan(_context(item_stats={"ATTACK_SPEED": Decimal("0.50")}))
     hasted = diana.build_action_plan(_context(item_stats={"ABILITY_HASTE": Decimal(100)}))
 
     expected_ap_deltas = {
@@ -130,9 +128,10 @@ def test_diana_ap_attack_speed_and_haste_reach_distinct_channels() -> None:
     assert [
         event.at_ms for event in hasted.events if event.id.startswith("DIANA_Q_CRESCENT_STRIKE_")
     ] == [100, 3100, 6100]
-    assert len(
-        [event for event in baseline.events if event.id.startswith("DIANA_Q_CRESCENT_STRIKE_")]
-    ) == 2
+    assert (
+        len([event for event in baseline.events if event.id.startswith("DIANA_Q_CRESCENT_STRIKE_")])
+        == 2
+    )
 
 
 def test_diana_moonfall_control_and_roles_are_symmetric() -> None:
@@ -186,9 +185,7 @@ def test_teemo_blind_cancels_diana_attacks_but_not_abilities() -> None:
         "DIANA_R_MOONFALL_SINGLE_TARGET_DAMAGE",
     ):
         assert any(
-            entry.event_id == event_id
-            and entry.operation == "DAMAGE"
-            and entry.status == "APPLIED"
+            entry.event_id == event_id and entry.operation == "DAMAGE" and entry.status == "APPLIED"
             for entry in result.timeline.log
         )
 
@@ -197,17 +194,21 @@ def test_diana_item_policy_accepts_haste_and_rejects_unmodeled_stats() -> None:
     """Allow represented rotation stats while blocking resource and sustain gaps."""
     diana = create_default_registry(ROOT).require_cog("Diana")
 
-    assert diana.item_candidate_blocker(
-        {
-            "id": 1,
-            "stats": {
-                "AP": {},
-                "HP": {},
-                "ATTACK_SPEED": {},
-                "ABILITY_HASTE": {},
-            },
-        }
-    ) is None
-    assert diana.item_candidate_blocker(
-        {"id": 2, "stats": {"HEAL_SHIELD_POWER": {}, "MANA": {}}}
-    ) == "DIANA_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA"
+    assert (
+        diana.item_candidate_blocker(
+            {
+                "id": 1,
+                "stats": {
+                    "AP": {},
+                    "HP": {},
+                    "ATTACK_SPEED": {},
+                    "ABILITY_HASTE": {},
+                },
+            }
+        )
+        is None
+    )
+    assert (
+        diana.item_candidate_blocker({"id": 2, "stats": {"HEAL_SHIELD_POWER": {}, "MANA": {}}})
+        == "DIANA_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA"
+    )

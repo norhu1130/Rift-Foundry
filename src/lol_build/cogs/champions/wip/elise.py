@@ -62,9 +62,7 @@ class EliseCog(ChampionCog):
         :param ability_haste: Non-negative haste supplied by the snapshot.
         :return: Cooldown rounded to a deterministic positive millisecond.
         """
-        effective = seconds * Decimal(100_000) / (
-            Decimal(100) + max(Decimal(0), ability_haste)
-        )
+        effective = seconds * Decimal(100_000) / (Decimal(100) + max(Decimal(0), ability_haste))
         return max(1, int(effective.to_integral_value(ROUND_HALF_EVEN)))
 
     @staticmethod
@@ -183,11 +181,7 @@ class EliseCog(ChampionCog):
         while at_ms <= context.duration_ms:
             index = len(events) + 1
             amplified = at_ms < self._RAPPEL_DESCENT_MS + 5000
-            multiplier = (
-                Decimal(1) + self._RAPPEL_AMPLIFICATION
-                if amplified
-                else Decimal(1)
-            )
+            multiplier = Decimal(1) + self._RAPPEL_AMPLIFICATION if amplified else Decimal(1)
             events.append(
                 action(
                     f"ELISE_SPIDER_ATTACK_{index}",

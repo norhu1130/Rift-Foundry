@@ -171,9 +171,7 @@ def test_bin_validation_requires_a_case_insensitive_champion_root(tmp_path: Path
             fetcher=wrong_bin_fetcher,
         )
 
-    assert not (
-        tmp_path / "data/raw/99.1.1/communitydragon/champions/alpha.bin.json"
-    ).exists()
+    assert not (tmp_path / "data/raw/99.1.1/communitydragon/champions/alpha.bin.json").exists()
 
 
 def test_audit_does_not_count_a_missing_or_corrupted_locked_file(tmp_path: Path) -> None:

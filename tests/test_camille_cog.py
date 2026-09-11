@@ -171,18 +171,24 @@ def test_camille_item_policy_rejects_only_unrepresented_channels() -> None:
     """Accept consumed stats and reject unsupported scheduling or sustain."""
     camille = create_default_registry(ROOT).require_cog("Camille")
 
-    assert camille.item_candidate_blocker(
-        {
-            "id": 1,
-            "stats": {
-                "AD": {},
-                "ATTACK_SPEED": {},
-                "HP": {},
-                "ARMOR": {},
-                "MAGIC_RESISTANCE": {},
-            },
-        }
-    ) is None
-    assert camille.item_candidate_blocker(
-        {"id": 2, "stats": {"ABILITY_HASTE": {}, "LIFESTEAL": {}, "MANA": {}}}
-    ) == "CAMILLE_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,LIFESTEAL,MANA"
+    assert (
+        camille.item_candidate_blocker(
+            {
+                "id": 1,
+                "stats": {
+                    "AD": {},
+                    "ATTACK_SPEED": {},
+                    "HP": {},
+                    "ARMOR": {},
+                    "MAGIC_RESISTANCE": {},
+                },
+            }
+        )
+        is None
+    )
+    assert (
+        camille.item_candidate_blocker(
+            {"id": 2, "stats": {"ABILITY_HASTE": {}, "LIFESTEAL": {}, "MANA": {}}}
+        )
+        == "CAMILLE_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,LIFESTEAL,MANA"
+    )

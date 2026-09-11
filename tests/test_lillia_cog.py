@@ -78,9 +78,7 @@ def test_lillia_ap_and_haste_change_damage_cadence_and_movement() -> None:
     """Exercise AP ratios, haste-sensitive Q casts, and Prance scaling."""
     cog = create_default_registry(ROOT).require_cog("Lillia")
     base_context = _context()
-    powered_context = _context(
-        item_stats={"AP": Decimal(100), "ABILITY_HASTE": Decimal(100)}
-    )
+    powered_context = _context(item_stats={"AP": Decimal(100), "ABILITY_HASTE": Decimal(100)})
     base = cog.build_action_plan(base_context)
     powered = cog.build_action_plan(powered_context)
 

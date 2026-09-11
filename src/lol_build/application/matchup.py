@@ -116,9 +116,7 @@ class MatchupRequest:
 
         :return: Opponent specifications covering the whole opposing side.
         """
-        primary = ParticipantSpec(
-            self.opponent, self.opponent_item_ids, self.opponent_bonus_health
-        )
+        primary = ParticipantSpec(self.opponent, self.opponent_item_ids, self.opponent_bonus_health)
         return (primary, *self.additional_opponents)
 
     @property
@@ -127,9 +125,7 @@ class MatchupRequest:
 
         :return: Participant specifications covering the actor's whole side.
         """
-        primary = ParticipantSpec(
-            self.actor, self.actor_item_ids, self.actor_bonus_health
-        )
+        primary = ParticipantSpec(self.actor, self.actor_item_ids, self.actor_bonus_health)
         return (primary, *self.allies)
 
 
@@ -366,9 +362,7 @@ def _cadence_adjusted_timestamp(
     """
     if not windows or original_ms <= 0:
         return original_ms
-    boundaries = sorted(
-        {point for window in windows for point in (window.start_ms, window.end_ms)}
-    )
+    boundaries = sorted({point for window in windows for point in (window.start_ms, window.end_ms)})
     actual_cursor = 0
     progress = Decimal(0)
     required = Decimal(original_ms)
@@ -379,15 +373,11 @@ def _cadence_adjusted_timestamp(
                 multiplier *= window.multiplier
         available = Decimal(boundary - actual_cursor) * multiplier
         if required <= progress + available:
-            elapsed = ((required - progress) / multiplier).to_integral_value(
-                rounding=ROUND_CEILING
-            )
+            elapsed = ((required - progress) / multiplier).to_integral_value(rounding=ROUND_CEILING)
             return actual_cursor + int(elapsed)
         progress += available
         actual_cursor = boundary
-    return actual_cursor + int(
-        (required - progress).to_integral_value(rounding=ROUND_CEILING)
-    )
+    return actual_cursor + int((required - progress).to_integral_value(rounding=ROUND_CEILING))
 
 
 def _apply_attack_cadence(
@@ -737,9 +727,7 @@ class MatchupEngine:
             raise ValueError("an encounter supports at most five opponents")
         actor_cog = self.registry.require_cog(request.actor)
         opponent_cogs = [self.registry.require_cog(spec.champion) for spec in specs]
-        opposing_item_ids = tuple(
-            item_id for spec in specs for item_id in spec.item_ids
-        )
+        opposing_item_ids = tuple(item_id for spec in specs for item_id in spec.item_ids)
         actor_item_stats = self._item_stats(
             request.actor_item_ids, request.level, actor_cog, request.actor_bonus_health
         )
@@ -750,13 +738,9 @@ class MatchupEngine:
         )
         opponent_snapshots = []
         for spec, cog in zip(specs, opponent_cogs, strict=True):
-            item_stats = self._item_stats(
-                spec.item_ids, request.level, cog, spec.bonus_health
-            )
+            item_stats = self._item_stats(spec.item_ids, request.level, cog, spec.bonus_health)
             item_stats.update(self._enemy_item_stat_modifiers(request.actor_item_ids))
-            opponent_snapshots.append(
-                cog.snapshot(level=request.level, item_stats=item_stats)
-            )
+            opponent_snapshots.append(cog.snapshot(level=request.level, item_stats=item_stats))
         opponent_entities = OPPONENT_ENTITIES[: len(specs)]
         opponent_snapshot = opponent_snapshots[0]
         opposing_side = tuple(
@@ -788,9 +772,7 @@ class MatchupEngine:
             _threat_participant(view, cog)
             for view, cog in zip(opposing_side, opponent_cogs, strict=True)
         )
-        snapshot_by_entity = {
-            view.entity: view.snapshot for view in (*actor_side, *opposing_side)
-        }
+        snapshot_by_entity = {view.entity: view.snapshot for view in (*actor_side, *opposing_side)}
         opponent_targets = allocate_threat(opponent_threats, actor_threats)
         # The caller named this matchup, so its primary opponent stays on the
         # actor. Left to the policy a durable actor is the least valuable target
@@ -908,9 +890,7 @@ class MatchupEngine:
             for view, plan, reactions, events in zip(
                 ally_side, ally_action_plans, ally_reaction_plans, ally_event_lists, strict=True
             ):
-                immunities = _active_control_immunities(
-                    reactions.control_immunity_windows, events
-                )
+                immunities = _active_control_immunities(reactions.control_immunity_windows, events)
                 ally_blocks: tuple[CastBlockWindow, ...] = ()
                 ally_cadence: tuple[AttackCadenceModifierWindow, ...] = ()
                 for enemy, enemy_plan, enemy_events in zip(
@@ -930,9 +910,7 @@ class MatchupEngine:
                 next_allies.append(
                     _apply_cast_blocks(
                         _apply_attack_cadence(
-                            _delay_until_contact(
-                                plan.events, arrival_by_entity[view.entity]
-                            ),
+                            _delay_until_contact(plan.events, arrival_by_entity[view.entity]),
                             ally_cadence,
                             duration_ms=request.duration_ms,
                         ),
@@ -948,15 +926,11 @@ class MatchupEngine:
                 incoming_blocks,
             )
             outgoing_by_target: dict[EntityId, list[tuple[Any, tuple[ActionEvent, ...]]]] = {}
-            outgoing_by_target.setdefault(focus_entity, []).append(
-                (actor_reactions, actor_events)
-            )
+            outgoing_by_target.setdefault(focus_entity, []).append((actor_reactions, actor_events))
             for ally, plan, events in zip(
                 ally_side, ally_reaction_plans, ally_event_lists, strict=True
             ):
-                outgoing_by_target.setdefault(ally_targets[ally.entity], []).append(
-                    (plan, events)
-                )
+                outgoing_by_target.setdefault(ally_targets[ally.entity], []).append((plan, events))
             next_opponents = []
             for view, plan, reactions, events in zip(
                 opposing_side,
@@ -965,16 +939,12 @@ class MatchupEngine:
                 opponent_event_lists,
                 strict=True,
             ):
-                immunities = _active_control_immunities(
-                    reactions.control_immunity_windows, events
-                )
+                immunities = _active_control_immunities(reactions.control_immunity_windows, events)
                 aimed_at_view = outgoing_by_target.get(view.entity, [])
                 next_opponents.append(
                     _apply_cast_blocks(
                         _apply_attack_cadence(
-                            _delay_until_contact(
-                                plan.events, arrival_by_entity[view.entity]
-                            ),
+                            _delay_until_contact(plan.events, arrival_by_entity[view.entity]),
                             tuple(
                                 window
                                 for source_plan, source_events in aimed_at_view
@@ -1049,9 +1019,7 @@ class MatchupEngine:
             (*opponent_event_lists, *ally_event_lists),
             strict=True,
         ):
-            active_immunities += _active_control_immunities(
-                plan.control_immunity_windows, events
-            )
+            active_immunities += _active_control_immunities(plan.control_immunity_windows, events)
         allied_events: tuple[ActionEvent, ...] = ()
         for view, plan, result, events in zip(
             ally_side, ally_reaction_plans, ally_item_results, ally_event_lists, strict=True
@@ -1101,12 +1069,8 @@ class MatchupEngine:
             ),
             target=_opponent_combatant(opposing_side[0]),
             additional_allies=tuple(_opponent_combatant(view) for view in ally_side),
-            additional_targets=tuple(
-                _opponent_combatant(view) for view in opposing_side[1:]
-            ),
-            events=tuple(
-                sorted(combat_events, key=lambda event: (event.at_ms, event.sequence))
-            ),
+            additional_targets=tuple(_opponent_combatant(view) for view in opposing_side[1:]),
+            events=tuple(sorted(combat_events, key=lambda event: (event.at_ms, event.sequence))),
             damage_modifier_windows=(
                 actor_reactions.damage_windows
                 + tuple(
@@ -1132,9 +1096,7 @@ class MatchupEngine:
             blockers.update(plan.blockers)
         if ally_side:
             blockers.add("ALLY_CONTRIBUTION_EXCLUDED_FROM_BUILD_RANKING")
-        blockers.update(
-            policy_blockers(multi_participant=bool(ally_side or opposing_side[1:]))
-        )
+        blockers.update(policy_blockers(multi_participant=bool(ally_side or opposing_side[1:])))
         if ally_side or opposing_side[1:]:
             blockers.add("PRIMARY_OPPONENT_PINNED_TO_ACTOR")
         if not converged:
@@ -1150,9 +1112,7 @@ class MatchupEngine:
                 # given cast actually catches depends on the formation at that
                 # moment, which the encounter does not model.
                 blockers.add("AREA_ABILITY_REACH_APPROXIMATED_BY_LINE")
-            blockers.add(
-                f"TEAM_ARRIVAL_DISTANCE_ASSUMED:{request.team_arrival_distance}"
-            )
+            blockers.add(f"TEAM_ARRIVAL_DISTANCE_ASSUMED:{request.team_arrival_distance}")
             blockers.add(
                 "TEAM_ARRIVAL_DASH_SPENT_ASSUMED"
                 if request.team_arrival_spends_dash
@@ -1174,8 +1134,7 @@ class MatchupEngine:
             timeline,
             tuple(sorted(blockers)),
             opponents_hp_lost={
-                view.entity: view.snapshot.max_hp
-                - timeline.targets_at_end[view.entity].current_hp
+                view.entity: view.snapshot.max_hp - timeline.targets_at_end[view.entity].current_hp
                 for view in opposing_side
             },
         )

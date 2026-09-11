@@ -161,8 +161,7 @@ class JarvanIVCog(ChampionCog):
         last_passive_ms: int | None = None
         while at_ms <= context.duration_ms:
             passive_ready = (
-                last_passive_ms is None
-                or at_ms - last_passive_ms >= self._PASSIVE_COOLDOWN_MS
+                last_passive_ms is None or at_ms - last_passive_ms >= self._PASSIVE_COOLDOWN_MS
             )
             outputs = []
             if passive_ready:
@@ -310,16 +309,20 @@ class JarvanIVCog(ChampionCog):
         )
         slow_end_ms = min(3400, context.duration_ms)
         slow_windows = (
-            CastBlockWindow(
-                "jarvaniv_w_slow",
-                1400,
-                slow_end_ms,
-                (ActionChannel.MOVEMENT,),
-                "JARVANIV_W_GOLDEN_AEGIS_ONE_CHAMPION",
-                False,
-                ControlType.SLOW,
-            ),
-        ) if slow_end_ms > 1400 else ()
+            (
+                CastBlockWindow(
+                    "jarvaniv_w_slow",
+                    1400,
+                    slow_end_ms,
+                    (ActionChannel.MOVEMENT,),
+                    "JARVANIV_W_GOLDEN_AEGIS_ONE_CHAMPION",
+                    False,
+                    ControlType.SLOW,
+                ),
+            )
+            if slow_end_ms > 1400
+            else ()
+        )
         return ReactionPlan(
             "jarvaniv_eq_w1_r2_reaction_v1",
             cast_block_windows=(*q_windows, *slow_windows),

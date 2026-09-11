@@ -113,12 +113,8 @@ def test_bard_ap_attack_speed_and_haste_reach_distinct_channels() -> None:
     bard = create_default_registry(ROOT).require_cog("Bard")
     baseline = bard.build_action_plan(_context())
     powered = bard.build_action_plan(_context(item_stats={"AP": Decimal(100)}))
-    faster = bard.build_action_plan(
-        _context(item_stats={"ATTACK_SPEED": Decimal("0.50")})
-    )
-    hasted = bard.build_action_plan(
-        _context(item_stats={"ABILITY_HASTE": Decimal(100)})
-    )
+    faster = bard.build_action_plan(_context(item_stats={"ATTACK_SPEED": Decimal("0.50")}))
+    hasted = bard.build_action_plan(_context(item_stats={"ABILITY_HASTE": Decimal(100)}))
 
     assert (
         _event(powered, "BARD_Q_COSMIC_BINDING_STUN_1").outputs[0].amount
@@ -150,9 +146,7 @@ def test_bard_ap_attack_speed_and_haste_reach_distinct_channels() -> None:
 def test_bard_reaction_separates_q_branches_and_target_stasis() -> None:
     """Keep Q stun/slow and target-only R stasis semantically distinct."""
     bard = create_default_registry(ROOT).require_cog("Bard")
-    reaction = bard.build_reaction_plan(
-        _context(item_stats={"ABILITY_HASTE": Decimal(100)})
-    )
+    reaction = bard.build_reaction_plan(_context(item_stats={"ABILITY_HASTE": Decimal(100)}))
     by_id = {window.id: window for window in reaction.cast_block_windows}
 
     stun = by_id["bard_q_stun_1"]
@@ -184,14 +178,12 @@ def test_bard_role_reversal_preserves_models_and_self_heal_recipient() -> None:
     actor_heal = next(
         entry
         for entry in as_actor.timeline.log
-        if entry.event_id == "BARD_W_PRECHARGED_SHRINE_SELF_CONSUME"
-        and entry.operation == "HEAL"
+        if entry.event_id == "BARD_W_PRECHARGED_SHRINE_SELF_CONSUME" and entry.operation == "HEAL"
     )
     target_heal = next(
         entry
         for entry in as_opponent.timeline.log
-        if entry.event_id == "BARD_W_PRECHARGED_SHRINE_SELF_CONSUME"
-        and entry.operation == "HEAL"
+        if entry.event_id == "BARD_W_PRECHARGED_SHRINE_SELF_CONSUME" and entry.operation == "HEAL"
     )
     assert actor_heal.recipient is EntityId.ACTOR
     assert target_heal.recipient is EntityId.TARGET
@@ -220,21 +212,25 @@ def test_bard_engagement_item_and_lane_policies_preserve_boundaries() -> None:
 
     assert bard.engagement_speed_multiplier(context) == Decimal("1.36")
     assert bard.engagement_dash_distance(context) == 0
-    assert bard.item_candidate_blocker(
-        {
-            "id": 1,
-            "stats": {
-                "AP": {},
-                "AD": {},
-                "ATTACK_SPEED": {},
-                "ABILITY_HASTE": {},
-                "HP": {},
-            },
-        }
-    ) is None
-    assert bard.item_candidate_blocker(
-        {"id": 2, "stats": {"HEAL_SHIELD_POWER": {}, "MANA": {}}}
-    ) == "BARD_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA"
+    assert (
+        bard.item_candidate_blocker(
+            {
+                "id": 1,
+                "stats": {
+                    "AP": {},
+                    "AD": {},
+                    "ATTACK_SPEED": {},
+                    "ABILITY_HASTE": {},
+                    "HP": {},
+                },
+            }
+        )
+        is None
+    )
+    assert (
+        bard.item_candidate_blocker({"id": 2, "stats": {"HEAL_SHIELD_POWER": {}, "MANA": {}}})
+        == "BARD_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA"
+    )
     amount, blockers = bard.lane_sustain_extra_health(
         context,
         duration_ms=30_000,

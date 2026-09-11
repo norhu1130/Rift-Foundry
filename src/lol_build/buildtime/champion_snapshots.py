@@ -312,9 +312,7 @@ def _validate_payload(spec: ChampionSnapshotSpec, payload: bytes) -> None:
         if isinstance(key, str) and not (key.startswith("{") and key.endswith("}"))
     )
     if not any(path.startswith(expected_root) for path in identity_paths):
-        raise ChampionSnapshotError(
-            f"Community Dragon BIN does not match {spec.champion.key}"
-        )
+        raise ChampionSnapshotError(f"Community Dragon BIN does not match {spec.champion.key}")
 
 
 def _safe_path(root: Path, relative_path: str) -> Path:
@@ -517,9 +515,7 @@ def audit_champion_snapshot_coverage(
     roster = {spec.champion.key for spec in specs}
     root = lock_path.resolve().parent
     data_dragon = _managed_keys(specs, lock, ChampionSnapshotKind.DATA_DRAGON_DETAIL, root)
-    community_profile = _managed_keys(
-        specs, lock, ChampionSnapshotKind.COMMUNITY_PROFILE, root
-    )
+    community_profile = _managed_keys(specs, lock, ChampionSnapshotKind.COMMUNITY_PROFILE, root)
     community_bin = _managed_keys(specs, lock, ChampionSnapshotKind.COMMUNITY_BIN, root)
     return ChampionSnapshotCoverage(
         roster_count=len(roster),

@@ -360,8 +360,10 @@ class EvelynnCog(ChampionCog):
         recovery_ms = max(0, duration_ms - recovery_start_ms)
         level = Decimal(context.snapshot.level)
         healing_per_second = Decimal(15) + Decimal(135) * (level - 1) / Decimal(17)
-        threshold = Decimal(250) + Decimal(20) * (level - 1) + Decimal("2.5") * (
-            context.snapshot.ability_power
+        threshold = (
+            Decimal(250)
+            + Decimal(20) * (level - 1)
+            + Decimal("2.5") * (context.snapshot.ability_power)
         )
         recovered = min(
             threshold,

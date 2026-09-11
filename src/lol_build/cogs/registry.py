@@ -99,8 +99,7 @@ def create_default_registry(root: Path) -> ChampionCogRegistry:
         missing = sorted(catalog_keys - manifest_keys)
         stale = sorted(manifest_keys - catalog_keys)
         raise ValueError(
-            f"champion Cog manifest does not match locked roster: "
-            f"missing={missing}, stale={stale}"
+            f"champion Cog manifest does not match locked roster: missing={missing}, stale={stale}"
         )
     registry = ChampionCogRegistry()
     for document in catalog.values():

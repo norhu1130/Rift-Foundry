@@ -56,9 +56,7 @@ def test_veigar_metadata_cage_stun_and_magic_damage_are_explicit() -> None:
         for output in event.outputs:
             if isinstance(output, DamageOutput) and event.channel.value == "ABILITY":
                 assert output.damage_type.value == "MAGIC"
-    assert _event(plan, "VEIGAR_W_DARK_MATTER").at_ms == (
-        cog._W_AT_MS + cog._W_IMPACT_DELAY_MS
-    )
+    assert _event(plan, "VEIGAR_W_DARK_MATTER").at_ms == (cog._W_AT_MS + cog._W_IMPACT_DELAY_MS)
 
 
 def test_veigar_reaction_plan_exposes_the_e_stun() -> None:

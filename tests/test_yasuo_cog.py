@@ -42,9 +42,7 @@ def test_yasuo_metadata_triple_thrust_and_airborne_follow_are_explicit() -> None
     assert cog.capabilities == DUEL_CAPABILITIES
     assert all((ROOT / ref).is_file() for ref in cog.evidence_refs)
     assert plan == cog.build_action_plan(_context())
-    q_events = sorted(
-        (e for e in plan.events if "Q_STEEL_TEMPEST" in e.id), key=lambda e: e.at_ms
-    )
+    q_events = sorted((e for e in plan.events if "Q_STEEL_TEMPEST" in e.id), key=lambda e: e.at_ms)
     assert len(q_events) == 3
     r_event = next(e for e in plan.events if "R_LAST_BREATH" in e.id)
     # R must resolve while Q3's knock-up is still active, matching the combo

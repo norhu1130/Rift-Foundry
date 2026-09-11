@@ -56,9 +56,9 @@ class DravenCog(ChampionCog):
         :return: Raw physical attack damage including Q's bonus packet.
         """
         q_bonus = Decimal(60) + Decimal("1.15") * context.snapshot.bonus_attack_damage
-        return (
-            context.snapshot.attack_damage + q_bonus
-        ) * cls._expected_critical_multiplier(context)
+        return (context.snapshot.attack_damage + q_bonus) * cls._expected_critical_multiplier(
+            context
+        )
 
     @classmethod
     def _w_attack_speed(cls, context: ParticipantContext) -> Decimal:
@@ -111,9 +111,7 @@ class DravenCog(ChampionCog):
                             sequence=base + attack_index * 3 + 1,
                             source=context.self_entity,
                             channel=ActionChannel.PASSIVE,
-                            outputs=(
-                                StatusOutput(context.self_entity, "DRAVEN_Q_AXE_CAUGHT", 1),
-                            ),
+                            outputs=(StatusOutput(context.self_entity, "DRAVEN_Q_AXE_CAUGHT", 1),),
                             requires_living_opponent=False,
                         ),
                         action(
@@ -145,8 +143,10 @@ class DravenCog(ChampionCog):
         :param context: Draven context containing nonnegative ability haste.
         :return: Rounded Stand Aside cooldown in milliseconds.
         """
-        cooldown = Decimal(16000) * Decimal(100) / (
-            Decimal(100) + max(Decimal(0), context.snapshot.ability_haste)
+        cooldown = (
+            Decimal(16000)
+            * Decimal(100)
+            / (Decimal(100) + max(Decimal(0), context.snapshot.ability_haste))
         )
         return int(cooldown.to_integral_value(rounding=ROUND_HALF_EVEN))
 

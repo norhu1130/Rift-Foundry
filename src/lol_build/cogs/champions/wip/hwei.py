@@ -91,11 +91,7 @@ class HweiCog(ChampionCog):
             Decimal(250),
             Decimal("0.07") * context.opponent_snapshot.max_hp,
         )
-        return (
-            Decimal(170)
-            + Decimal("0.80") * context.snapshot.ability_power
-            + health_bonus
-        )
+        return Decimal(170) + Decimal("0.80") * context.snapshot.ability_power + health_bonus
 
     def _r_events(self, context: ParticipantContext) -> tuple[ActionEvent, ...]:
         """Schedule R attachment, DOT quarters, and final explosion.
@@ -194,9 +190,7 @@ class HweiCog(ChampionCog):
         :param context: Snapshot supplying AP, haste, duration, and roles.
         :return: QE impact and half-second lava ticks when available.
         """
-        at_ms = self._QQ_AT_MS + self._cooldown_ms(
-            Decimal(6), context.snapshot.ability_haste
-        )
+        at_ms = self._QQ_AT_MS + self._cooldown_ms(Decimal(6), context.snapshot.ability_haste)
         if at_ms > context.duration_ms:
             return ()
         base = self._sequence_base(context) + 400
@@ -336,8 +330,7 @@ class HweiCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(230)
-                        + Decimal("0.65") * context.snapshot.ability_power,
+                        Decimal(230) + Decimal("0.65") * context.snapshot.ability_power,
                         DamageType.MAGIC,
                     ),
                     damage(context.opponent_entity, we_damage, DamageType.MAGIC),

@@ -73,9 +73,7 @@ def _damage_outputs(event: object) -> tuple[DamageOutput, ...]:
     :param event: Action event exposing an ``outputs`` tuple.
     :return: Fixed damage outputs in their resolution order.
     """
-    return tuple(
-        output for output in event.outputs if isinstance(output, DamageOutput)
-    )
+    return tuple(output for output in event.outputs if isinstance(output, DamageOutput))
 
 
 def test_aurora_declares_modeled_capabilities_and_locked_evidence() -> None:
@@ -124,9 +122,7 @@ def test_aurora_passive_tracks_spirits_damage_healing_and_speed() -> None:
         output.status == "AURORA_SPIRIT_STACK_1" and output.duration_ms == 4000
         for output in statuses
     )
-    speed = next(
-        output for output in first_proc.outputs if isinstance(output, StatModifierOutput)
-    )
+    speed = next(output for output in first_proc.outputs if isinstance(output, StatModifierOutput))
     assert speed.amount == context.snapshot.move_speed * Decimal("0.104")
     heals = [
         event.outputs[0]
@@ -159,9 +155,7 @@ def test_aurora_ap_attack_speed_haste_and_target_hp_affect_outputs() -> None:
     )
     assert len(
         [event for event in scaled.events if event.id.startswith("AURORA_BASIC_ATTACK_")]
-    ) > len(
-        [event for event in baseline.events if event.id.startswith("AURORA_BASIC_ATTACK_")]
-    )
+    ) > len([event for event in baseline.events if event.id.startswith("AURORA_BASIC_ATTACK_")])
     assert _event(scaled, "AURORA_Q_TWOFOLD_HEX_OUT_2").at_ms == 4000
     assert _event(baseline, "AURORA_Q_TWOFOLD_HEX_OUT_2").at_ms == 7500
     assert _damage_outputs(_event(scaled, "AURORA_E_THE_WEIRDING"))[1].amount > (
@@ -182,9 +176,7 @@ def test_aurora_control_engagement_and_roles_are_symmetric() -> None:
         "SLOW",
         1000,
     )
-    assert r_slow.blocked_channels == e_slow.blocked_channels == (
-        ActionChannel.MOVEMENT,
-    )
+    assert r_slow.blocked_channels == e_slow.blocked_channels == (ActionChannel.MOVEMENT,)
     assert r_slow.tenacity_reducible is e_slow.tenacity_reducible is True
     assert aurora.engagement_dash_distance(_context()) == 300
     assert aurora.engagement_speed_multiplier(_context()) == Decimal("1.20")
@@ -211,8 +203,7 @@ def test_teemo_blind_cancels_aurora_attacks_but_not_abilities() -> None:
     )
 
     assert any(
-        entry.event_id.startswith("AURORA_BASIC_ATTACK_")
-        and entry.status == "CANCELLED"
+        entry.event_id.startswith("AURORA_BASIC_ATTACK_") and entry.status == "CANCELLED"
         for entry in result.timeline.log
     )
     for event_id in (
@@ -221,9 +212,7 @@ def test_teemo_blind_cancels_aurora_attacks_but_not_abilities() -> None:
         "AURORA_R_BETWEEN_WORLDS_IMPACT",
     ):
         assert any(
-            entry.event_id == event_id
-            and entry.operation == "DAMAGE"
-            and entry.status == "APPLIED"
+            entry.event_id == event_id and entry.operation == "DAMAGE" and entry.status == "APPLIED"
             for entry in result.timeline.log
         )
 
@@ -247,8 +236,6 @@ def test_aurora_item_policy_accepts_only_represented_channels() -> None:
         is None
     )
     assert (
-        aurora.item_candidate_blocker(
-            {"id": 2, "stats": {"HEAL_SHIELD_POWER": {}, "MANA": {}}}
-        )
+        aurora.item_candidate_blocker({"id": 2, "stats": {"HEAL_SHIELD_POWER": {}, "MANA": {}}})
         == "AURORA_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA"
     )

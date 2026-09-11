@@ -118,12 +118,8 @@ def test_elise_ap_attack_speed_and_haste_reach_distinct_outputs() -> None:
     elise = create_default_registry(ROOT).require_cog("Elise")
     baseline = elise.build_action_plan(_context())
     powered = elise.build_action_plan(_context(item_stats={"AP": Decimal(100)}))
-    faster = elise.build_action_plan(
-        _context(item_stats={"ATTACK_SPEED": Decimal("0.50")})
-    )
-    hasted = elise.build_action_plan(
-        _context(item_stats={"ABILITY_HASTE": Decimal(100)})
-    )
+    faster = elise.build_action_plan(_context(item_stats={"ATTACK_SPEED": Decimal("0.50")}))
+    hasted = elise.build_action_plan(_context(item_stats={"ABILITY_HASTE": Decimal(100)}))
 
     assert (
         _event(powered, "ELISE_HUMAN_W_VOLATILE_SPIDERLING").outputs[0].amount
@@ -136,9 +132,7 @@ def test_elise_ap_attack_speed_and_haste_reach_distinct_outputs() -> None:
     assert isinstance(powered_attack.outputs[2], HealOutput)
     assert powered_attack.outputs[2].amount - baseline_attack.outputs[2].amount == Decimal("13.6")
     assert len(_attacks(faster)) > len(_attacks(baseline))
-    assert len(
-        [event for event in hasted.events if event.id.startswith("ELISE_SPIDER_Q_")]
-    ) > len(
+    assert len([event for event in hasted.events if event.id.startswith("ELISE_SPIDER_Q_")]) > len(
         [event for event in baseline.events if event.id.startswith("ELISE_SPIDER_Q_")]
     )
 
@@ -177,14 +171,12 @@ def test_elise_role_reversal_and_teemo_interaction_preserve_ownership() -> None:
     human_q = next(
         entry
         for entry in as_actor.timeline.log
-        if entry.event_id == "ELISE_HUMAN_Q_NEUROTOXIN"
-        and entry.operation == "DAMAGE"
+        if entry.event_id == "ELISE_HUMAN_Q_NEUROTOXIN" and entry.operation == "DAMAGE"
     )
     mirrored_q = next(
         entry
         for entry in as_opponent.timeline.log
-        if entry.event_id == "ELISE_HUMAN_Q_NEUROTOXIN"
-        and entry.operation == "DAMAGE"
+        if entry.event_id == "ELISE_HUMAN_Q_NEUROTOXIN" and entry.operation == "DAMAGE"
     )
     assert human_q.recipient is EntityId.TARGET
     assert mirrored_q.recipient is EntityId.ACTOR
@@ -198,18 +190,22 @@ def test_elise_item_policy_accepts_rotation_stats_and_rejects_gaps() -> None:
     """Allow represented stats while rejecting resource and generic sustain gaps."""
     elise = create_default_registry(ROOT).require_cog("Elise")
 
-    assert elise.item_candidate_blocker(
-        {
-            "id": 1,
-            "stats": {
-                "AP": {},
-                "AD": {},
-                "HP": {},
-                "ATTACK_SPEED": {},
-                "ABILITY_HASTE": {},
-            },
-        }
-    ) is None
-    assert elise.item_candidate_blocker(
-        {"id": 2, "stats": {"HEAL_SHIELD_POWER": {}, "MANA": {}}}
-    ) == "ELISE_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA"
+    assert (
+        elise.item_candidate_blocker(
+            {
+                "id": 1,
+                "stats": {
+                    "AP": {},
+                    "AD": {},
+                    "HP": {},
+                    "ATTACK_SPEED": {},
+                    "ABILITY_HASTE": {},
+                },
+            }
+        )
+        is None
+    )
+    assert (
+        elise.item_candidate_blocker({"id": 2, "stats": {"HEAL_SHIELD_POWER": {}, "MANA": {}}})
+        == "ELISE_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA"
+    )

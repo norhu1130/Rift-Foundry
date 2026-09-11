@@ -66,8 +66,7 @@ def test_irelia_rotation_contains_mark_resets_heals_and_max_fervor() -> None:
     assert len(q_events) == 3
     assert attacks
     assert all(
-        any(isinstance(output, HealOutput) for output in event.outputs)
-        for event in q_events
+        any(isinstance(output, HealOutput) for output in event.outputs) for event in q_events
     )
     assert any(
         isinstance(output, DamageOutput) and output.damage_type is DamageType.MAGIC

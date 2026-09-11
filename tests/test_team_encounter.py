@@ -20,9 +20,7 @@ TEAM = (
 def test_duel_evaluation_is_unchanged_by_the_multi_opponent_engine() -> None:
     """Keep the two-entity result identical now that five entities are possible."""
     engine = MatchupEngine(ROOT)
-    duel = engine.evaluate(
-        MatchupRequest("Darius", "Garen", opponent_item_ids=(3071, 3053, 6333))
-    )
+    duel = engine.evaluate(MatchupRequest("Darius", "Garen", opponent_item_ids=(3071, 3053, 6333)))
 
     assert set(duel.opponents_hp_lost) == {EntityId.TARGET}
     assert duel.opposing_side_hp_lost == duel.opponent_hp_lost
@@ -54,9 +52,7 @@ def test_team_evaluation_simulates_every_opponent_and_marks_its_assumptions() ->
     assert "THREAT_ALLOCATION_POLICY_ASSUMED:position_role_v1" in team.blockers
     assert "MULTI_TARGET_UNCURATED:Darius" in team.blockers
     # Five attackers must remove strictly more health than one.
-    duel = engine.evaluate(
-        MatchupRequest("Darius", "Garen", opponent_item_ids=(3071, 3053, 6333))
-    )
+    duel = engine.evaluate(MatchupRequest("Darius", "Garen", opponent_item_ids=(3071, 3053, 6333)))
     assert team.actor_hp_lost > duel.actor_hp_lost
 
 
@@ -231,9 +227,7 @@ def test_ally_output_is_never_credited_to_the_actors_build() -> None:
     assert with_allies.timeline.actor_damage_dealt < (
         with_allies.timeline.damage_to_all_targets_total
     )
-    assert without.timeline.actor_damage_dealt == (
-        without.timeline.damage_to_all_targets_total
-    )
+    assert without.timeline.actor_damage_dealt == (without.timeline.damage_to_all_targets_total)
     assert with_allies.timeline.damage_to_all_targets_total > (
         without.timeline.damage_to_all_targets_total
     )
@@ -242,9 +236,7 @@ def test_ally_output_is_never_credited_to_the_actors_build() -> None:
 def test_a_duel_reports_no_allies_and_no_team_blockers() -> None:
     """Leave the one-versus-one contract untouched by the team machinery."""
     engine = MatchupEngine(ROOT)
-    duel = engine.evaluate(
-        MatchupRequest("Darius", "Garen", opponent_item_ids=(3071, 3053, 6333))
-    )
+    duel = engine.evaluate(MatchupRequest("Darius", "Garen", opponent_item_ids=(3071, 3053, 6333)))
 
     assert set(duel.timeline.allies_at_end) == {EntityId.ACTOR}
     assert "ALLY_CONTRIBUTION_EXCLUDED_FROM_BUILD_RANKING" not in duel.blockers
@@ -300,9 +292,7 @@ def test_single_target_damage_to_the_actor_comes_only_from_the_pinned_opponent()
     sources = {
         entry.event_id.split("_")[0]
         for entry in supported.timeline.log
-        if entry.recipient is EntityId.ACTOR
-        and entry.hp_delta is not None
-        and entry.hp_delta < 0
+        if entry.recipient is EntityId.ACTOR and entry.hp_delta is not None and entry.hp_delta < 0
     }
     # Ahri, Vayne, and Jax are aimed at the actor's allies and model no area
     # ability, so none of their damage may land on the actor.

@@ -73,8 +73,7 @@ class RammusCog(ChampionCog):
                     StatModifierOutput(
                         context.self_entity,
                         "MAGIC_RESISTANCE",
-                        context.snapshot.magic_resistance * Decimal("0.30")
-                        + Decimal(20),
+                        context.snapshot.magic_resistance * Decimal("0.30") + Decimal(20),
                         self._W_DURATION_MS,
                     ),
                 ),
@@ -103,9 +102,7 @@ class RammusCog(ChampionCog):
                 source=context.self_entity,
                 channel=ActionChannel.ABILITY,
                 outputs=(
-                    crowd_control(
-                        context.opponent_entity, "TAUNT", duration_ms=self._E_TAUNT_MS
-                    ),
+                    crowd_control(context.opponent_entity, "TAUNT", duration_ms=self._E_TAUNT_MS),
                 ),
             ),
             action(

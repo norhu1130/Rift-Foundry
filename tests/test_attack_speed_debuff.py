@@ -22,8 +22,7 @@ def _event_times(result: MatchupEvaluation, prefix: str) -> tuple[int, ...]:
     return tuple(
         entry.at_ms
         for entry in result.timeline.log
-        if entry.action_channel is ActionChannel.BASIC_ATTACK
-        and entry.event_id.startswith(prefix)
+        if entry.action_channel is ActionChannel.BASIC_ATTACK and entry.event_id.startswith(prefix)
     )
 
 
@@ -47,8 +46,7 @@ def test_malphite_e_does_not_reschedule_ability_channel() -> None:
     ability_times = {
         entry.event_id: entry.at_ms
         for entry in result.timeline.log
-        if entry.action_channel is ActionChannel.ABILITY
-        and entry.event_id.startswith("DARIUS_")
+        if entry.action_channel is ActionChannel.ABILITY and entry.event_id.startswith("DARIUS_")
     }
 
     assert ability_times["DARIUS_Q_3"] == 1700
@@ -78,6 +76,4 @@ def test_attack_speed_reduction_is_role_symmetric_and_deterministic() -> None:
     opponent = engine.evaluate(MatchupRequest("Darius", "Malphite"))
 
     assert actor_first == actor_second
-    assert _event_times(actor_first, "DARIUS_ATTACK_") == _event_times(
-        opponent, "DARIUS_ATTACK_"
-    )
+    assert _event_times(actor_first, "DARIUS_ATTACK_") == _event_times(opponent, "DARIUS_ATTACK_")

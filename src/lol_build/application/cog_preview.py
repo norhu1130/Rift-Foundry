@@ -375,9 +375,7 @@ def _path_is_legal_beam(
     if duplicate_group_blockers(items):
         return False
     groups = [item["groups"] for item in items]
-    exclusive_groups = [
-        group for value in groups for group in value.get("purchase_exclusive", ())
-    ]
+    exclusive_groups = [group for value in groups for group in value.get("purchase_exclusive", ())]
     return len(exclusive_groups) == len(set(exclusive_groups))
 
 
@@ -527,8 +525,14 @@ def _slot_runner_up_beam_candidate(
     scored: list[tuple[_BeamState, Mapping[str, Decimal]]] = []
     for candidate_path in candidate_paths:
         state = _evaluate_ordered_path_state(
-            engine, request, actor_cog, opponent_cog, candidate_path, prefix_cache,
-            stage_weights, item_by_id,
+            engine,
+            request,
+            actor_cog,
+            opponent_cog,
+            candidate_path,
+            prefix_cache,
+            stage_weights,
+            item_by_id,
         )
         metrics = _beam_metrics(state, denominator)
         all_scored.append((state, metrics))
@@ -703,8 +707,7 @@ def generic_cog_build_preview(
                     if total_gold > budgets[core - 1]:
                         continue
                     boots = sum(
-                        item_by_id[value]["groups"]["purchase_limit"] == "boots"
-                        for value in path
+                        item_by_id[value]["groups"]["purchase_limit"] == "boots" for value in path
                     )
                     if boots > 1:
                         continue
@@ -876,9 +879,7 @@ def generic_cog_build_preview(
         """
 
         if chassis_states:
-            return (
-                state.all_core_chassis and state.all_core_contact and state.all_core_item_ready
-            )
+            return state.all_core_chassis and state.all_core_contact and state.all_core_item_ready
         return True
 
     def _defense_gate(state: _BeamState, metrics: Mapping[str, Decimal]) -> bool:
@@ -1025,9 +1026,7 @@ def generic_cog_build_preview(
                         priority_metrics=priorities,
                         selected_metrics=metric_by_path[state.item_ids],
                         runner_up_item_id=(
-                            runner_up_state.item_ids[slot]
-                            if runner_up_state is not None
-                            else None
+                            runner_up_state.item_ids[slot] if runner_up_state is not None else None
                         ),
                         runner_up_metrics=runner_up_metrics,
                         alternative_count=alternative_count,

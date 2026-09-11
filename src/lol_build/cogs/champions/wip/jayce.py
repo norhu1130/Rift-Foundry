@@ -88,9 +88,7 @@ class JayceCog(ChampionCog):
         """
         base = self._sequence_base(context)
         bonus_ad = context.snapshot.bonus_attack_damage
-        empowered_q = (
-            Decimal(285) + Decimal("1.30") * bonus_ad
-        ) * Decimal("1.40")
+        empowered_q = (Decimal(285) + Decimal("1.30") * bonus_ad) * Decimal("1.40")
         hyper_attack = Decimal("0.62") * context.snapshot.attack_damage
         events = [
             action(

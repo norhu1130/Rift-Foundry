@@ -96,9 +96,7 @@ def test_teemo_blind_and_damage_follow_teemo_across_role_reversal() -> None:
         entry for entry in as_actor.timeline.log if entry.event_id == "TEEMO_Q_BLINDING_DART"
     )
     opponent_q = next(
-        entry
-        for entry in as_opponent.timeline.log
-        if entry.event_id == "TEEMO_Q_BLINDING_DART"
+        entry for entry in as_opponent.timeline.log if entry.event_id == "TEEMO_Q_BLINDING_DART"
     )
     assert actor_q.recipient is EntityId.TARGET
     assert opponent_q.recipient is EntityId.ACTOR

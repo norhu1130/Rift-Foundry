@@ -52,9 +52,7 @@ class GalioCog(ChampionCog):
         """
         if ability_haste < 0:
             raise ValueError("ability_haste must be non-negative")
-        milliseconds = base_seconds * Decimal(100_000) / (
-            Decimal(100) + ability_haste
-        )
+        milliseconds = base_seconds * Decimal(100_000) / (Decimal(100) + ability_haste)
         return max(1, int(milliseconds.to_integral_value(ROUND_HALF_EVEN)))
 
     def _bonus_magic_resistance(self, context: ParticipantContext) -> Decimal:
@@ -88,9 +86,7 @@ class GalioCog(ChampionCog):
         """
         ap = context.snapshot.ability_power
         missile_damage = Decimal(210) + Decimal("0.70") * ap
-        tick_damage = context.opponent_snapshot.max_hp * (
-            Decimal("0.02") + Decimal("0.0001") * ap
-        )
+        tick_damage = context.opponent_snapshot.max_hp * (Decimal("0.02") + Decimal("0.0001") * ap)
         cooldown_ms = self._cooldown_ms(Decimal(7), context.snapshot.ability_haste)
         base = self._sequence_base(context) + 100
         events: list[ActionEvent] = []
@@ -104,9 +100,7 @@ class GalioCog(ChampionCog):
                     sequence=base + len(events),
                     source=context.self_entity,
                     channel=ActionChannel.ABILITY,
-                    outputs=(
-                        damage(context.opponent_entity, missile_damage, DamageType.MAGIC),
-                    ),
+                    outputs=(damage(context.opponent_entity, missile_damage, DamageType.MAGIC),),
                 )
             )
             for tick_index, offset_ms in enumerate((500, 1000, 1500, 2000), start=1):
@@ -120,9 +114,7 @@ class GalioCog(ChampionCog):
                         sequence=base + len(events),
                         source=context.self_entity,
                         channel=ActionChannel.PASSIVE,
-                        outputs=(
-                            damage(context.opponent_entity, tick_damage, DamageType.MAGIC),
-                        ),
+                        outputs=(damage(context.opponent_entity, tick_damage, DamageType.MAGIC),),
                     )
                 )
             cast_index += 1
@@ -207,9 +199,7 @@ class GalioCog(ChampionCog):
                 sequence=base + 2,
                 source=context.self_entity,
                 channel=ActionChannel.ABILITY,
-                outputs=(
-                    StatusOutput(context.self_entity, "GALIO_W_CHANNELING", 2000),
-                ),
+                outputs=(StatusOutput(context.self_entity, "GALIO_W_CHANNELING", 2000),),
                 requires_living_opponent=False,
             ),
             action(
@@ -245,9 +235,7 @@ class GalioCog(ChampionCog):
         ]
         events.extend(self._q_events(context))
         interval_ms = self._attack_interval_ms(context.snapshot.attack_speed)
-        for index, at_ms in enumerate(
-            range(7000, context.duration_ms + 1, interval_ms), start=1
-        ):
+        for index, at_ms in enumerate(range(7000, context.duration_ms + 1, interval_ms), start=1):
             events.append(
                 action(
                     f"GALIO_BASIC_ATTACK_{index}",

@@ -71,9 +71,7 @@ class ViCog(ChampionCog):
         index = 0
         while at_ms <= context.duration_ms:
             outputs = [
-                damage(
-                    context.opponent_entity, context.snapshot.attack_damage, DamageType.PHYSICAL
-                )
+                damage(context.opponent_entity, context.snapshot.attack_damage, DamageType.PHYSICAL)
             ]
             if index == 0:
                 outputs.append(damage(context.opponent_entity, e_bonus, DamageType.PHYSICAL))
@@ -119,9 +117,7 @@ class ViCog(ChampionCog):
                 channel=ActionChannel.ABILITY,
                 outputs=(
                     damage(context.opponent_entity, r_damage, DamageType.PHYSICAL),
-                    crowd_control(
-                        context.opponent_entity, "AIRBORNE", duration_ms=self._R_STUN_MS
-                    ),
+                    crowd_control(context.opponent_entity, "AIRBORNE", duration_ms=self._R_STUN_MS),
                 ),
             ),
         ]

@@ -114,9 +114,7 @@ class KarthusCog(ChampionCog):
         :param context: Role-bound snapshot supplying AP, haste, and roles.
         :return: Chronological isolated magic-damage events.
         """
-        amount = Decimal(2) * (
-            Decimal(116) + Decimal("0.35") * context.snapshot.ability_power
-        )
+        amount = Decimal(2) * (Decimal(116) + Decimal("0.35") * context.snapshot.ability_power)
         interval_ms = self._cooldown_ms(Decimal(1), context.snapshot.ability_haste)
         sequence = self._sequence_base(context) + 100
         events: list[ActionEvent] = []
@@ -179,9 +177,7 @@ class KarthusCog(ChampionCog):
                     outputs=(
                         *self.area_outputs(
                             context,
-                            lambda entity: damage(
-                                entity, damage_per_tick, DamageType.MAGIC
-                            ),
+                            lambda entity: damage(entity, damage_per_tick, DamageType.MAGIC),
                             centered_on_self=True,
                         ),
                     ),
@@ -262,9 +258,7 @@ class KarthusCog(ChampionCog):
                     sequence=base + 300,
                     source=context.self_entity,
                     channel=ActionChannel.ABILITY,
-                    outputs=(
-                        StatusOutput(context.self_entity, "KARTHUS_R_CHANNELING", 3000),
-                    ),
+                    outputs=(StatusOutput(context.self_entity, "KARTHUS_R_CHANNELING", 3000),),
                     requires_living_opponent=False,
                 )
             ]

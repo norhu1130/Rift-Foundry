@@ -100,9 +100,7 @@ def test_soraka_ap_and_attack_speed_change_only_represented_channels() -> None:
     soraka = create_default_registry(ROOT).require_cog("Soraka")
     baseline = soraka.build_action_plan(_context())
     powered = soraka.build_action_plan(_context(item_stats={"AP": Decimal(100)}))
-    faster = soraka.build_action_plan(
-        _context(item_stats={"ATTACK_SPEED": Decimal("0.50")})
-    )
+    faster = soraka.build_action_plan(_context(item_stats={"ATTACK_SPEED": Decimal("0.50")}))
 
     assert (
         _event(powered, "SORAKA_Q_STARCALL_1").outputs[0].amount
@@ -187,12 +185,18 @@ def test_soraka_item_and_lane_policies_keep_unsupported_healing_explicit() -> No
     """Allow represented stats while blocking heal power and lane assumptions."""
     soraka = create_default_registry(ROOT).require_cog("Soraka")
 
-    assert soraka.item_candidate_blocker(
-        {"id": 1, "stats": {"AP": {}, "AD": {}, "ATTACK_SPEED": {}, "HP": {}}}
-    ) is None
-    assert soraka.item_candidate_blocker(
-        {"id": 2, "stats": {"ABILITY_HASTE": {}, "HEAL_SHIELD_POWER": {}, "MANA": {}}}
-    ) == "SORAKA_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,HEAL_SHIELD_POWER,MANA"
+    assert (
+        soraka.item_candidate_blocker(
+            {"id": 1, "stats": {"AP": {}, "AD": {}, "ATTACK_SPEED": {}, "HP": {}}}
+        )
+        is None
+    )
+    assert (
+        soraka.item_candidate_blocker(
+            {"id": 2, "stats": {"ABILITY_HASTE": {}, "HEAL_SHIELD_POWER": {}, "MANA": {}}}
+        )
+        == "SORAKA_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,HEAL_SHIELD_POWER,MANA"
+    )
     amount, blockers = soraka.lane_sustain_extra_health(
         _context(),
         duration_ms=30_000,

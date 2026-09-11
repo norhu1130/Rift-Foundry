@@ -60,9 +60,7 @@ def test_lulu_metadata_and_self_target_variants_are_complete() -> None:
     assert all((ROOT / ref).is_file() for ref in cog.evidence_refs)
     assert plan == cog.build_action_plan(_context())
     assert isinstance(_event(plan, "LULU_E_HELP_PIX_SELF").outputs[0], ShieldOutput)
-    assert isinstance(
-        _event(plan, "LULU_R_WILD_GROWTH_SELF").outputs[0], MaxHealthModifierOutput
-    )
+    assert isinstance(_event(plan, "LULU_R_WILD_GROWTH_SELF").outputs[0], MaxHealthModifierOutput)
     assert all("POLYMORPH" not in event.id for event in plan.events)
 
 
@@ -97,8 +95,6 @@ def test_lulu_control_role_reversal_and_item_policy_are_honest() -> None:
         for output in event.outputs
     )
     assert (
-        cog.item_candidate_blocker(
-            {"id": 2, "stats": {"HEAL_SHIELD_POWER": {}, "MANA": {}}}
-        )
+        cog.item_candidate_blocker({"id": 2, "stats": {"HEAL_SHIELD_POWER": {}, "MANA": {}}})
         == "LULU_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA"
     )

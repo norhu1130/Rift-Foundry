@@ -111,12 +111,8 @@ def test_alistar_ap_attack_speed_and_haste_change_represented_outputs() -> None:
     alistar = create_default_registry(ROOT).require_cog("Alistar")
     baseline = alistar.build_action_plan(_context())
     powered = alistar.build_action_plan(_context(item_stats={"AP": Decimal(100)}))
-    rapid = alistar.build_action_plan(
-        _context(item_stats={"ATTACK_SPEED": Decimal("0.50")})
-    )
-    hasted_context = _context(
-        item_stats={"ABILITY_HASTE": Decimal(200), "HP": Decimal(500)}
-    )
+    rapid = alistar.build_action_plan(_context(item_stats={"ATTACK_SPEED": Decimal("0.50")}))
+    hasted_context = _context(item_stats={"ABILITY_HASTE": Decimal(200), "HP": Decimal(500)})
     hasted = alistar.build_action_plan(hasted_context)
 
     assert (
@@ -179,9 +175,7 @@ def test_alistar_role_reversal_and_teemo_blind_preserve_ability_channels() -> No
     )
     for event_id in ("ALISTAR_W_HEADBUTT_1", "ALISTAR_Q_PULVERIZE_1"):
         assert any(
-            entry.event_id == event_id
-            and entry.operation == "DAMAGE"
-            and entry.status == "APPLIED"
+            entry.event_id == event_id and entry.operation == "DAMAGE" and entry.status == "APPLIED"
             for entry in as_actor.timeline.log
         )
     reversed_q = next(
@@ -196,23 +190,29 @@ def test_alistar_item_policy_and_lane_sustain_remain_state_honest() -> None:
     """Accept represented stats while exposing absent passive charge inputs."""
     alistar = create_default_registry(ROOT).require_cog("Alistar")
 
-    assert alistar.item_candidate_blocker(
-        {
-            "id": 1,
-            "stats": {
-                "AD": {},
-                "AP": {},
-                "ATTACK_SPEED": {},
-                "ABILITY_HASTE": {},
-                "HP": {},
-                "ARMOR": {},
-                "MAGIC_RESISTANCE": {},
-            },
-        }
-    ) is None
-    assert alistar.item_candidate_blocker(
-        {"id": 2, "stats": {"HEAL_SHIELD_POWER": {}, "MANA": {}, "OMNIVAMP": {}}}
-    ) == "ALISTAR_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA,OMNIVAMP"
+    assert (
+        alistar.item_candidate_blocker(
+            {
+                "id": 1,
+                "stats": {
+                    "AD": {},
+                    "AP": {},
+                    "ATTACK_SPEED": {},
+                    "ABILITY_HASTE": {},
+                    "HP": {},
+                    "ARMOR": {},
+                    "MAGIC_RESISTANCE": {},
+                },
+            }
+        )
+        is None
+    )
+    assert (
+        alistar.item_candidate_blocker(
+            {"id": 2, "stats": {"HEAL_SHIELD_POWER": {}, "MANA": {}, "OMNIVAMP": {}}}
+        )
+        == "ALISTAR_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA,OMNIVAMP"
+    )
     amount, blockers = alistar.lane_sustain_extra_health(
         _context(),
         duration_ms=30_000,

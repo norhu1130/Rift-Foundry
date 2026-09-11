@@ -126,9 +126,7 @@ class VolibearCog(ChampionCog):
         :return: Regular max-stack attacks in deterministic timestamp order.
         """
         ratio = Decimal("0.70")
-        stack_bonus = self._passive_attack_speed_per_stack(
-            context.snapshot.ability_power
-        )
+        stack_bonus = self._passive_attack_speed_per_stack(context.snapshot.ability_power)
         max_stack_attack_speed = context.snapshot.attack_speed + ratio * stack_bonus * 5
         interval_ms = self._attack_interval_ms(max_stack_attack_speed)
         passive_damage = self._passive_damage(
@@ -188,11 +186,7 @@ class VolibearCog(ChampionCog):
             + Decimal("0.70") * ability_power
             + Decimal("0.11") * context.opponent_snapshot.max_hp
         )
-        r_damage = (
-            Decimal(500)
-            + Decimal("1.25") * ability_power
-            + Decimal("2.50") * bonus_ad
-        )
+        r_damage = Decimal(500) + Decimal("1.25") * ability_power + Decimal("2.50") * bonus_ad
         fixed_events = (
             action(
                 "VOLIBEAR_R_STORMBRINGER",

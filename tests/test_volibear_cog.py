@@ -47,18 +47,14 @@ def test_volibear_rotation_is_deterministic_and_keeps_w_at_five_seconds() -> Non
     volibear = create_default_registry(ROOT).require_cog("Volibear")
     baseline = volibear.build_action_plan(_context())
     repeated = volibear.build_action_plan(_context())
-    faster = volibear.build_action_plan(
-        _context(item_stats={"ATTACK_SPEED": Decimal("0.50")})
-    )
+    faster = volibear.build_action_plan(_context(item_stats={"ATTACK_SPEED": Decimal("0.50")}))
 
     assert baseline == repeated
     assert baseline.model_id == "volibear_q5_w5_e1_r2_level13_synthetic_v1"
     baseline_w = tuple(
         event.at_ms for event in baseline.events if event.id.startswith("VOLIBEAR_W")
     )
-    faster_w = tuple(
-        event.at_ms for event in faster.events if event.id.startswith("VOLIBEAR_W")
-    )
+    faster_w = tuple(event.at_ms for event in faster.events if event.id.startswith("VOLIBEAR_W"))
     assert baseline_w == faster_w == (900, 5900)
     baseline_attacks = tuple(
         event for event in baseline.events if event.id.startswith("VOLIBEAR_PASSIVE_ATTACK")
@@ -86,9 +82,7 @@ def test_volibear_locked_formulas_respond_to_ad_ap_health_and_target_health() ->
     w2 = next(event for event in plan.events if event.id == "VOLIBEAR_W2_FRENZIED_MAUL")
     e = next(event for event in plan.events if event.id == "VOLIBEAR_E_SKY_SPLITTER")
     r = next(event for event in plan.events if event.id == "VOLIBEAR_R_STORMBRINGER")
-    passive = next(
-        event for event in plan.events if event.id == "VOLIBEAR_PASSIVE_ATTACK_1"
-    )
+    passive = next(event for event in plan.events if event.id == "VOLIBEAR_PASSIVE_ATTACK_1")
 
     expected_w1 = (
         Decimal(105)
@@ -155,14 +149,10 @@ def test_volibear_actions_and_protection_follow_role_reversal() -> None:
         if entry.event_id == "VOLIBEAR_W1_FRENZIED_MAUL" and entry.operation == "DAMAGE"
     )
     actor_shield = next(
-        entry
-        for entry in as_actor.timeline.log
-        if entry.event_id == "VOLIBEAR_E_SELF_SHIELD"
+        entry for entry in as_actor.timeline.log if entry.event_id == "VOLIBEAR_E_SELF_SHIELD"
     )
     opponent_shield = next(
-        entry
-        for entry in as_opponent.timeline.log
-        if entry.event_id == "VOLIBEAR_E_SELF_SHIELD"
+        entry for entry in as_opponent.timeline.log if entry.event_id == "VOLIBEAR_E_SELF_SHIELD"
     )
     assert actor_w.recipient is EntityId.TARGET
     assert opponent_w.recipient is EntityId.ACTOR
@@ -174,12 +164,16 @@ def test_volibear_item_policy_rejects_only_unrepresented_stat_channels() -> None
     """Keep supported chassis stats while rejecting unmodeled resource channels."""
     volibear = create_default_registry(ROOT).require_cog("Volibear")
 
-    assert volibear.item_candidate_blocker(
-        {"id": 1, "stats": {"AD": {}, "AP": {}, "HP": {}, "ATTACK_SPEED": {}}}
-    ) is None
-    assert volibear.item_candidate_blocker(
-        {"id": 2, "stats": {"ABILITY_HASTE": {}, "MANA": {}}}
-    ) == "VOLIBEAR_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,MANA"
+    assert (
+        volibear.item_candidate_blocker(
+            {"id": 1, "stats": {"AD": {}, "AP": {}, "HP": {}, "ATTACK_SPEED": {}}}
+        )
+        is None
+    )
+    assert (
+        volibear.item_candidate_blocker({"id": 2, "stats": {"ABILITY_HASTE": {}, "MANA": {}}})
+        == "VOLIBEAR_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,MANA"
+    )
 
 
 def test_volibear_lane_sustain_requires_same_target_w_mark_evidence() -> None:

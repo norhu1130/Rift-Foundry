@@ -92,9 +92,7 @@ def test_hwei_ap_and_haste_feed_damage_and_second_disaster_cast() -> None:
         _context(item_stats={"AP": Decimal(100), "ABILITY_HASTE": Decimal(100)})
     )
 
-    assert _damage(powered, "HWEI_QQ_DEVASTATING_FIRE") > _damage(
-        base, "HWEI_QQ_DEVASTATING_FIRE"
-    )
+    assert _damage(powered, "HWEI_QQ_DEVASTATING_FIRE") > _damage(base, "HWEI_QQ_DEVASTATING_FIRE")
     base_qe = [event for event in base.events if "MOLTEN_FISSURE" in event.id]
     powered_qe = [event for event in powered.events if "MOLTEN_FISSURE" in event.id]
     assert len(base_qe) == 3
@@ -131,9 +129,7 @@ def test_hwei_item_policy_rejects_unrepresented_resource_channels() -> None:
     cog = create_default_registry(ROOT).require_cog("Hwei")
 
     assert (
-        cog.item_candidate_blocker(
-            {"id": 1, "stats": {"AP": {}, "ABILITY_HASTE": {}, "HP": {}}}
-        )
+        cog.item_candidate_blocker({"id": 1, "stats": {"AP": {}, "ABILITY_HASTE": {}, "HP": {}}})
         is None
     )
     assert (

@@ -191,9 +191,7 @@ class PantheonCog(ChampionCog):
                 channel=ActionChannel.ABILITY,
                 outputs=(
                     damage(context.opponent_entity, self._w_damage(context), DamageType.PHYSICAL),
-                    crowd_control(
-                        context.opponent_entity, "STUN", duration_ms=self._W_STUN_MS
-                    ),
+                    crowd_control(context.opponent_entity, "STUN", duration_ms=self._W_STUN_MS),
                     StatusOutput(context.self_entity, "PANTHEON_MORTAL_WILL_SPENT", 4000),
                 ),
             ),

@@ -95,11 +95,7 @@ class BriarCog(ChampionCog):
         :param context: Briar snapshot supplying non-negative ability haste.
         :return: Rounded cooldown in milliseconds with a one-ms floor.
         """
-        cooldown = (
-            Decimal(8000)
-            * Decimal(100)
-            / (Decimal(100) + context.snapshot.ability_haste)
-        )
+        cooldown = Decimal(8000) * Decimal(100) / (Decimal(100) + context.snapshot.ability_haste)
         return max(1, int(cooldown.to_integral_value()))
 
     def _head_rush_events(self, context: ParticipantContext) -> tuple[ActionEvent, ...]:
@@ -149,20 +145,15 @@ class BriarCog(ChampionCog):
         :return: Blind-susceptible frenzy attacks through the E channel start.
         """
         frenzy_speed = (
-            context.snapshot.attack_speed
-            + self._ATTACK_SPEED_RATIO * self._W5_ATTACK_SPEED_BONUS
+            context.snapshot.attack_speed + self._ATTACK_SPEED_RATIO * self._W5_ATTACK_SPEED_BONUS
         )
         interval_ms = self._attack_interval_ms(frenzy_speed)
         base = self._sequence_base(context) + 200
         bite_base = Decimal(65) + Decimal("1.05") * context.snapshot.attack_damage
         bite_missing_ratio = (
-            Decimal("0.09")
-            + Decimal("0.00025") * context.snapshot.bonus_attack_damage
+            Decimal("0.09") + Decimal("0.00025") * context.snapshot.bonus_attack_damage
         )
-        bite_heal = (
-            Decimal("0.40") * bite_base
-            + Decimal("0.05") * context.snapshot.max_hp
-        )
+        bite_heal = Decimal("0.40") * bite_base + Decimal("0.05") * context.snapshot.max_hp
         events: list[ActionEvent] = []
         at_ms = 900
         attack_number = 1
@@ -269,9 +260,7 @@ class BriarCog(ChampionCog):
         attacks = self._frenzy_attack_events(context)
         r_damage = Decimal(250) + Decimal("1.30") * context.snapshot.ability_power
         e_damage = (
-            Decimal(80)
-            + context.snapshot.bonus_attack_damage
-            + context.snapshot.ability_power
+            Decimal(80) + context.snapshot.bonus_attack_damage + context.snapshot.ability_power
         )
         fixed_events = (
             action(

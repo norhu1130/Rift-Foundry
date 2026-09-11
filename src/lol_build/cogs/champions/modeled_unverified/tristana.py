@@ -99,9 +99,7 @@ class TristanaCog(ChampionCog):
                 channel=ActionChannel.ABILITY,
                 outputs=(
                     damage(context.opponent_entity, r_damage, DamageType.MAGIC),
-                    crowd_control(
-                        context.opponent_entity, "STUN", duration_ms=self._R_STUN_MS
-                    ),
+                    crowd_control(context.opponent_entity, "STUN", duration_ms=self._R_STUN_MS),
                 ),
             ),
         ]

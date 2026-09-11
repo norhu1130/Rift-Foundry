@@ -128,8 +128,7 @@ class DianaCog(ChampionCog):
         :return: Chronological physical attacks with periodic magic cleaves.
         """
         empowered_speed = context.snapshot.attack_speed + (
-            self._ATTACK_SPEED_RATIO
-            * self._spell_empowered_attack_speed(context.snapshot.level)
+            self._ATTACK_SPEED_RATIO * self._spell_empowered_attack_speed(context.snapshot.level)
         )
         interval_ms = self._attack_interval_ms(empowered_speed)
         cleave = self._passive_cleave_base(context.snapshot.level) + (
@@ -199,9 +198,7 @@ class DianaCog(ChampionCog):
         e_damage = Decimal(50) + Decimal("0.60") * ap
         orb_damage = Decimal(68) + Decimal("0.18") * ap
         shield = (
-            Decimal(105)
-            + Decimal("0.30") * ap
-            + Decimal("0.11") * context.snapshot.bonus_health
+            Decimal(105) + Decimal("0.30") * ap + Decimal("0.11") * context.snapshot.bonus_health
         )
         fixed_events = (
             action(

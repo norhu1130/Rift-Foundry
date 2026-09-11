@@ -71,9 +71,8 @@ src/lol_build/
 ## 시작하기
 
 ```console
-# 전체 검증 (pytest, ruff check는 통과; ruff format --check는 아직 미적용 —
-# ADR-0001 참고)
-uv run pytest && uv run ruff check .
+# 전체 검증 (ADR-0001)
+uv run pytest && uv run ruff check . && uv run ruff format --check .
 
 # 로컬 Web UI
 uv run python -m lol_build.application.web
@@ -107,7 +106,7 @@ Web UI는 로컬호스트에만 바인딩되고, 런타임에 CDN·이미지·�
 - 성공 기준을 불편한 결과 때문에 옮기지 않습니다 — 범위 한계는 명시하되
   목표는 유지합니다.
 - 새 축을 추가하기 전에 기존 모델로 표현 가능한지 먼저 시도합니다.
-- 커밋 전에 `uv run pytest && uv run ruff check .`.
+- 커밋 전에 `uv run pytest && uv run ruff check . && uv run ruff format --check .`.
 - 작업 계획·완료 조건·현재 근거는 `TASKS.md`에서 관리합니다.
 
 근거는 `docs/overview.md`의 [8절](docs/overview.md#8-기여-규칙의-근거)에 있습니다.

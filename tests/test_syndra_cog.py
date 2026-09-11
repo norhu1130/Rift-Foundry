@@ -158,9 +158,7 @@ def test_teemo_blind_cancels_syndra_attacks_but_not_spells() -> None:
         "SYNDRA_R_UNLEASHED_POWER_FIVE_SPHERES",
     ):
         assert any(
-            entry.event_id == event_id
-            and entry.operation == "DAMAGE"
-            and entry.status == "APPLIED"
+            entry.event_id == event_id and entry.operation == "DAMAGE" and entry.status == "APPLIED"
             for entry in result.timeline.log
         )
 
@@ -169,9 +167,11 @@ def test_syndra_item_policy_rejects_unrepresented_fixed_rotation_stats() -> None
     """Allow AP and chassis stats while blocking haste and mana channels."""
     syndra = create_default_registry(ROOT).require_cog("Syndra")
 
-    assert syndra.item_candidate_blocker(
-        {"id": 1, "stats": {"AP": {}, "HP": {}, "ATTACK_SPEED": {}}}
-    ) is None
-    assert syndra.item_candidate_blocker(
-        {"id": 2, "stats": {"ABILITY_HASTE": {}, "MANA": {}}}
-    ) == "SYNDRA_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,MANA"
+    assert (
+        syndra.item_candidate_blocker({"id": 1, "stats": {"AP": {}, "HP": {}, "ATTACK_SPEED": {}}})
+        is None
+    )
+    assert (
+        syndra.item_candidate_blocker({"id": 2, "stats": {"ABILITY_HASTE": {}, "MANA": {}}})
+        == "SYNDRA_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,MANA"
+    )

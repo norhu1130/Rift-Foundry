@@ -105,9 +105,11 @@ def test_gragas_role_reversal_and_item_policy_are_explicit() -> None:
 
     assert actor.source is EntityId.ACTOR
     assert target.source is EntityId.TARGET
-    assert gragas.item_candidate_blocker(
-        {"id": 1, "stats": {"AP": {}, "ABILITY_HASTE": {}, "HP": {}}}
-    ) is None
-    assert gragas.item_candidate_blocker(
-        {"id": 2, "stats": {"MANA": {}, "OMNIVAMP": {}}}
-    ) == "GRAGAS_ITEM_STAT_NOT_MODELED:2:MANA,OMNIVAMP"
+    assert (
+        gragas.item_candidate_blocker({"id": 1, "stats": {"AP": {}, "ABILITY_HASTE": {}, "HP": {}}})
+        is None
+    )
+    assert (
+        gragas.item_candidate_blocker({"id": 2, "stats": {"MANA": {}, "OMNIVAMP": {}}})
+        == "GRAGAS_ITEM_STAT_NOT_MODELED:2:MANA,OMNIVAMP"
+    )

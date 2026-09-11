@@ -58,9 +58,7 @@ def _attacks(plan: ActionPlan) -> tuple[ActionEvent, ...]:
     :param plan: Braum action plan containing ordinary attacks.
     :return: Chronological ordinary attack events.
     """
-    return tuple(
-        event for event in plan.events if event.id.startswith("BRAUM_BASIC_ATTACK_")
-    )
+    return tuple(event for event in plan.events if event.id.startswith("BRAUM_BASIC_ATTACK_"))
 
 
 def test_braum_declares_modeled_capabilities_and_locked_evidence() -> None:
@@ -125,28 +123,18 @@ def test_braum_hp_ap_attack_speed_haste_and_resists_reach_outputs() -> None:
         )
     )
     powered = braum.build_action_plan(_context(item_stats={"AP": Decimal(100)}))
-    faster = braum.build_action_plan(
-        _context(item_stats={"ATTACK_SPEED": Decimal("0.50")})
-    )
-    hasted = braum.build_action_plan(
-        _context(item_stats={"ABILITY_HASTE": Decimal(100)})
-    )
+    faster = braum.build_action_plan(_context(item_stats={"ATTACK_SPEED": Decimal("0.50")}))
+    hasted = braum.build_action_plan(_context(item_stats={"ABILITY_HASTE": Decimal(100)}))
 
-    assert (
-        _event(durable, "BRAUM_Q_WINTERS_BITE_1").outputs[0].amount
-        - _event(baseline, "BRAUM_Q_WINTERS_BITE_1").outputs[0].amount
-        == Decimal(10)
-    )
-    assert (
-        _event(powered, "BRAUM_R_GLACIAL_FISSURE").outputs[0].amount
-        - _event(baseline, "BRAUM_R_GLACIAL_FISSURE").outputs[0].amount
-        == Decimal(60)
-    )
+    assert _event(durable, "BRAUM_Q_WINTERS_BITE_1").outputs[0].amount - _event(
+        baseline, "BRAUM_Q_WINTERS_BITE_1"
+    ).outputs[0].amount == Decimal(10)
+    assert _event(powered, "BRAUM_R_GLACIAL_FISSURE").outputs[0].amount - _event(
+        baseline, "BRAUM_R_GLACIAL_FISSURE"
+    ).outputs[0].amount == Decimal(60)
     assert len(_attacks(faster)) > len(_attacks(baseline))
     assert [
-        event.at_ms
-        for event in hasted.events
-        if event.id.startswith("BRAUM_Q_WINTERS_BITE_")
+        event.at_ms for event in hasted.events if event.id.startswith("BRAUM_Q_WINTERS_BITE_")
     ] == [100, 3100, 6100]
 
     base_w = _event(baseline, "BRAUM_W_STAND_BEHIND_ME")
@@ -198,16 +186,13 @@ def test_braum_engagement_role_reversal_and_teemo_blind_are_stable() -> None:
     )
     for event_id in ("BRAUM_Q_WINTERS_BITE_1", "BRAUM_R_GLACIAL_FISSURE"):
         assert any(
-            entry.event_id == event_id
-            and entry.operation == "DAMAGE"
-            and entry.status == "APPLIED"
+            entry.event_id == event_id and entry.operation == "DAMAGE" and entry.status == "APPLIED"
             for entry in as_actor.timeline.log
         )
     opponent_q = next(
         entry
         for entry in as_opponent.timeline.log
-        if entry.event_id == "BRAUM_Q_WINTERS_BITE_1"
-        and entry.operation == "DAMAGE"
+        if entry.event_id == "BRAUM_Q_WINTERS_BITE_1" and entry.operation == "DAMAGE"
     )
     assert opponent_q.recipient is EntityId.ACTOR
 
@@ -216,21 +201,25 @@ def test_braum_item_policy_accepts_modeled_and_rejects_omitted_stats() -> None:
     """Align candidate eligibility with Braum's represented stat channels."""
     braum = create_default_registry(ROOT).require_cog("Braum")
 
-    assert braum.item_candidate_blocker(
-        {
-            "id": 1,
-            "stats": {
-                "AD": {},
-                "AP": {},
-                "HP": {},
-                "ARMOR": {},
-                "MAGIC_RESISTANCE": {},
-                "ATTACK_SPEED": {},
-                "ABILITY_HASTE": {},
-                "MOVE_SPEED_FLAT": {},
-            },
-        }
-    ) is None
-    assert braum.item_candidate_blocker(
-        {"id": 2, "stats": {"HEAL_SHIELD_POWER": {}, "MANA": {}}}
-    ) == "BRAUM_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA"
+    assert (
+        braum.item_candidate_blocker(
+            {
+                "id": 1,
+                "stats": {
+                    "AD": {},
+                    "AP": {},
+                    "HP": {},
+                    "ARMOR": {},
+                    "MAGIC_RESISTANCE": {},
+                    "ATTACK_SPEED": {},
+                    "ABILITY_HASTE": {},
+                    "MOVE_SPEED_FLAT": {},
+                },
+            }
+        )
+        is None
+    )
+    assert (
+        braum.item_candidate_blocker({"id": 2, "stats": {"HEAL_SHIELD_POWER": {}, "MANA": {}}})
+        == "BRAUM_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA"
+    )

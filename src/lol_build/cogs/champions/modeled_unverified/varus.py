@@ -89,9 +89,7 @@ class VarusCog(ChampionCog):
                 channel=ActionChannel.ABILITY,
                 outputs=(
                     damage(context.opponent_entity, r_damage, DamageType.MAGIC),
-                    crowd_control(
-                        context.opponent_entity, "ROOT", duration_ms=self._R_ROOT_MS
-                    ),
+                    crowd_control(context.opponent_entity, "ROOT", duration_ms=self._R_ROOT_MS),
                 ),
             ),
         ]

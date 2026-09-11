@@ -22,9 +22,7 @@ from lol_build.core.timeline import ActionChannel, EntityId, ShieldOutput, Statu
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def _locked_cog(
-    cog_type: type[ChampionCog], champion_key: str, champion_id: int
-) -> ChampionCog:
+def _locked_cog(cog_type: type[ChampionCog], champion_key: str, champion_id: int) -> ChampionCog:
     """Construct one Cog directly from its two locked runtime documents.
 
     :param cog_type: Concrete champion Cog class to instantiate.
@@ -46,9 +44,7 @@ def _locked_cog(
     detail_root = next(
         value for key, value in bin_document.items() if key.casefold() == expected_root
     )
-    assert (
-        ROOT / f"data/raw/16.17.1/communitydragon/champions/{champion_id}.json"
-    ).is_file()
+    assert (ROOT / f"data/raw/16.17.1/communitydragon/champions/{champion_id}.json").is_file()
     return cog_type(catalog[champion_key], detail_root)
 
 
@@ -153,23 +149,15 @@ def test_azir_ap_attack_speed_and_haste_change_distinct_channels() -> None:
     azir = _azir()
     baseline = azir.build_action_plan(_context())
     powered = azir.build_action_plan(_context(item_stats={"AP": Decimal(100)}))
-    faster = azir.build_action_plan(
-        _context(item_stats={"ATTACK_SPEED": Decimal("0.50")})
-    )
-    hasted = azir.build_action_plan(
-        _context(item_stats={"ABILITY_HASTE": Decimal(100)})
-    )
+    faster = azir.build_action_plan(_context(item_stats={"ATTACK_SPEED": Decimal("0.50")}))
+    hasted = azir.build_action_plan(_context(item_stats={"ABILITY_HASTE": Decimal(100)}))
 
-    assert (
-        _event(powered, "AZIR_W_SOLDIER_ATTACK_1").outputs[0].amount
-        - _event(baseline, "AZIR_W_SOLDIER_ATTACK_1").outputs[0].amount
-        == Decimal(65)
-    )
+    assert _event(powered, "AZIR_W_SOLDIER_ATTACK_1").outputs[0].amount - _event(
+        baseline, "AZIR_W_SOLDIER_ATTACK_1"
+    ).outputs[0].amount == Decimal(65)
     assert len(
         [event for event in faster.events if event.id.startswith("AZIR_W_SOLDIER_ATTACK_")]
-    ) > len(
-        [event for event in baseline.events if event.id.startswith("AZIR_W_SOLDIER_ATTACK_")]
-    )
+    ) > len([event for event in baseline.events if event.id.startswith("AZIR_W_SOLDIER_ATTACK_")])
     assert tuple(
         event.at_ms for event in baseline.events if event.id.startswith("AZIR_Q_CONQUERING_")
     ) == (200, 6200)
@@ -185,12 +173,18 @@ def test_azir_engagement_item_policy_and_control_are_explicit() -> None:
     reaction = azir.build_reaction_plan(context)
 
     assert azir.engagement_dash_distance(context) == Decimal(1100)
-    assert azir.item_candidate_blocker(
-        {"id": 1, "stats": {"AP": {}, "ATTACK_SPEED": {}, "ABILITY_HASTE": {}}}
-    ) is None
-    assert azir.item_candidate_blocker(
-        {"id": 2, "stats": {"AD": {}, "MANA": {}, "CRITICAL_STRIKE_CHANCE": {}}}
-    ) == "AZIR_ITEM_STAT_NOT_MODELED:2:AD,CRITICAL_STRIKE_CHANCE,MANA"
+    assert (
+        azir.item_candidate_blocker(
+            {"id": 1, "stats": {"AP": {}, "ATTACK_SPEED": {}, "ABILITY_HASTE": {}}}
+        )
+        is None
+    )
+    assert (
+        azir.item_candidate_blocker(
+            {"id": 2, "stats": {"AD": {}, "MANA": {}, "CRITICAL_STRIKE_CHANCE": {}}}
+        )
+        == "AZIR_ITEM_STAT_NOT_MODELED:2:AD,CRITICAL_STRIKE_CHANCE,MANA"
+    )
     slow = reaction.cast_block_windows[0]
     knockback = next(
         window
@@ -219,14 +213,12 @@ def test_azir_role_reversal_preserves_sources_recipients_and_models() -> None:
     actor_q = next(
         entry
         for entry in as_actor.timeline.log
-        if entry.event_id == "AZIR_Q_CONQUERING_SANDS_1"
-        and entry.operation == "DAMAGE"
+        if entry.event_id == "AZIR_Q_CONQUERING_SANDS_1" and entry.operation == "DAMAGE"
     )
     target_q = next(
         entry
         for entry in as_target.timeline.log
-        if entry.event_id == "AZIR_Q_CONQUERING_SANDS_1"
-        and entry.operation == "DAMAGE"
+        if entry.event_id == "AZIR_Q_CONQUERING_SANDS_1" and entry.operation == "DAMAGE"
     )
     assert actor_q.recipient is EntityId.TARGET
     assert target_q.recipient is EntityId.ACTOR
@@ -252,8 +244,6 @@ def test_teemo_blind_cancels_soldiers_without_cancelling_azir_spells() -> None:
         "AZIR_R_EMPERORS_DIVIDE",
     ):
         assert any(
-            entry.event_id == event_id
-            and entry.operation == "DAMAGE"
-            and entry.status == "APPLIED"
+            entry.event_id == event_id and entry.operation == "DAMAGE" and entry.status == "APPLIED"
             for entry in result.timeline.log
         )

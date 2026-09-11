@@ -49,9 +49,7 @@ class CogCapability(StrEnum):
 #: one champion. ``Location``, ``LocationClamped``, ``Direction`` and the
 #: terrain variants are deliberately excluded: a point or line cast may still
 #: resolve on a single champion, and the locked data does not say which.
-AREA_TARGETING_TYPES: frozenset[str] = frozenset(
-    {"SelfAoe", "Area", "AreaClamped", "Cone"}
-)
+AREA_TARGETING_TYPES: frozenset[str] = frozenset({"SelfAoe", "Area", "AreaClamped", "Cone"})
 
 #: Ability slots in the order the locked character record lists them.
 ABILITY_SLOTS: tuple[str, ...] = ("Q", "W", "E", "R")
@@ -568,11 +566,7 @@ class ChampionCog:
             raise ValueError("attack_speed must be positive")
         return max(
             1,
-            int(
-                (Decimal(1000) / attack_speed).to_integral_value(
-                    ROUND_HALF_EVEN
-                )
-            ),
+            int((Decimal(1000) / attack_speed).to_integral_value(ROUND_HALF_EVEN)),
         )
 
     def build_action_plan(self, context: ParticipantContext) -> ActionPlan:

@@ -87,9 +87,7 @@ class GragasCog(ChampionCog):
         """
         haste = max(Decimal(0), ability_haste)
         return int(
-            (Decimal(6000) * Decimal(100) / (Decimal(100) + haste)).to_integral_value(
-                ROUND_CEILING
-            )
+            (Decimal(6000) * Decimal(100) / (Decimal(100) + haste)).to_integral_value(ROUND_CEILING)
         )
 
     def _q_events(self, context: ParticipantContext) -> tuple[ActionEvent, ...]:

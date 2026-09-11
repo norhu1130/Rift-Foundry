@@ -53,9 +53,7 @@ class ZoeCog(ChampionCog):
         level_bonus = self._level_breakpoint_value(
             Decimal(2), Decimal(2), ((10, Decimal(3)), (14, Decimal(4))), context.snapshot.level
         )
-        q_damage = (
-            Decimal(170) + level_bonus + Decimal("0.6") * context.snapshot.ability_power
-        )
+        q_damage = Decimal(170) + level_bonus + Decimal("0.6") * context.snapshot.ability_power
         e_damage = Decimal(230) + Decimal("0.45") * context.snapshot.ability_power
         fixed = [
             action(
@@ -73,9 +71,7 @@ class ZoeCog(ChampionCog):
                 source=context.self_entity,
                 channel=ActionChannel.ABILITY,
                 outputs=(
-                    crowd_control(
-                        context.opponent_entity, "SLEEP", duration_ms=self._E_SLEEP_MS
-                    ),
+                    crowd_control(context.opponent_entity, "SLEEP", duration_ms=self._E_SLEEP_MS),
                 ),
                 requires_living_opponent=False,
             ),

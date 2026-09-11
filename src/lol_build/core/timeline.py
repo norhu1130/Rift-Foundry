@@ -971,9 +971,7 @@ def simulate_timeline(
         for combatant in (actor, *additional_allies, target, *additional_targets)
     }
     horizon_snapshots = {entity: state.snapshot() for entity, state in states.items()}
-    damage_by_target = {
-        entity: Decimal(0) for entity in states if entity not in ALLY_ENTITIES
-    }
+    damage_by_target = {entity: Decimal(0) for entity in states if entity not in ALLY_ENTITIES}
     horizon_damage_by_target = dict.fromkeys(damage_by_target, Decimal(0))
     damage_by_source = dict.fromkeys(states, Decimal(0))
     death_ms_by_entity: dict[EntityId, int] = {}
@@ -1113,10 +1111,7 @@ def simulate_timeline(
                     )
                 )
             elif isinstance(output, HealthCostOutput):
-                requested = (
-                    output.flat_amount
-                    + output.current_health_ratio * recipient.current_hp
-                )
+                requested = output.flat_amount + output.current_health_ratio * recipient.current_hp
                 paid = min(
                     requested,
                     max(Decimal(0), recipient.current_hp - output.health_floor),
@@ -1144,9 +1139,7 @@ def simulate_timeline(
             elif isinstance(output, MaxHealthModifierOutput):
                 recipient.max_hp += output.amount
                 recipient.current_hp += output.amount
-                recipient.timed_max_health.append(
-                    (output.amount, event.at_ms + output.duration_ms)
-                )
+                recipient.timed_max_health.append((output.amount, event.at_ms + output.duration_ms))
                 log.append(
                     TimelineLogEntry(
                         event.at_ms,
@@ -1578,9 +1571,7 @@ def simulate_timeline(
             if state.dead and entity not in death_ms_by_entity:
                 death_ms_by_entity[entity] = event.at_ms
         if event.at_ms <= horizon_ms:
-            horizon_snapshots = {
-                entity: state.snapshot() for entity, state in states.items()
-            }
+            horizon_snapshots = {entity: state.snapshot() for entity, state in states.items()}
 
     for state in states.values():
         state.expire_reductions(duration_ms)
@@ -1619,9 +1610,7 @@ def simulate_timeline(
             if entity in ALLY_ENTITIES
         },
         allies_at_end={
-            entity: state.snapshot()
-            for entity, state in states.items()
-            if entity in ALLY_ENTITIES
+            entity: state.snapshot() for entity, state in states.items() if entity in ALLY_ENTITIES
         },
         damage_by_source_first_horizon=dict(horizon_damage_by_source),
         damage_by_source_total=dict(damage_by_source),

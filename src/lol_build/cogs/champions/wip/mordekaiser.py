@@ -55,9 +55,7 @@ class MordekaiserCog(ChampionCog):
         :return: Target maximum-health ratio dealt by one second of aura contact.
         """
         bounded_level = min(18, max(1, level))
-        return Decimal("0.01") + (
-            Decimal("0.04") * Decimal(bounded_level - 1) / Decimal(17)
-        )
+        return Decimal("0.01") + (Decimal("0.04") * Decimal(bounded_level - 1) / Decimal(17))
 
     @staticmethod
     def _q_level_bonus(level: int) -> Decimal:
@@ -160,9 +158,7 @@ class MordekaiserCog(ChampionCog):
             at_ms += interval_ms
         return tuple(events)
 
-    def _passive_aura_events(
-        self, context: ParticipantContext
-    ) -> tuple[ActionEvent, ...]:
+    def _passive_aura_events(self, context: ParticipantContext) -> tuple[ActionEvent, ...]:
         """Emit one-second Darkness Rise aura samples after the third stack.
 
         The fixed E, Q, attack opener supplies three stacks at 1500 ms. Aura
@@ -198,9 +194,7 @@ class MordekaiserCog(ChampionCog):
                     sequence=base + len(events),
                     source=context.self_entity,
                     channel=ActionChannel.PASSIVE,
-                    outputs=(
-                        damage(context.opponent_entity, amount, DamageType.MAGIC),
-                    ),
+                    outputs=(damage(context.opponent_entity, amount, DamageType.MAGIC),),
                 )
             )
         return tuple(events)
@@ -378,6 +372,4 @@ class MordekaiserCog(ChampionCog):
         :param no_damage_delay_ms: Delay before out-of-combat recovery can begin.
         :return: Zero recovery and the dynamic-resource evidence blocker.
         """
-        return Decimal(0), (
-            "MORDEKAISER_LANE_W_DYNAMIC_SHIELD_RESOURCE_NOT_MODELED",
-        )
+        return Decimal(0), ("MORDEKAISER_LANE_W_DYNAMIC_SHIELD_RESOURCE_NOT_MODELED",)

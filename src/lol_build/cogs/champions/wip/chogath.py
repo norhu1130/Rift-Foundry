@@ -412,6 +412,4 @@ class ChogathCog(ChampionCog):
         :param no_damage_delay_ms: Required out-of-combat recovery delay.
         :return: Zero recovery and the missing-event blocker.
         """
-        return Decimal(0), (
-            "CHOGATH_LANE_PASSIVE_MINION_KILL_SCHEDULE_NOT_MODELED",
-        )
+        return Decimal(0), ("CHOGATH_LANE_PASSIVE_MINION_KILL_SCHEDULE_NOT_MODELED",)

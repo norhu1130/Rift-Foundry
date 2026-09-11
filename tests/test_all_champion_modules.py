@@ -142,9 +142,7 @@ def test_modeled_champions_reference_three_locked_evidence_documents() -> None:
             continue
 
         cog = spec.load_class()(catalog[spec.champion_key])
-        raw_evidence_refs = tuple(
-            ref for ref in cog.evidence_refs if ref.startswith("data/raw/")
-        )
+        raw_evidence_refs = tuple(ref for ref in cog.evidence_refs if ref.startswith("data/raw/"))
         assert len(raw_evidence_refs) >= 3, spec.champion_key
         assert any("/en_US/champion/" in ref for ref in raw_evidence_refs)
         assert any(ref.endswith(".bin.json") for ref in raw_evidence_refs)

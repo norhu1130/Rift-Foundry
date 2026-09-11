@@ -128,17 +128,14 @@ def test_belveth_ad_as_haste_and_hp_change_represented_channels() -> None:
     baseline_context = _context()
     baseline = belveth.build_action_plan(baseline_context)
     more_ad = belveth.build_action_plan(_context(item_stats={"AD": Decimal(80)}))
-    more_speed = belveth.build_action_plan(
-        _context(item_stats={"ATTACK_SPEED": Decimal("0.80")})
-    )
-    more_haste = belveth.build_action_plan(
-        _context(item_stats={"ABILITY_HASTE": Decimal(100)})
-    )
+    more_speed = belveth.build_action_plan(_context(item_stats={"ATTACK_SPEED": Decimal("0.80")}))
+    more_haste = belveth.build_action_plan(_context(item_stats={"ABILITY_HASTE": Decimal(100)}))
     more_health_context = _context(item_stats={"HP": Decimal(500)})
 
-    assert _event(more_ad, "BELVETH_Q_VOID_SURGE_INITIAL_DIRECTION").outputs[0].amount > _event(
-        baseline, "BELVETH_Q_VOID_SURGE_INITIAL_DIRECTION"
-    ).outputs[0].amount
+    assert (
+        _event(more_ad, "BELVETH_Q_VOID_SURGE_INITIAL_DIRECTION").outputs[0].amount
+        > _event(baseline, "BELVETH_Q_VOID_SURGE_INITIAL_DIRECTION").outputs[0].amount
+    )
     baseline_attacks = [
         event for event in baseline.events if event.channel is ActionChannel.BASIC_ATTACK
     ]
@@ -210,30 +207,32 @@ def test_teemo_blind_cancels_belveth_attacks_but_not_ability_events() -> None:
 
     assert any(event.channel is ActionChannel.BASIC_ATTACK and event.cancelled for event in blocked)
     blocked_plan = type("Plan", (), {"events": blocked})()
-    assert not _event(
-        blocked_plan, "BELVETH_Q_VOID_SURGE_INITIAL_DIRECTION"
-    ).cancelled
-    assert not _event(
-        blocked_plan, "BELVETH_E_ROYAL_MAELSTROM_STRIKE_1"
-    ).cancelled
+    assert not _event(blocked_plan, "BELVETH_Q_VOID_SURGE_INITIAL_DIRECTION").cancelled
+    assert not _event(blocked_plan, "BELVETH_E_ROYAL_MAELSTROM_STRIKE_1").cancelled
 
 
 def test_belveth_item_policy_accepts_only_represented_stat_channels() -> None:
     """Allow cadence and durability while rejecting unmodeled sustain stats."""
     belveth = _belveth()
 
-    assert belveth.item_candidate_blocker(
-        {
-            "id": 1,
-            "stats": {
-                "AD": {},
-                "ATTACK_SPEED": {},
-                "ABILITY_HASTE": {},
-                "HP": {},
-                "ARMOR": {},
-            },
-        }
-    ) is None
-    assert belveth.item_candidate_blocker(
-        {"id": 2, "stats": {"AP": {}, "CRITICAL_STRIKE_CHANCE": {}, "LIFESTEAL": {}}}
-    ) == "BELVETH_ITEM_STAT_NOT_MODELED:2:AP,CRITICAL_STRIKE_CHANCE,LIFESTEAL"
+    assert (
+        belveth.item_candidate_blocker(
+            {
+                "id": 1,
+                "stats": {
+                    "AD": {},
+                    "ATTACK_SPEED": {},
+                    "ABILITY_HASTE": {},
+                    "HP": {},
+                    "ARMOR": {},
+                },
+            }
+        )
+        is None
+    )
+    assert (
+        belveth.item_candidate_blocker(
+            {"id": 2, "stats": {"AP": {}, "CRITICAL_STRIKE_CHANCE": {}, "LIFESTEAL": {}}}
+        )
+        == "BELVETH_ITEM_STAT_NOT_MODELED:2:AP,CRITICAL_STRIKE_CHANCE,LIFESTEAL"
+    )

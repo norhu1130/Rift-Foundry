@@ -94,9 +94,7 @@ class AnnieCog(ChampionCog):
         interval_ms = self._attack_interval_ms(context.snapshot.attack_speed)
         base = self._sequence_base(context) + 100
         events: list[ActionEvent] = []
-        for index, at_ms in enumerate(
-            range(1200, context.duration_ms + 1, interval_ms), start=1
-        ):
+        for index, at_ms in enumerate(range(1200, context.duration_ms + 1, interval_ms), start=1):
             events.append(
                 action(
                     f"ANNIE_BASIC_ATTACK_{index}",

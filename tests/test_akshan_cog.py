@@ -99,9 +99,7 @@ def test_akshan_ad_ap_attack_speed_and_crit_affect_represented_outputs() -> None
     baseline = akshan.build_action_plan(_context())
     more_ad = akshan.build_action_plan(_context(item_stats={"AD": Decimal(50)}))
     more_ap = akshan.build_action_plan(_context(item_stats={"AP": Decimal(100)}))
-    more_speed = akshan.build_action_plan(
-        _context(item_stats={"ATTACK_SPEED": Decimal("0.50")})
-    )
+    more_speed = akshan.build_action_plan(_context(item_stats={"ATTACK_SPEED": Decimal("0.50")}))
     more_crit = akshan.build_action_plan(
         _context(item_stats={"CRITICAL_STRIKE_CHANCE": Decimal("0.25")})
     )
@@ -116,9 +114,7 @@ def test_akshan_ad_ap_attack_speed_and_crit_affect_represented_outputs() -> None
         event = next(candidate for candidate in plan.events if candidate.id.startswith(prefix))
         return event.outputs[0].amount
 
-    assert event_amount(more_ad, "AKSHAN_Q_OUT") > event_amount(
-        baseline, "AKSHAN_Q_OUT"
-    )
+    assert event_amount(more_ad, "AKSHAN_Q_OUT") > event_amount(baseline, "AKSHAN_Q_OUT")
     baseline_passive = next(event for event in baseline.events if len(event.outputs) == 3)
     ap_passive = next(event for event in more_ap.events if len(event.outputs) == 3)
     assert ap_passive.outputs[1].amount > baseline_passive.outputs[1].amount
@@ -129,9 +125,7 @@ def test_akshan_ad_ap_attack_speed_and_crit_affect_represented_outputs() -> None
         event for event in more_speed.events if event.channel is ActionChannel.BASIC_ATTACK
     )
     assert len(faster_attacks) > len(baseline_attacks)
-    assert event_amount(more_crit, "AKSHAN_ATTACK") > event_amount(
-        baseline, "AKSHAN_ATTACK"
-    )
+    assert event_amount(more_crit, "AKSHAN_ATTACK") > event_amount(baseline, "AKSHAN_ATTACK")
 
 
 def test_akshan_role_reversal_and_teemo_blind_are_channel_correct() -> None:
@@ -177,17 +171,21 @@ def test_akshan_engagement_reaction_and_item_policy_preserve_boundaries() -> Non
     assert akshan.engagement_dash_distance(context) == Decimal(0)
     assert reaction.model_id == "akshan_geometry_camouflage_channel_unresolved_v1"
     assert reaction.events == ()
-    assert akshan.item_candidate_blocker(
-        {
-            "id": 1,
-            "stats": {
-                "AD": {},
-                "AP": {},
-                "ATTACK_SPEED": {},
-                "CRITICAL_STRIKE_CHANCE": {},
-            },
-        }
-    ) is None
-    assert akshan.item_candidate_blocker(
-        {"id": 2, "stats": {"ABILITY_HASTE": {}, "LIFESTEAL": {}}}
-    ) == "AKSHAN_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,LIFESTEAL"
+    assert (
+        akshan.item_candidate_blocker(
+            {
+                "id": 1,
+                "stats": {
+                    "AD": {},
+                    "AP": {},
+                    "ATTACK_SPEED": {},
+                    "CRITICAL_STRIKE_CHANCE": {},
+                },
+            }
+        )
+        is None
+    )
+    assert (
+        akshan.item_candidate_blocker({"id": 2, "stats": {"ABILITY_HASTE": {}, "LIFESTEAL": {}}})
+        == "AKSHAN_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,LIFESTEAL"
+    )

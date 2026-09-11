@@ -133,9 +133,8 @@ class VayneCog(ChampionCog):
             Decimal(100),
             Decimal("0.10") * context.opponent_snapshot.max_hp,
         )
-        condemn_damage = (
-            Decimal(50)
-            + Decimal("0.50") * (context.snapshot.bonus_attack_damage + final_hour_ad)
+        condemn_damage = Decimal(50) + Decimal("0.50") * (
+            context.snapshot.bonus_attack_damage + final_hour_ad
         )
         base = self._sequence_base(context)
         events: list[ActionEvent] = []
@@ -185,9 +184,7 @@ class VayneCog(ChampionCog):
                     sequence=base + 100 + hit_number,
                     source=context.self_entity,
                     channel=(
-                        ActionChannel.ABILITY
-                        if hit_kind == "E"
-                        else ActionChannel.BASIC_ATTACK
+                        ActionChannel.ABILITY if hit_kind == "E" else ActionChannel.BASIC_ATTACK
                     ),
                     outputs=tuple(outputs),
                 )

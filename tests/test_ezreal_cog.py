@@ -98,8 +98,7 @@ def test_ezreal_rotation_is_deterministic_and_uses_locked_formulas() -> None:
     assert len(_damage_outputs(third_q)) == 2
     assert _damage_outputs(third_q)[1].amount == Decimal(210)
     assert any(
-        isinstance(output, StatusOutput)
-        and output.status == "EZREAL_RISING_SPELL_FORCE_STACK"
+        isinstance(output, StatusOutput) and output.status == "EZREAL_RISING_SPELL_FORCE_STACK"
         for output in first_q.outputs
     )
     assert "EZREAL_Q_COOLDOWN_REFUND_REQUIRES_ASSUMED_HIT" in first.blockers
@@ -112,12 +111,8 @@ def test_ezreal_ad_ap_attack_speed_and_haste_change_represented_outputs() -> Non
     baseline = ezreal.build_action_plan(_context())
     more_ad = ezreal.build_action_plan(_context(item_stats={"AD": Decimal(50)}))
     more_ap = ezreal.build_action_plan(_context(item_stats={"AP": Decimal(100)}))
-    more_speed = ezreal.build_action_plan(
-        _context(item_stats={"ATTACK_SPEED": Decimal("0.50")})
-    )
-    more_haste = ezreal.build_action_plan(
-        _context(item_stats={"ABILITY_HASTE": Decimal(100)})
-    )
+    more_speed = ezreal.build_action_plan(_context(item_stats={"ATTACK_SPEED": Decimal("0.50")}))
+    more_haste = ezreal.build_action_plan(_context(item_stats={"ABILITY_HASTE": Decimal(100)}))
 
     assert _damage_outputs(_event(more_ad, "EZREAL_Q_MYSTIC_SHOT_1"))[0].amount - (
         _damage_outputs(_event(baseline, "EZREAL_Q_MYSTIC_SHOT_1"))[0].amount
@@ -127,14 +122,10 @@ def test_ezreal_ad_ap_attack_speed_and_haste_change_represented_outputs() -> Non
     ) == Decimal(110)
     assert len(
         [event for event in more_speed.events if event.id.startswith("EZREAL_BASIC_ATTACK_")]
-    ) > len(
-        [event for event in baseline.events if event.id.startswith("EZREAL_BASIC_ATTACK_")]
-    )
+    ) > len([event for event in baseline.events if event.id.startswith("EZREAL_BASIC_ATTACK_")])
     assert len(
         [event for event in more_haste.events if event.id.startswith("EZREAL_Q_MYSTIC_SHOT_")]
-    ) > len(
-        [event for event in baseline.events if event.id.startswith("EZREAL_Q_MYSTIC_SHOT_")]
-    )
+    ) > len([event for event in baseline.events if event.id.startswith("EZREAL_Q_MYSTIC_SHOT_")])
     assert _event(more_haste, "EZREAL_E_ARCANE_SHIFT_2").at_ms == 4000
 
 
@@ -174,20 +165,26 @@ def test_ezreal_policy_engagement_and_reaction_keep_boundaries_explicit() -> Non
 
     assert ezreal.engagement_dash_distance(context) == 475
     assert ezreal.engagement_speed_multiplier(context) == 1
-    assert ezreal.item_candidate_blocker(
-        {
-            "id": 1,
-            "stats": {
-                "AD": {},
-                "AP": {},
-                "ATTACK_SPEED": {},
-                "ABILITY_HASTE": {},
-            },
-        }
-    ) is None
-    assert ezreal.item_candidate_blocker(
-        {"id": 2, "stats": {"CRITICAL_STRIKE_CHANCE": {}, "MANA": {}}}
-    ) == "EZREAL_ITEM_STAT_NOT_MODELED:2:CRITICAL_STRIKE_CHANCE,MANA"
+    assert (
+        ezreal.item_candidate_blocker(
+            {
+                "id": 1,
+                "stats": {
+                    "AD": {},
+                    "AP": {},
+                    "ATTACK_SPEED": {},
+                    "ABILITY_HASTE": {},
+                },
+            }
+        )
+        is None
+    )
+    assert (
+        ezreal.item_candidate_blocker(
+            {"id": 2, "stats": {"CRITICAL_STRIKE_CHANCE": {}, "MANA": {}}}
+        )
+        == "EZREAL_ITEM_STAT_NOT_MODELED:2:CRITICAL_STRIKE_CHANCE,MANA"
+    )
     reaction = ezreal.build_reaction_plan(context)
     assert reaction.events == ()
     assert reaction.cast_block_windows == ()
@@ -210,6 +207,5 @@ def test_ezreal_hostile_silence_cancels_spells_without_relabeling_attacks() -> N
     assert all(
         entry.action_channel is ActionChannel.BASIC_ATTACK
         for entry in result.timeline.log
-        if entry.event_id.startswith("EZREAL_BASIC_ATTACK_")
-        and entry.operation == "DAMAGE"
+        if entry.event_id.startswith("EZREAL_BASIC_ATTACK_") and entry.operation == "DAMAGE"
     )

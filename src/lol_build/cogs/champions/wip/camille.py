@@ -127,9 +127,7 @@ class CamilleCog(ChampionCog):
         """
         outputs = []
         if physical_amount:
-            outputs.append(
-                damage(context.opponent_entity, physical_amount, DamageType.PHYSICAL)
-            )
+            outputs.append(damage(context.opponent_entity, physical_amount, DamageType.PHYSICAL))
         if true_amount:
             outputs.append(damage(context.opponent_entity, true_amount, DamageType.TRUE))
         if 400 <= at_ms <= self._R2_END_MS:
@@ -149,8 +147,7 @@ class CamilleCog(ChampionCog):
         :return: Chronological basic attacks with R on-hit damage when active.
         """
         boosted_speed = (
-            context.snapshot.attack_speed
-            + self._ATTACK_SPEED_RATIO * self._E5_ATTACK_SPEED_BONUS
+            context.snapshot.attack_speed + self._ATTACK_SPEED_RATIO * self._E5_ATTACK_SPEED_BONUS
         )
         boosted_interval = self._attack_interval_ms(boosted_speed)
         normal_interval = self._attack_interval_ms(context.snapshot.attack_speed)
@@ -191,9 +188,7 @@ class CamilleCog(ChampionCog):
             Decimal("0.07") + Decimal("0.00025") * bonus_ad
         ) * context.opponent_snapshot.max_hp
         q1_total = total_ad * (Decimal(1) + self._Q5_BONUS_RATIO)
-        q2_total = total_ad * (
-            Decimal(1) + self._Q5_BONUS_RATIO * self._Q2_AMPLIFIER
-        )
+        q2_total = total_ad * (Decimal(1) + self._Q5_BONUS_RATIO * self._Q2_AMPLIFIER)
         q2_true = q2_total * self._Q2_TRUE_CONVERSION_L13
         fixed_events = (
             action(
@@ -214,9 +209,7 @@ class CamilleCog(ChampionCog):
                 sequence=base + 1,
                 source=context.self_entity,
                 channel=ActionChannel.ABILITY,
-                outputs=(
-                    StatusOutput(context.opponent_entity, "CAMILLE_R_CONFINED", 3250),
-                ),
+                outputs=(StatusOutput(context.opponent_entity, "CAMILLE_R_CONFINED", 3250),),
             ),
             action(
                 "CAMILLE_Q1_PRECISION_PROTOCOL_ATTACK",
@@ -224,9 +217,7 @@ class CamilleCog(ChampionCog):
                 sequence=base + 2,
                 source=context.self_entity,
                 channel=ActionChannel.BASIC_ATTACK,
-                outputs=self._attack_outputs(
-                    context, at_ms=650, physical_amount=q1_total
-                ),
+                outputs=self._attack_outputs(context, at_ms=650, physical_amount=q1_total),
             ),
             action(
                 "CAMILLE_W_TACTICAL_SWEEP_OUTER",

@@ -57,9 +57,7 @@ class AuroraCog(ChampionCog):
         """
         if base_seconds < 0 or ability_haste < 0:
             raise ValueError("cooldown inputs cannot be negative")
-        milliseconds = base_seconds * Decimal(100_000) / (
-            Decimal(100) + ability_haste
-        )
+        milliseconds = base_seconds * Decimal(100_000) / (Decimal(100) + ability_haste)
         return max(1, int(milliseconds.to_integral_value(ROUND_HALF_EVEN)))
 
     @staticmethod
@@ -252,9 +250,7 @@ class AuroraCog(ChampionCog):
         proc_events: list[ActionEvent] = []
         proc_times: list[int] = []
         proc_ids: set[str] = set()
-        heal_amount = self._spirit_heal(
-            context.snapshot.level, context.snapshot.ability_power
-        )
+        heal_amount = self._spirit_heal(context.snapshot.level, context.snapshot.ability_power)
         proc_damage = context.opponent_snapshot.max_hp * self._spirit_damage_ratio(
             context.snapshot.ability_power
         )

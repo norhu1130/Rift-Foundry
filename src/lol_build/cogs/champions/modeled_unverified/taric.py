@@ -97,9 +97,7 @@ class TaricCog(ChampionCog):
                 channel=ActionChannel.ABILITY,
                 outputs=(
                     damage(context.opponent_entity, e_damage, DamageType.MAGIC),
-                    crowd_control(
-                        context.opponent_entity, "STUN", duration_ms=self._E_STUN_MS
-                    ),
+                    crowd_control(context.opponent_entity, "STUN", duration_ms=self._E_STUN_MS),
                 ),
             ),
         ]

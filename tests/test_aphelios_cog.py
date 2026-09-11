@@ -85,9 +85,9 @@ def test_aphelios_plan_is_deterministic_and_anchors_gravitum_formulas() -> None:
     assert ultimate.outputs[0].amount == (
         Decimal(175) + Decimal("0.20") * expected_bonus_ad + Decimal(100)
     ) * Decimal("1.075")
-    assert followup.outputs[0].amount == (
-        context.snapshot.attack_damage + Decimal(24)
-    ) * Decimal("1.25")
+    assert followup.outputs[0].amount == (context.snapshot.attack_damage + Decimal(24)) * Decimal(
+        "1.25"
+    )
     assert isinstance(followup.outputs[1], StatusOutput)
     assert followup.outputs[1].magnitude == Decimal("0.99")
     assert eclipse.outputs[0].amount == (
@@ -104,19 +104,19 @@ def test_aphelios_ad_ap_attack_speed_and_crit_change_represented_outputs() -> No
     baseline = aphelios.build_action_plan(_context())
     more_ad = aphelios.build_action_plan(_context(item_stats={"AD": Decimal(50)}))
     more_ap = aphelios.build_action_plan(_context(item_stats={"AP": Decimal(100)}))
-    more_speed = aphelios.build_action_plan(
-        _context(item_stats={"ATTACK_SPEED": Decimal("0.50")})
-    )
+    more_speed = aphelios.build_action_plan(_context(item_stats={"ATTACK_SPEED": Decimal("0.50")}))
     more_crit = aphelios.build_action_plan(
         _context(item_stats={"CRITICAL_STRIKE_CHANCE": Decimal("0.25")})
     )
 
-    assert _event(more_ad, "APHELIOS_Q_BINDING_ECLIPSE").outputs[0].amount > _event(
-        baseline, "APHELIOS_Q_BINDING_ECLIPSE"
-    ).outputs[0].amount
-    assert _event(more_ap, "APHELIOS_R_MOONLIGHT_VIGIL").outputs[0].amount > _event(
-        baseline, "APHELIOS_R_MOONLIGHT_VIGIL"
-    ).outputs[0].amount
+    assert (
+        _event(more_ad, "APHELIOS_Q_BINDING_ECLIPSE").outputs[0].amount
+        > _event(baseline, "APHELIOS_Q_BINDING_ECLIPSE").outputs[0].amount
+    )
+    assert (
+        _event(more_ap, "APHELIOS_R_MOONLIGHT_VIGIL").outputs[0].amount
+        > _event(baseline, "APHELIOS_R_MOONLIGHT_VIGIL").outputs[0].amount
+    )
     baseline_attacks = tuple(
         entry for entry in baseline.events if entry.id.startswith("APHELIOS_GRAVITUM_ATTACK_")
     )
@@ -124,11 +124,10 @@ def test_aphelios_ad_ap_attack_speed_and_crit_change_represented_outputs() -> No
         entry for entry in more_speed.events if entry.id.startswith("APHELIOS_GRAVITUM_ATTACK_")
     )
     assert len(faster_attacks) > len(baseline_attacks)
-    assert _event(
-        more_crit, "APHELIOS_R_GRAVITUM_FOLLOWUP_ATTACK"
-    ).outputs[0].amount > _event(
-        baseline, "APHELIOS_R_GRAVITUM_FOLLOWUP_ATTACK"
-    ).outputs[0].amount
+    assert (
+        _event(more_crit, "APHELIOS_R_GRAVITUM_FOLLOWUP_ATTACK").outputs[0].amount
+        > _event(baseline, "APHELIOS_R_GRAVITUM_FOLLOWUP_ATTACK").outputs[0].amount
+    )
 
 
 def test_aphelios_role_reversal_and_root_reaction_are_role_neutral() -> None:
@@ -136,9 +135,7 @@ def test_aphelios_role_reversal_and_root_reaction_are_role_neutral() -> None:
     engine = MatchupEngine(ROOT)
     as_actor = engine.evaluate(MatchupRequest("Aphelios", "Caitlyn"))
     as_opponent = engine.evaluate(MatchupRequest("Caitlyn", "Aphelios"))
-    reaction = create_default_registry(ROOT).require_cog("Aphelios").build_reaction_plan(
-        _context()
-    )
+    reaction = create_default_registry(ROOT).require_cog("Aphelios").build_reaction_plan(_context())
 
     root = reaction.cast_block_windows[0]
     assert root.blocked_channels == (ActionChannel.MOVEMENT,)
@@ -171,28 +168,37 @@ def test_teemo_blind_cancels_aphelios_attacks_but_not_binding_eclipse() -> None:
         and entry.status == "CANCELLED"
         for entry in result.timeline.log
     )
-    assert next(
-        entry
-        for entry in result.timeline.log
-        if entry.event_id == "APHELIOS_Q_BINDING_ECLIPSE" and entry.operation == "DAMAGE"
-    ).status == "APPLIED"
+    assert (
+        next(
+            entry
+            for entry in result.timeline.log
+            if entry.event_id == "APHELIOS_Q_BINDING_ECLIPSE" and entry.operation == "DAMAGE"
+        ).status
+        == "APPLIED"
+    )
 
 
 def test_aphelios_item_policy_matches_represented_stat_channels() -> None:
     """Allow consumed offense while rejecting unresolved sustain and resources."""
     aphelios = create_default_registry(ROOT).require_cog("Aphelios")
 
-    assert aphelios.item_candidate_blocker(
-        {
-            "id": 1,
-            "stats": {
-                "AD": {},
-                "AP": {},
-                "ATTACK_SPEED": {},
-                "CRITICAL_STRIKE_CHANCE": {},
-            },
-        }
-    ) is None
-    assert aphelios.item_candidate_blocker(
-        {"id": 2, "stats": {"ABILITY_HASTE": {}, "LIFESTEAL": {}, "MANA": {}}}
-    ) == "APHELIOS_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,LIFESTEAL,MANA"
+    assert (
+        aphelios.item_candidate_blocker(
+            {
+                "id": 1,
+                "stats": {
+                    "AD": {},
+                    "AP": {},
+                    "ATTACK_SPEED": {},
+                    "CRITICAL_STRIKE_CHANCE": {},
+                },
+            }
+        )
+        is None
+    )
+    assert (
+        aphelios.item_candidate_blocker(
+            {"id": 2, "stats": {"ABILITY_HASTE": {}, "LIFESTEAL": {}, "MANA": {}}}
+        )
+        == "APHELIOS_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,LIFESTEAL,MANA"
+    )

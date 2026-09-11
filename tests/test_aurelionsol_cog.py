@@ -73,9 +73,7 @@ def test_aurelionsol_declares_modeled_capabilities_and_locked_evidence() -> None
 
     assert aurelionsol.maturity is CogMaturity.MODELED_UNVERIFIED
     assert aurelionsol.capabilities == DUEL_CAPABILITIES
-    assert aurelionsol.verification_blockers() == (
-        "COG_MODEL_UNVERIFIED:AurelionSol",
-    )
+    assert aurelionsol.verification_blockers() == ("COG_MODEL_UNVERIFIED:AurelionSol",)
     assert aurelionsol.evidence_refs == (
         "data/raw/16.17.1/en_US/champion/AurelionSol.json",
         "data/raw/16.17.1/communitydragon/champions/136.json",
@@ -105,9 +103,7 @@ def test_aurelionsol_rotation_is_deterministic_and_anchors_locked_formulas() -> 
         Decimal("172.80"),
         Decimal("140.40"),
     )
-    assert q.outputs[2].amount == (
-        context.opponent_snapshot.max_hp * Decimal("0.0167400")
-    )
+    assert q.outputs[2].amount == (context.opponent_snapshot.max_hp * Decimal("0.0167400"))
     assert "AURELIONSOL_STARDUST_FIXED_50_FIXTURE" in first.blockers
     assert "AURELIONSOL_E_CURRENT_HP_EXECUTE_NOT_MODELED" in first.blockers
     assert "AURELIONSOL_MULTI_TARGET_EFFECTS_NOT_MODELED" in first.blockers
@@ -118,9 +114,7 @@ def test_aurelionsol_ap_haste_and_target_hp_reach_distinct_outputs() -> None:
     aurelionsol = _registry_with_aurelionsol().require_cog("AurelionSol")
     baseline = aurelionsol.build_action_plan(_context())
     powered = aurelionsol.build_action_plan(_context(item_stats={"AP": Decimal(100)}))
-    hasted = aurelionsol.build_action_plan(
-        _context(item_stats={"ABILITY_HASTE": Decimal(100)})
-    )
+    hasted = aurelionsol.build_action_plan(_context(item_stats={"ABILITY_HASTE": Decimal(100)}))
     healthy_target = aurelionsol.build_action_plan(
         _context(opponent_item_stats={"HP": Decimal(1000)})
     )
@@ -134,9 +128,7 @@ def test_aurelionsol_ap_haste_and_target_hp_reach_distinct_outputs() -> None:
     assert not any("SINGULARITY_2" in event.id for event in baseline.events)
     baseline_q = _event(baseline, "AURELIONSOL_Q_BREATH_PERIOD_1_FLIGHT")
     healthy_q = _event(healthy_target, "AURELIONSOL_Q_BREATH_PERIOD_1_FLIGHT")
-    assert healthy_q.outputs[2].amount - baseline_q.outputs[2].amount == Decimal(
-        "16.74000"
-    )
+    assert healthy_q.outputs[2].amount - baseline_q.outputs[2].amount == Decimal("16.74000")
 
 
 def test_aurelionsol_engagement_sustain_and_item_policy_are_state_honest() -> None:
@@ -153,20 +145,24 @@ def test_aurelionsol_engagement_sustain_and_item_policy_are_state_honest() -> No
     )
     assert amount == 0
     assert blockers == ("AURELIONSOL_MANA_GATED_LANE_SUSTAIN_NOT_MODELED",)
-    assert aurelionsol.item_candidate_blocker(
-        {
-            "id": 1,
-            "stats": {
-                "AP": {},
-                "ABILITY_HASTE": {},
-                "HP": {},
-                "ATTACK_SPEED": {},
-            },
-        }
-    ) is None
-    assert aurelionsol.item_candidate_blocker(
-        {"id": 2, "stats": {"MANA": {}, "OMNIVAMP": {}}}
-    ) == "AURELIONSOL_ITEM_STAT_NOT_MODELED:2:MANA,OMNIVAMP"
+    assert (
+        aurelionsol.item_candidate_blocker(
+            {
+                "id": 1,
+                "stats": {
+                    "AP": {},
+                    "ABILITY_HASTE": {},
+                    "HP": {},
+                    "ATTACK_SPEED": {},
+                },
+            }
+        )
+        is None
+    )
+    assert (
+        aurelionsol.item_candidate_blocker({"id": 2, "stats": {"MANA": {}, "OMNIVAMP": {}}})
+        == "AURELIONSOL_ITEM_STAT_NOT_MODELED:2:MANA,OMNIVAMP"
+    )
 
 
 def test_aurelionsol_control_and_matchup_models_follow_role_reversal() -> None:
@@ -193,14 +189,12 @@ def test_aurelionsol_control_and_matchup_models_follow_role_reversal() -> None:
     actor_q = next(
         entry
         for entry in as_actor.timeline.log
-        if entry.event_id == "AURELIONSOL_Q_BREATH_PERIOD_1_FLIGHT"
-        and entry.operation == "DAMAGE"
+        if entry.event_id == "AURELIONSOL_Q_BREATH_PERIOD_1_FLIGHT" and entry.operation == "DAMAGE"
     )
     target_q = next(
         entry
         for entry in as_target.timeline.log
-        if entry.event_id == "AURELIONSOL_Q_BREATH_PERIOD_1_FLIGHT"
-        and entry.operation == "DAMAGE"
+        if entry.event_id == "AURELIONSOL_Q_BREATH_PERIOD_1_FLIGHT" and entry.operation == "DAMAGE"
     )
     assert actor_q.recipient is EntityId.TARGET
     assert target_q.recipient is EntityId.ACTOR
@@ -213,8 +207,7 @@ def test_teemo_blind_cancels_aurelionsol_attack_but_not_spells() -> None:
     )
 
     assert any(
-        entry.event_id.startswith("AURELIONSOL_BASIC_ATTACK_")
-        and entry.status == "CANCELLED"
+        entry.event_id.startswith("AURELIONSOL_BASIC_ATTACK_") and entry.status == "CANCELLED"
         for entry in result.timeline.log
     )
     for event_id in (
@@ -223,8 +216,6 @@ def test_teemo_blind_cancels_aurelionsol_attack_but_not_spells() -> None:
         "AURELIONSOL_Q_BREATH_PERIOD_1_FLIGHT",
     ):
         assert any(
-            entry.event_id == event_id
-            and entry.operation == "DAMAGE"
-            and entry.status == "APPLIED"
+            entry.event_id == event_id and entry.operation == "DAMAGE" and entry.status == "APPLIED"
             for entry in result.timeline.log
         )

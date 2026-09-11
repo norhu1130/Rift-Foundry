@@ -60,9 +60,7 @@ def test_malzahar_reaction_and_ap_scaling_preserve_mechanics() -> None:
         ControlType.SUPPRESSION,
     )
     base_q = next(event for event in base.events if event.id == "MALZAHAR_Q_CALL_OF_THE_VOID")
-    powered_q = next(
-        event for event in powered.events if event.id == "MALZAHAR_Q_CALL_OF_THE_VOID"
-    )
+    powered_q = next(event for event in powered.events if event.id == "MALZAHAR_Q_CALL_OF_THE_VOID")
     assert next(o.amount for o in powered_q.outputs if isinstance(o, DamageOutput)) > next(
         o.amount for o in base_q.outputs if isinstance(o, DamageOutput)
     )

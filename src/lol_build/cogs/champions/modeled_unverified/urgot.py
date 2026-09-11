@@ -91,9 +91,7 @@ class UrgotCog(ChampionCog):
                 channel=ActionChannel.ABILITY,
                 outputs=(
                     damage(context.opponent_entity, e_damage, DamageType.PHYSICAL),
-                    crowd_control(
-                        context.opponent_entity, "STUN", duration_ms=self._E_STUN_MS
-                    ),
+                    crowd_control(context.opponent_entity, "STUN", duration_ms=self._E_STUN_MS),
                 ),
             ),
             action(
@@ -104,9 +102,7 @@ class UrgotCog(ChampionCog):
                 channel=ActionChannel.ABILITY,
                 outputs=(
                     damage(context.opponent_entity, r_damage, DamageType.PHYSICAL),
-                    crowd_control(
-                        context.opponent_entity, "FEAR", duration_ms=self._R_FEAR_MS
-                    ),
+                    crowd_control(context.opponent_entity, "FEAR", duration_ms=self._R_FEAR_MS),
                 ),
             ),
         ]

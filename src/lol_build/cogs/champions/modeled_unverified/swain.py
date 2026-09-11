@@ -92,9 +92,7 @@ class SwainCog(ChampionCog):
                 channel=ActionChannel.ABILITY,
                 outputs=(
                     damage(context.opponent_entity, e_damage, DamageType.MAGIC),
-                    crowd_control(
-                        context.opponent_entity, "ROOT", duration_ms=self._E_ROOT_MS
-                    ),
+                    crowd_control(context.opponent_entity, "ROOT", duration_ms=self._E_ROOT_MS),
                 ),
             ),
             action(

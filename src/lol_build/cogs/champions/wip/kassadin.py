@@ -95,11 +95,11 @@ class KassadinCog(ChampionCog):
         """
         cooldown_ms = self._cooldown_ms(Decimal("3.5"), context.snapshot.ability_haste)
         ap = context.snapshot.ability_power
-        base_damage = Decimal(90) + Decimal("0.50") * ap + (
-            Decimal("0.02") * self._LEVEL13_MAX_MANA
+        base_damage = (
+            Decimal(90) + Decimal("0.50") * ap + (Decimal("0.02") * self._LEVEL13_MAX_MANA)
         )
-        stack_damage = Decimal(45) + Decimal("0.07") * ap + (
-            Decimal("0.01") * self._LEVEL13_MAX_MANA
+        stack_damage = (
+            Decimal(45) + Decimal("0.07") * ap + (Decimal("0.01") * self._LEVEL13_MAX_MANA)
         )
         sequence = self._sequence_base(context)
         events: list[ActionEvent] = []

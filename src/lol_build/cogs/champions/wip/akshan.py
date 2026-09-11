@@ -167,22 +167,18 @@ class AkshanCog(ChampionCog):
         :return: Ordered events before Comeuppance is appended.
         """
         q_damage = Decimal(165) + Decimal("0.70") * context.snapshot.bonus_attack_damage
-        attack_damage = context.snapshot.attack_damage * self._expected_critical_multiplier(
-            context
-        )
+        attack_damage = context.snapshot.attack_damage * self._expected_critical_multiplier(context)
         second_attack_damage = Decimal("0.50") * attack_damage
-        e_damage = (
-            Decimal(40) + Decimal("0.25") * context.snapshot.bonus_attack_damage
-        ) * (Decimal(1) + Decimal("0.30") * self._bonus_attack_speed(context))
+        e_damage = (Decimal(40) + Decimal("0.25") * context.snapshot.bonus_attack_damage) * (
+            Decimal(1) + Decimal("0.30") * self._bonus_attack_speed(context)
+        )
         e_damage *= self._expected_critical_multiplier(context, Decimal("0.50"))
 
         base = self._sequence_base(context)
         events: list[ActionEvent] = []
         stack_count = 0
         shield_emitted = False
-        for hit_number, (at_ms, hit_kind) in enumerate(
-            self._raw_hit_shapes(context), start=1
-        ):
+        for hit_number, (at_ms, hit_kind) in enumerate(self._raw_hit_shapes(context), start=1):
             if at_ms > context.duration_ms:
                 continue
             amount = {

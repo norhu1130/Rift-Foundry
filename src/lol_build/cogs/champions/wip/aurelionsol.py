@@ -177,10 +177,7 @@ class AurelionSolCog(ChampionCog):
         continuous = (Decimal(105) + Decimal("0.55") * ap) * amplification
         burst = (Decimal(100) + Decimal("0.30") * ap) * amplification
         stack_burst = (
-            context.opponent_snapshot.max_hp
-            * Decimal("0.00031")
-            * self._STARDUST
-            * amplification
+            context.opponent_snapshot.max_hp * Decimal("0.00031") * self._STARDUST * amplification
         )
         sequence = self._sequence_base(context) + 100
         events: list[ActionEvent] = []

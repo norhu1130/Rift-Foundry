@@ -53,9 +53,7 @@ def test_pantheon_metadata_stun_shield_and_strikes_are_explicit() -> None:
     assert all((ROOT / ref).is_file() for ref in cog.evidence_refs)
     assert plan == cog.build_action_plan(_context())
     assert isinstance(_event(plan, "PANTHEON_E_AEGIS_ASSAULT_SHIELD").outputs[0], ShieldOutput)
-    assert (
-        len([event for event in plan.events if "E_AEGIS_ASSAULT_STRIKE" in event.id]) == 6
-    )
+    assert len([event for event in plan.events if "E_AEGIS_ASSAULT_STRIKE" in event.id]) == 6
     w_outputs = _event(plan, "PANTHEON_W_SHIELD_VAULT").outputs
     assert isinstance(w_outputs[0], DamageOutput)
     assert isinstance(w_outputs[2], StatusOutput)

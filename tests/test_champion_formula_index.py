@@ -79,9 +79,7 @@ def _fixture_paths(root: Path) -> tuple[Path, Path, Path]:
     spell_paths = [f"Characters/Alpha/Spells/Alpha{slot}Ability/Alpha{slot}" for slot in "QWER"]
     bin_document: dict[str, object] = {
         champion_root: {"spellNames": spell_paths, "spells": spell_paths},
-        "Characters/Alpha/Spells/AlphaForcePassive": {
-            "mSpell": {"mCoefficient": 0.125}
-        },
+        "Characters/Alpha/Spells/AlphaForcePassive": {"mSpell": {"mCoefficient": 0.125}},
     }
     for path in spell_paths:
         bin_document[path] = {
@@ -119,8 +117,7 @@ def test_indexes_slots_and_preserves_raw_candidates_with_source_refs(tmp_path: P
     assert "AlphaQ" in q_spell.names
     assert any(
         ref.source == "COMMUNITY_BIN"
-        and ref.json_pointer
-        == "/Characters~1Alpha~1Spells~1AlphaQAbility~1AlphaQ"
+        and ref.json_pointer == "/Characters~1Alpha~1Spells~1AlphaQAbility~1AlphaQ"
         for ref in q_spell.source_refs
     )
     dd_cooldown = next(
@@ -131,9 +128,7 @@ def test_indexes_slots_and_preserves_raw_candidates_with_source_refs(tmp_path: P
     )
     assert dd_cooldown.value == ["10.25", 9]
     assert dd_cooldown.source_ref.json_pointer.endswith("/spells/0/cooldown")
-    calculation = next(
-        candidate for candidate in q_spell.candidates if candidate.label == "Damage"
-    )
+    calculation = next(candidate for candidate in q_spell.candidates if candidate.label == "Damage")
     assert calculation.status is DetectionStatus.AUTO_DETECTED
     assert calculation.value["calculationParts"][0]["mCoefficient"] == pytest.approx(1.25)
     assert calculation.source_ref.json_pointer.endswith("/mSpell/mSpellCalculations/Damage")
@@ -171,9 +166,7 @@ def test_structured_passive_root_is_auto_detected(tmp_path: Path) -> None:
     )
     bin_path.write_text(json.dumps(document), encoding="utf-8")
 
-    index = index_champion_formula_documents(
-        ChampionIdentity("Alpha", 1), dd, profile, bin_path
-    )
+    index = index_champion_formula_documents(ChampionIdentity("Alpha", 1), dd, profile, bin_path)
 
     passive = index.spells[0]
     candidate = next(
@@ -197,8 +190,7 @@ def test_document_output_is_deterministic_and_preserves_decimal_text(tmp_path: P
     profile_coefficient = next(
         item
         for item in first.to_document()["spells"][1]["candidates"]
-        if item["source_ref"]["source"] == "COMMUNITY_PROFILE"
-        and item["label"] == "coefficients"
+        if item["source_ref"]["source"] == "COMMUNITY_PROFILE" and item["label"] == "coefficients"
     )
     assert profile_coefficient["value"]["coefficient1"] == "0.75"
 

@@ -69,9 +69,7 @@ def test_caitlyn_plan_is_deterministic_and_uses_locked_rank_values() -> None:
     trap_headshot = next(
         event for event in first.events if event.id == "CAITLYN_W_EMPOWERED_HEADSHOT"
     )
-    ultimate = next(
-        event for event in first.events if event.id == "CAITLYN_R_ACE_IN_THE_HOLE"
-    )
+    ultimate = next(event for event in first.events if event.id == "CAITLYN_R_ACE_IN_THE_HOLE")
 
     assert first == second
     assert first.model_id == "caitlyn_q5_w5_e1_r2_level13_locked_v1"
@@ -98,9 +96,7 @@ def test_caitlyn_ad_attack_speed_and_crit_affect_represented_outputs() -> None:
     caitlyn = create_default_registry(ROOT).require_cog("Caitlyn")
     baseline = caitlyn.build_action_plan(_context())
     more_ad = caitlyn.build_action_plan(_context(item_stats={"AD": Decimal(50)}))
-    more_speed = caitlyn.build_action_plan(
-        _context(item_stats={"ATTACK_SPEED": Decimal("0.50")})
-    )
+    more_speed = caitlyn.build_action_plan(_context(item_stats={"ATTACK_SPEED": Decimal("0.50")}))
     more_crit = caitlyn.build_action_plan(
         _context(item_stats={"CRITICAL_STRIKE_CHANCE": Decimal("0.25")})
     )
@@ -138,14 +134,12 @@ def test_caitlyn_role_reversal_and_teemo_blind_are_channel_correct() -> None:
     actor_q = next(
         entry
         for entry in as_actor.timeline.log
-        if entry.event_id == "CAITLYN_Q_PILTOVER_PEACEMAKER"
-        and entry.operation == "DAMAGE"
+        if entry.event_id == "CAITLYN_Q_PILTOVER_PEACEMAKER" and entry.operation == "DAMAGE"
     )
     opponent_q = next(
         entry
         for entry in as_opponent.timeline.log
-        if entry.event_id == "CAITLYN_Q_PILTOVER_PEACEMAKER"
-        and entry.operation == "DAMAGE"
+        if entry.event_id == "CAITLYN_Q_PILTOVER_PEACEMAKER" and entry.operation == "DAMAGE"
     )
     assert actor_q.recipient is EntityId.TARGET
     assert opponent_q.recipient is EntityId.ACTOR
@@ -170,17 +164,21 @@ def test_caitlyn_reaction_and_item_policy_preserve_model_boundaries() -> None:
     assert root.tenacity_reducible is True
     assert root.control_type.value == "ROOT"
     assert root.source_event_id == "CAITLYN_W_ASSUMED_TRAP_TRIGGER"
-    assert caitlyn.item_candidate_blocker(
-        {
-            "id": 1,
-            "stats": {
-                "AD": {},
-                "AP": {},
-                "ATTACK_SPEED": {},
-                "CRITICAL_STRIKE_CHANCE": {},
-            },
-        }
-    ) is None
-    assert caitlyn.item_candidate_blocker(
-        {"id": 2, "stats": {"ABILITY_HASTE": {}, "LIFESTEAL": {}}}
-    ) == "CAITLYN_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,LIFESTEAL"
+    assert (
+        caitlyn.item_candidate_blocker(
+            {
+                "id": 1,
+                "stats": {
+                    "AD": {},
+                    "AP": {},
+                    "ATTACK_SPEED": {},
+                    "CRITICAL_STRIKE_CHANCE": {},
+                },
+            }
+        )
+        is None
+    )
+    assert (
+        caitlyn.item_candidate_blocker({"id": 2, "stats": {"ABILITY_HASTE": {}, "LIFESTEAL": {}}})
+        == "CAITLYN_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,LIFESTEAL"
+    )

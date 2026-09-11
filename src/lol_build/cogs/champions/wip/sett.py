@@ -102,15 +102,10 @@ class SettCog(ChampionCog):
         interval_ms = self._attack_interval_ms(context.snapshot.attack_speed)
         right_gap_ms = max(
             1,
-            int(
-                (Decimal(interval_ms) / Decimal("1.5")).to_integral_value(
-                    ROUND_HALF_EVEN
-                )
-            ),
+            int((Decimal(interval_ms) / Decimal("1.5")).to_integral_value(ROUND_HALF_EVEN)),
         )
         q_bonus = Decimal(50) + context.opponent_snapshot.max_hp * (
-            Decimal("0.01")
-            + Decimal("0.00025") * context.snapshot.attack_damage
+            Decimal("0.01") + Decimal("0.00025") * context.snapshot.attack_damage
         )
         right_bonus = self._right_punch_bonus(
             context.snapshot.level,
@@ -176,8 +171,7 @@ class SettCog(ChampionCog):
         base = self._sequence_base(context)
         max_grit = Decimal("0.50") * context.snapshot.max_hp
         w_damage = Decimal(160) + max_grit * (
-            Decimal("0.25")
-            + Decimal("0.0025") * context.snapshot.bonus_attack_damage
+            Decimal("0.25") + Decimal("0.0025") * context.snapshot.bonus_attack_damage
         )
         e_damage = Decimal(50) + Decimal("0.60") * context.snapshot.attack_damage
         r_damage = (

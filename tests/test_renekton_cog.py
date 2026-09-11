@@ -56,9 +56,7 @@ def test_renekton_metadata_cleave_heal_stun_and_aura_ticks_are_explicit() -> Non
     assert isinstance(q_outputs[0], DamageOutput)
     assert isinstance(q_outputs[1], HealOutput)
     assert len([e for e in plan.events if "W_PRE_EXECUTE_HIT" in e.id]) == 2
-    assert isinstance(
-        _event(plan, "RENEKTON_R_DOMINUS_HEALTH").outputs[0], MaxHealthModifierOutput
-    )
+    assert isinstance(_event(plan, "RENEKTON_R_DOMINUS_HEALTH").outputs[0], MaxHealthModifierOutput)
     assert len([e for e in plan.events if "R_DOMINUS_AURA_TICK" in e.id]) > 1
 
 

@@ -288,9 +288,7 @@ def build_explanation(
             for metric_id in priority_metrics
             if metric_id in selected_metrics and metric_id in comparison_metrics
         )
-    contributions = tuple(
-        item_contribution(items_by_id[item_id]) for item_id in selected_item_ids
-    )
+    contributions = tuple(item_contribution(items_by_id[item_id]) for item_id in selected_item_ids)
     if slot_runner_ups:
         contributions = tuple(
             replace(contribution, slot_runner_up=slot_runner_ups[index])

@@ -50,9 +50,7 @@ class BrandCog(ChampionCog):
         :return: Fraction of the victim's maximum health dealt as magic damage.
         """
         bounded_level = min(18, max(1, level))
-        level_percent = Decimal(6) + (
-            Decimal(6) * Decimal(bounded_level - 1) / Decimal(17)
-        )
+        level_percent = Decimal(6) + (Decimal(6) * Decimal(bounded_level - 1) / Decimal(17))
         return level_percent / Decimal(100) + Decimal("0.0002") * ability_power
 
     def item_candidate_blocker(self, item: dict[str, object]) -> str | None:

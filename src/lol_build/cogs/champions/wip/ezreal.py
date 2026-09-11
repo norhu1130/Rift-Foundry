@@ -56,11 +56,9 @@ class EzrealCog(ChampionCog):
         if base_ms < 0 or ability_haste < 0:
             raise ValueError("cooldown inputs cannot be negative")
         return int(
-            (
-                Decimal(base_ms)
-                * Decimal(100)
-                / (Decimal(100) + ability_haste)
-            ).to_integral_value(ROUND_HALF_EVEN)
+            (Decimal(base_ms) * Decimal(100) / (Decimal(100) + ability_haste)).to_integral_value(
+                ROUND_HALF_EVEN
+            )
         )
 
     @classmethod
@@ -72,8 +70,7 @@ class EzrealCog(ChampionCog):
         """
         recast_ms = max(
             1,
-            cls._haste_cooldown_ms(4500, context.snapshot.ability_haste)
-            - cls._Q_REFUND_MS,
+            cls._haste_cooldown_ms(4500, context.snapshot.ability_haste) - cls._Q_REFUND_MS,
         )
         return tuple(range(cls._Q_FIRST_MS, context.duration_ms + 1, recast_ms))
 
@@ -98,9 +95,7 @@ class EzrealCog(ChampionCog):
         :param q_times: Ordered Q hit timestamps that refund W cooldown.
         :return: Ordered recast timestamps inside the encounter duration.
         """
-        cooldown_ms = cls._haste_cooldown_ms(
-            base_cooldown_ms, context.snapshot.ability_haste
-        )
+        cooldown_ms = cls._haste_cooldown_ms(base_cooldown_ms, context.snapshot.ability_haste)
         ready_ms = first_cast_ms + cooldown_ms
         recasts: list[int] = []
         for q_at_ms in q_times:
@@ -195,11 +190,7 @@ class EzrealCog(ChampionCog):
             else ()
         )
         schedule = [
-            *(
-                ((self._R_HIT_MS, 0, "R", 1),)
-                if context.duration_ms >= self._R_HIT_MS
-                else ()
-            ),
+            *(((self._R_HIT_MS, 0, "R", 1),) if context.duration_ms >= self._R_HIT_MS else ()),
             *((at_ms, 1, "W", index) for index, at_ms in enumerate(w_times, 1)),
             *((at_ms, 2, "E", index) for index, at_ms in enumerate(e_times, 1)),
             *((at_ms, 3, "Q", index) for index, at_ms in enumerate(q_times, 1)),
@@ -235,9 +226,7 @@ class EzrealCog(ChampionCog):
                     (
                         damage(
                             context.opponent_entity,
-                            Decimal(280)
-                            + Decimal("0.60") * bonus_ad
-                            + Decimal("0.75") * ap,
+                            Decimal(280) + Decimal("0.60") * bonus_ad + Decimal("0.75") * ap,
                             DamageType.MAGIC,
                         ),
                         StatusOutput(context.self_entity, "EZREAL_E_BLINK_475", 1),

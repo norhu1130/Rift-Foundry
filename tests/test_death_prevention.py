@@ -151,8 +151,7 @@ def test_tryndamere_floor_is_deterministic_across_role_reversal() -> None:
 
     assert actor_first.timeline == actor_second.timeline
     assert (
-        actor_first.timeline.actor_at_end.current_hp
-        == opponent.timeline.target_at_end.current_hp
+        actor_first.timeline.actor_at_end.current_hp == opponent.timeline.target_at_end.current_hp
     )
     assert actor_first.actor_hp_lost == opponent.opponent_hp_lost
     assert actor_first.actor_action_model == opponent.opponent_action_model

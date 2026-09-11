@@ -88,8 +88,7 @@ def test_draven_rotation_is_deterministic_and_anchors_locked_rank_values() -> No
     assert returning.outputs[0].amount == outward.outputs[0].amount
     assert len(catches) == len(recasts)
     assert all(
-        recast.at_ms == catch.at_ms + 1
-        for catch, recast in zip(catches, recasts, strict=True)
+        recast.at_ms == catch.at_ms + 1 for catch, recast in zip(catches, recasts, strict=True)
     )
     assert "DRAVEN_Q_AXE_LANDING_POSITION_NOT_MODELED" in first.blockers
     assert "DRAVEN_R_ADORATION_EXECUTE_NOT_MODELED" in first.blockers
@@ -101,15 +100,11 @@ def test_draven_ad_attack_speed_critical_chance_and_haste_are_consumed() -> None
     draven = create_default_registry(ROOT).require_cog("Draven")
     baseline = draven.build_action_plan(_context())
     more_ad = draven.build_action_plan(_context(item_stats={"AD": Decimal(50)}))
-    more_speed = draven.build_action_plan(
-        _context(item_stats={"ATTACK_SPEED": Decimal("0.50")})
-    )
+    more_speed = draven.build_action_plan(_context(item_stats={"ATTACK_SPEED": Decimal("0.50")}))
     more_crit = draven.build_action_plan(
         _context(item_stats={"CRITICAL_STRIKE_CHANCE": Decimal("0.25")})
     )
-    more_haste = draven.build_action_plan(
-        _context(item_stats={"ABILITY_HASTE": Decimal(150)})
-    )
+    more_haste = draven.build_action_plan(_context(item_stats={"ABILITY_HASTE": Decimal(150)}))
 
     baseline_q = _event(baseline, "DRAVEN_Q_SPINNING_AXE_ATTACK_1")
     ad_q = _event(more_ad, "DRAVEN_Q_SPINNING_AXE_ATTACK_1")
@@ -158,14 +153,12 @@ def test_draven_role_reversal_and_teemo_blind_are_channel_correct() -> None:
     actor_r = next(
         entry
         for entry in as_actor.timeline.log
-        if entry.event_id == "DRAVEN_R_WHIRLING_DEATH_OUTWARD"
-        and entry.operation == "DAMAGE"
+        if entry.event_id == "DRAVEN_R_WHIRLING_DEATH_OUTWARD" and entry.operation == "DAMAGE"
     )
     opponent_r = next(
         entry
         for entry in as_opponent.timeline.log
-        if entry.event_id == "DRAVEN_R_WHIRLING_DEATH_OUTWARD"
-        and entry.operation == "DAMAGE"
+        if entry.event_id == "DRAVEN_R_WHIRLING_DEATH_OUTWARD" and entry.operation == "DAMAGE"
     )
     assert as_actor.actor_action_model == as_opponent.opponent_action_model
     assert as_actor.actor_reaction_model == as_opponent.opponent_reaction_model
@@ -186,17 +179,21 @@ def test_draven_engagement_and_item_policy_preserve_model_boundaries() -> None:
     context = _context()
 
     assert draven.engagement_speed_multiplier(context) == Decimal("1.70")
-    assert draven.item_candidate_blocker(
-        {
-            "id": 1,
-            "stats": {
-                "AD": {},
-                "ATTACK_SPEED": {},
-                "CRITICAL_STRIKE_CHANCE": {},
-                "ABILITY_HASTE": {},
-            },
-        }
-    ) is None
-    assert draven.item_candidate_blocker(
-        {"id": 2, "stats": {"AP": {}, "LIFESTEAL": {}, "MANA": {}}}
-    ) == "DRAVEN_ITEM_STAT_NOT_MODELED:2:AP,LIFESTEAL,MANA"
+    assert (
+        draven.item_candidate_blocker(
+            {
+                "id": 1,
+                "stats": {
+                    "AD": {},
+                    "ATTACK_SPEED": {},
+                    "CRITICAL_STRIKE_CHANCE": {},
+                    "ABILITY_HASTE": {},
+                },
+            }
+        )
+        is None
+    )
+    assert (
+        draven.item_candidate_blocker({"id": 2, "stats": {"AP": {}, "LIFESTEAL": {}, "MANA": {}}})
+        == "DRAVEN_ITEM_STAT_NOT_MODELED:2:AP,LIFESTEAL,MANA"
+    )

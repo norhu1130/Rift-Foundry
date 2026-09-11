@@ -132,10 +132,13 @@ def test_cancelled_enabling_cast_removes_immunity_window() -> None:
     )
 
     assert _active_control_immunities((immunity,), (_event("R_CAST"),)) == (immunity,)
-    assert _active_control_immunities(
-        (immunity,),
-        (_event("R_CAST", cancelled=True),),
-    ) == ()
+    assert (
+        _active_control_immunities(
+            (immunity,),
+            (_event("R_CAST", cancelled=True),),
+        )
+        == ()
+    )
 
 
 def test_control_output_is_removed_without_removing_sibling_damage() -> None:

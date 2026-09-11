@@ -89,9 +89,9 @@ def test_gnar_rotation_is_deterministic_and_marks_both_forms() -> None:
     assert (mini.status, mini.duration_ms) == ("GNAR_FORM_MINI", 3000)
     assert isinstance(mega, StatusOutput)
     assert (mega.status, mega.duration_ms) == ("GNAR_FORM_MEGA", 5000)
-    assert _event(first, "GNAR_MINI_Q_BOOMERANG").at_ms < _event(
-        first, "GNAR_TRANSFORM_TO_MEGA"
-    ).at_ms
+    assert (
+        _event(first, "GNAR_MINI_Q_BOOMERANG").at_ms < _event(first, "GNAR_TRANSFORM_TO_MEGA").at_ms
+    )
     assert _event(first, "GNAR_MEGA_E_CRUNCH").at_ms == 3100
     assert "GNAR_TRANSFORM_AT_3000MS_SYNTHETIC" in first.blockers
     assert "GNAR_TRANSFORM_MAX_HP_CURRENT_HP_SEMANTICS_NOT_EVALUATED" in first.blockers
@@ -140,9 +140,7 @@ def test_gnar_ad_ap_health_and_attack_speed_reach_distinct_outputs() -> None:
     attack = gnar.build_action_plan(_context(item_stats={"AD": Decimal(40)}))
     power = gnar.build_action_plan(_context(item_stats={"AP": Decimal(100)}))
     health = gnar.build_action_plan(_context(item_stats={"HP": Decimal(500)}))
-    speed = gnar.build_action_plan(
-        _context(item_stats={"ATTACK_SPEED": Decimal("0.50")})
-    )
+    speed = gnar.build_action_plan(_context(item_stats={"ATTACK_SPEED": Decimal("0.50")}))
 
     assert (
         _event(attack, "GNAR_MINI_Q_BOOMERANG").outputs[0].amount
@@ -157,9 +155,7 @@ def test_gnar_ad_ap_health_and_attack_speed_reach_distinct_outputs() -> None:
         - _event(baseline, "GNAR_MINI_E_HOP").outputs[0].amount
         == 30
     )
-    assert len(
-        [event for event in speed.events if event.id.startswith("GNAR_MINI_ATTACK_")]
-    ) > len(
+    assert len([event for event in speed.events if event.id.startswith("GNAR_MINI_ATTACK_")]) > len(
         [event for event in baseline.events if event.id.startswith("GNAR_MINI_ATTACK_")]
     )
     assert gnar.engagement_dash_distance(baseline_context) == 475
@@ -238,9 +234,7 @@ def test_gnar_role_reversal_and_teemo_blind_preserve_action_ownership() -> None:
         "GNAR_MEGA_W_WALLOP",
     ):
         assert any(
-            entry.event_id == event_id
-            and entry.operation == "DAMAGE"
-            and entry.status == "APPLIED"
+            entry.event_id == event_id and entry.operation == "DAMAGE" and entry.status == "APPLIED"
             for entry in as_actor.timeline.log
         )
 
@@ -256,8 +250,6 @@ def test_gnar_item_policy_rejects_unrepresented_rotation_stats() -> None:
         is None
     )
     assert (
-        gnar.item_candidate_blocker(
-            {"id": 2, "stats": {"ABILITY_HASTE": {}, "MANA": {}}}
-        )
+        gnar.item_candidate_blocker({"id": 2, "stats": {"ABILITY_HASTE": {}, "MANA": {}}})
         == "GNAR_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,MANA"
     )

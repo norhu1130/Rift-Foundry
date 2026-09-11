@@ -53,8 +53,9 @@ class CorkiCog(ChampionCog):
         if base_seconds < 0 or ability_haste < 0:
             raise ValueError("cooldown inputs cannot be negative")
         return int(
-            (base_seconds * Decimal(100_000) / (Decimal(100) + ability_haste))
-            .to_integral_value(ROUND_HALF_EVEN)
+            (base_seconds * Decimal(100_000) / (Decimal(100) + ability_haste)).to_integral_value(
+                ROUND_HALF_EVEN
+            )
         )
 
     @staticmethod

@@ -132,8 +132,7 @@ class WarwickCog(ChampionCog):
         :return: Chronological basic attacks susceptible to blind.
         """
         attack_speed = (
-            context.snapshot.attack_speed
-            + self._ATTACK_SPEED_RATIO * self._W5_ATTACK_SPEED_BONUS
+            context.snapshot.attack_speed + self._ATTACK_SPEED_RATIO * self._W5_ATTACK_SPEED_BONUS
         )
         interval_ms = self._attack_interval_ms(attack_speed)
         passive_damage = self._passive_damage(context)
@@ -237,9 +236,7 @@ class WarwickCog(ChampionCog):
                 sequence=base + 1,
                 source=context.self_entity,
                 channel=ActionChannel.ABILITY,
-                outputs=(
-                    StatusOutput(context.self_entity, "WARWICK_E_DAMAGE_REDUCTION", 1900),
-                ),
+                outputs=(StatusOutput(context.self_entity, "WARWICK_E_DAMAGE_REDUCTION", 1900),),
                 requires_living_opponent=False,
             ),
             action(

@@ -66,9 +66,7 @@ def test_active_scaling_is_reported_rather_than_applied_silently() -> None:
     engine = MatchupEngine(ROOT)
     cog = engine.registry.require_cog("Darius")
     snapshot = cog.snapshot(level=13)
-    context = ParticipantContext(
-        EntityId.ACTOR, EntityId.TARGET, snapshot, snapshot, 8000, 3000
-    )
+    context = ParticipantContext(EntityId.ACTOR, EntityId.TARGET, snapshot, snapshot, 8000, 3000)
     items = tuple(engine._items[item_id] for item_id in (6631, 3742, 3139))
 
     scaled = item_engagement_modifiers(
@@ -104,16 +102,22 @@ def test_a_melee_mirror_reaches_contact_without_movement_items() -> None:
         :return: Combat uptime fraction.
         """
         request = MatchupRequest(
-            "Darius", "Garen", opponent_item_ids=(3071, 3053, 6333),
+            "Darius",
+            "Garen",
+            opponent_item_ids=(3071, 3053, 6333),
             pursuit_target_policy=policy,
         )
         stage = _stage_noncombat_metrics(
-            engine, request, tank, request.opponent_item_ids[:3], Decimal(0), 3,
-            "per_engagement", policy,
+            engine,
+            request,
+            tank,
+            request.opponent_item_ids[:3],
+            Decimal(0),
+            3,
+            "per_engagement",
+            policy,
         )
-        assert any(
-            value.startswith("PURSUIT_TARGET_POLICY_ASSUMED") for value in stage["blockers"]
-        )
+        assert any(value.startswith("PURSUIT_TARGET_POLICY_ASSUMED") for value in stage["blockers"])
         return stage["uptime"]
 
     assert uptime("always_flees") == 0
@@ -124,18 +128,32 @@ def test_a_ranged_opponent_still_kites_a_melee_actor() -> None:
     """Keep kiting real where reach actually supports it."""
     engine = MatchupEngine(ROOT)
     request = MatchupRequest(
-        "Darius", "Vayne", opponent_item_ids=(3153, 3006, 3072),
+        "Darius",
+        "Vayne",
+        opponent_item_ids=(3153, 3006, 3072),
         pursuit_target_policy="range_aware",
     )
     build = (6631, 3742, 6333)
 
     kited = _stage_noncombat_metrics(
-        engine, request, build, request.opponent_item_ids[:3], Decimal(0), 3,
-        "per_engagement", "range_aware",
+        engine,
+        request,
+        build,
+        request.opponent_item_ids[:3],
+        Decimal(0),
+        3,
+        "per_engagement",
+        "range_aware",
     )
     fleeing = _stage_noncombat_metrics(
-        engine, request, build, request.opponent_item_ids[:3], Decimal(0), 3,
-        "per_engagement", "always_flees",
+        engine,
+        request,
+        build,
+        request.opponent_item_ids[:3],
+        Decimal(0),
+        3,
+        "per_engagement",
+        "always_flees",
     )
 
     assert kited["uptime"] == fleeing["uptime"]

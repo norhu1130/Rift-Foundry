@@ -74,12 +74,7 @@ def test_warwick_rotation_is_deterministic_and_uses_locked_formulas() -> None:
     q = _event(first, "WARWICK_Q_JAWS_OF_THE_BEAST")
     r = _event(first, "WARWICK_R_INFINITE_DURESS_HIT_1")
     attack = _event(first, "WARWICK_PASSIVE_ATTACK_1")
-    passive = (
-        Decimal(6)
-        + Decimal(49) * Decimal(12) / Decimal(17)
-        + Decimal(15)
-        + Decimal(10)
-    )
+    passive = Decimal(6) + Decimal(49) * Decimal(12) / Decimal(17) + Decimal(15) + Decimal(10)
 
     assert first == repeated
     assert first.model_id == "warwick_w5_q5_e1_r2_level13_locked_v1"
@@ -90,9 +85,7 @@ def test_warwick_rotation_is_deterministic_and_uses_locked_formulas() -> None:
     )
     assert q.outputs[1].amount == passive
     assert isinstance(q.outputs[2], HealOutput)
-    assert r.outputs[0].amount == (
-        Decimal(350) + Decimal("1.67") * Decimal(100)
-    ) / 3
+    assert r.outputs[0].amount == (Decimal(350) + Decimal("1.67") * Decimal(100)) / 3
     assert r.outputs[1].amount == passive
     assert attack.outputs[1].amount == passive
     assert "WARWICK_PASSIVE_SELF_HEALTH_THRESHOLDS_NOT_MODELED" in first.blockers
@@ -119,24 +112,16 @@ def test_warwick_stats_and_target_health_change_represented_outputs() -> None:
     baseline_r = _event(baseline, "WARWICK_R_INFINITE_DURESS_HIT_1")
     scaled_r = _event(scaled, "WARWICK_R_INFINITE_DURESS_HIT_1")
     baseline_attacks = tuple(
-        event
-        for event in baseline.events
-        if event.id.startswith("WARWICK_PASSIVE_ATTACK_")
+        event for event in baseline.events if event.id.startswith("WARWICK_PASSIVE_ATTACK_")
     )
     scaled_attacks = tuple(
-        event
-        for event in scaled.events
-        if event.id.startswith("WARWICK_PASSIVE_ATTACK_")
+        event for event in scaled.events if event.id.startswith("WARWICK_PASSIVE_ATTACK_")
     )
 
     assert scaled_q.outputs[0].amount - baseline_q.outputs[0].amount == Decimal(210)
     assert scaled_q.outputs[1].amount - baseline_q.outputs[1].amount == Decimal("17.5")
-    assert scaled_r.outputs[0].amount == (
-        Decimal(350) + Decimal("1.67") * Decimal(50)
-    ) / Decimal(3)
-    assert baseline_r.outputs[0].amount == (
-        Decimal(350) / Decimal(3)
-    )
+    assert scaled_r.outputs[0].amount == (Decimal(350) + Decimal("1.67") * Decimal(50)) / Decimal(3)
+    assert baseline_r.outputs[0].amount == (Decimal(350) / Decimal(3))
     assert len(scaled_attacks) > len(baseline_attacks)
 
 
@@ -169,14 +154,12 @@ def test_warwick_role_reversal_and_blind_preserve_channels() -> None:
     actor_q = next(
         entry
         for entry in as_actor.timeline.log
-        if entry.event_id == "WARWICK_Q_JAWS_OF_THE_BEAST"
-        and entry.operation == "DAMAGE"
+        if entry.event_id == "WARWICK_Q_JAWS_OF_THE_BEAST" and entry.operation == "DAMAGE"
     )
     opponent_q = next(
         entry
         for entry in as_opponent.timeline.log
-        if entry.event_id == "WARWICK_Q_JAWS_OF_THE_BEAST"
-        and entry.operation == "DAMAGE"
+        if entry.event_id == "WARWICK_Q_JAWS_OF_THE_BEAST" and entry.operation == "DAMAGE"
     )
     assert actor_q.recipient is EntityId.TARGET
     assert opponent_q.recipient is EntityId.ACTOR
@@ -199,12 +182,18 @@ def test_warwick_policy_and_lane_sustain_keep_state_honest() -> None:
     """Accept represented stats while retaining dynamic sustain blockers."""
     warwick = create_default_registry(ROOT).require_cog("Warwick")
 
-    assert warwick.item_candidate_blocker(
-        {"id": 1, "stats": {"AD": {}, "AP": {}, "ATTACK_SPEED": {}, "HP": {}}}
-    ) is None
-    assert warwick.item_candidate_blocker(
-        {"id": 2, "stats": {"ABILITY_HASTE": {}, "LIFESTEAL": {}, "MANA": {}}}
-    ) == "WARWICK_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,LIFESTEAL,MANA"
+    assert (
+        warwick.item_candidate_blocker(
+            {"id": 1, "stats": {"AD": {}, "AP": {}, "ATTACK_SPEED": {}, "HP": {}}}
+        )
+        is None
+    )
+    assert (
+        warwick.item_candidate_blocker(
+            {"id": 2, "stats": {"ABILITY_HASTE": {}, "LIFESTEAL": {}, "MANA": {}}}
+        )
+        == "WARWICK_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,LIFESTEAL,MANA"
+    )
     amount, blockers = warwick.lane_sustain_extra_health(
         _context(),
         duration_ms=30_000,

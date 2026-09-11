@@ -128,12 +128,8 @@ def test_anivia_ap_attack_speed_and_haste_reach_distinct_channels() -> None:
     anivia = _registry_with_anivia().require_cog("Anivia")
     baseline = anivia.build_action_plan(_context())
     powered = anivia.build_action_plan(_context(item_stats={"AP": Decimal(100)}))
-    faster = anivia.build_action_plan(
-        _context(item_stats={"ATTACK_SPEED": Decimal("0.50")})
-    )
-    hasted = anivia.build_action_plan(
-        _context(item_stats={"ABILITY_HASTE": Decimal(100)})
-    )
+    faster = anivia.build_action_plan(_context(item_stats={"ATTACK_SPEED": Decimal("0.50")}))
+    hasted = anivia.build_action_plan(_context(item_stats={"ABILITY_HASTE": Decimal(100)}))
 
     assert (
         _event(powered, "ANIVIA_Q_FLASH_FROST_1_PASSTHROUGH").outputs[0].amount
@@ -175,14 +171,12 @@ def test_anivia_control_and_matchup_models_follow_role_reversal() -> None:
     actor_q = next(
         entry
         for entry in as_actor.timeline.log
-        if entry.event_id == "ANIVIA_Q_FLASH_FROST_1_PASSTHROUGH"
-        and entry.operation == "DAMAGE"
+        if entry.event_id == "ANIVIA_Q_FLASH_FROST_1_PASSTHROUGH" and entry.operation == "DAMAGE"
     )
     target_q = next(
         entry
         for entry in as_target.timeline.log
-        if entry.event_id == "ANIVIA_Q_FLASH_FROST_1_PASSTHROUGH"
-        and entry.operation == "DAMAGE"
+        if entry.event_id == "ANIVIA_Q_FLASH_FROST_1_PASSTHROUGH" and entry.operation == "DAMAGE"
     )
     assert actor_q.recipient is EntityId.TARGET
     assert target_q.recipient is EntityId.ACTOR
@@ -195,8 +189,7 @@ def test_teemo_blind_cancels_anivia_attacks_but_not_ice_spells() -> None:
     )
 
     assert any(
-        entry.event_id.startswith("ANIVIA_BASIC_ATTACK_")
-        and entry.status == "CANCELLED"
+        entry.event_id.startswith("ANIVIA_BASIC_ATTACK_") and entry.status == "CANCELLED"
         for entry in result.timeline.log
     )
     for event_id in (
@@ -206,9 +199,7 @@ def test_teemo_blind_cancels_anivia_attacks_but_not_ice_spells() -> None:
         "ANIVIA_R_GLACIAL_STORM_TICK_1",
     ):
         assert any(
-            entry.event_id == event_id
-            and entry.operation == "DAMAGE"
-            and entry.status == "APPLIED"
+            entry.event_id == event_id and entry.operation == "DAMAGE" and entry.status == "APPLIED"
             for entry in result.timeline.log
         )
 
@@ -217,17 +208,21 @@ def test_anivia_item_policy_accepts_haste_and_blocks_unrepresented_stats() -> No
     """Allow modeled AP, speed, and haste while rejecting resource assumptions."""
     anivia = _registry_with_anivia().require_cog("Anivia")
 
-    assert anivia.item_candidate_blocker(
-        {
-            "id": 1,
-            "stats": {
-                "AP": {},
-                "HP": {},
-                "ATTACK_SPEED": {},
-                "ABILITY_HASTE": {},
-            },
-        }
-    ) is None
-    assert anivia.item_candidate_blocker(
-        {"id": 2, "stats": {"MANA": {}, "OMNIVAMP": {}}}
-    ) == "ANIVIA_ITEM_STAT_NOT_MODELED:2:MANA,OMNIVAMP"
+    assert (
+        anivia.item_candidate_blocker(
+            {
+                "id": 1,
+                "stats": {
+                    "AP": {},
+                    "HP": {},
+                    "ATTACK_SPEED": {},
+                    "ABILITY_HASTE": {},
+                },
+            }
+        )
+        is None
+    )
+    assert (
+        anivia.item_candidate_blocker({"id": 2, "stats": {"MANA": {}, "OMNIVAMP": {}}})
+        == "ANIVIA_ITEM_STAT_NOT_MODELED:2:MANA,OMNIVAMP"
+    )

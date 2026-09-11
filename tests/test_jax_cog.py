@@ -58,16 +58,14 @@ def test_jax_action_plan_is_deterministic_and_uses_locked_rank_values() -> None:
     assert first == second
     assert first.model_id == "jax_q1_w5_e5_r2_level13_synthetic_v1"
     assert jax.engagement_dash_distance(context) == 700
-    empower = next(
-        event for event in first.events if event.id == "JAX_GENERIC_ATTACK_W_EMPOWER_1"
-    )
+    empower = next(event for event in first.events if event.id == "JAX_GENERIC_ATTACK_W_EMPOWER_1")
     assert tuple(output.amount for output in empower.outputs)[:2] == (
         context.snapshot.attack_damage,
         Decimal(250),
     )
-    third_attack = tuple(
-        event for event in first.events if event.channel.value == "BASIC_ATTACK"
-    )[2]
+    third_attack = tuple(event for event in first.events if event.channel.value == "BASIC_ATTACK")[
+        2
+    ]
     assert len(third_attack.outputs) >= 2
     assert isinstance(third_attack.outputs[-1], DamageOutput)
     assert third_attack.outputs[-1].amount == Decimal(190)
@@ -76,9 +74,7 @@ def test_jax_action_plan_is_deterministic_and_uses_locked_rank_values() -> None:
     )
     assert isinstance(counter_strike.outputs[0], DamageOutput)
     assert counter_strike.outputs[0].amount == (
-        Decimal(160)
-        + Decimal(70)
-        + Decimal("0.04") * context.opponent_snapshot.max_hp
+        Decimal(160) + Decimal(70) + Decimal("0.04") * context.opponent_snapshot.max_hp
     )
     assert isinstance(counter_strike.outputs[1], StatusOutput)
     assert counter_strike.outputs[1].duration_ms == 1000
@@ -107,12 +103,16 @@ def test_jax_counter_strike_follows_jax_across_role_reversal() -> None:
 
     assert jax_actor.actor_action_model == jax_target.opponent_action_model
     assert jax_actor.actor_reaction_model == jax_target.opponent_reaction_model
-    assert next(
-        entry for entry in jax_actor.timeline.log if entry.event_id == "GAREN_Q_STRIKE"
-    ).status == "CANCELLED"
-    assert next(
-        entry for entry in jax_target.timeline.log if entry.event_id == "GAREN_Q_STRIKE"
-    ).status == "CANCELLED"
+    assert (
+        next(entry for entry in jax_actor.timeline.log if entry.event_id == "GAREN_Q_STRIKE").status
+        == "CANCELLED"
+    )
+    assert (
+        next(
+            entry for entry in jax_target.timeline.log if entry.event_id == "GAREN_Q_STRIKE"
+        ).status
+        == "CANCELLED"
+    )
     actor_e = next(
         entry
         for entry in jax_actor.timeline.log
@@ -132,6 +132,7 @@ def test_jax_item_policy_rejects_only_unrepresented_stat_channels() -> None:
     jax = registry.require_cog("Jax")
 
     assert jax.item_candidate_blocker({"id": 1, "stats": {"AD": {}}}) is None
-    assert jax.item_candidate_blocker(
-        {"id": 2, "stats": {"ABILITY_HASTE": {}, "MANA": {}}}
-    ) == "JAX_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,MANA"
+    assert (
+        jax.item_candidate_blocker({"id": 2, "stats": {"ABILITY_HASTE": {}, "MANA": {}}})
+        == "JAX_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,MANA"
+    )

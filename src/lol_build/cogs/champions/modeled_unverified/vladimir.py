@@ -50,8 +50,10 @@ class VladimirCog(ChampionCog):
         """
         base = self._sequence_base(context)
         w_damage = Decimal(80) + Decimal("0.15") * context.snapshot.bonus_health
-        e_damage = Decimal(150) + Decimal("0.06") * context.snapshot.max_hp + (
-            Decimal("0.8") * context.snapshot.ability_power
+        e_damage = (
+            Decimal(150)
+            + Decimal("0.06") * context.snapshot.max_hp
+            + (Decimal("0.8") * context.snapshot.ability_power)
         )
         q_damage = Decimal(160) + Decimal("0.6") * context.snapshot.ability_power
         q_heal = Decimal(40) + Decimal("0.35") * context.snapshot.ability_power

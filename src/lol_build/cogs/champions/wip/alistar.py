@@ -201,9 +201,7 @@ class AlistarCog(ChampionCog):
                         sequence=base + cast_index * 20 + pulse,
                         source=context.self_entity,
                         channel=ActionChannel.PASSIVE,
-                        outputs=(
-                            damage(context.opponent_entity, pulse_damage, DamageType.MAGIC),
-                        ),
+                        outputs=(damage(context.opponent_entity, pulse_damage, DamageType.MAGIC),),
                     )
                 )
             cast_index += 1

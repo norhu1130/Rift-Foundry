@@ -52,13 +52,8 @@ def test_tristana_metadata_jump_charge_and_buster_stun() -> None:
     assert cog.capabilities == DUEL_CAPABILITIES
     assert all((ROOT / ref).is_file() for ref in cog.evidence_refs)
     assert plan == cog.build_action_plan(_context())
-    assert (
-        _event(plan, "TRISTANA_W_ROCKET_JUMP").outputs[0].damage_type.value == "MAGIC"
-    )
-    assert (
-        _event(plan, "TRISTANA_E_EXPLOSIVE_CHARGE").outputs[0].damage_type.value
-        == "PHYSICAL"
-    )
+    assert _event(plan, "TRISTANA_W_ROCKET_JUMP").outputs[0].damage_type.value == "MAGIC"
+    assert _event(plan, "TRISTANA_E_EXPLOSIVE_CHARGE").outputs[0].damage_type.value == "PHYSICAL"
 
 
 def test_tristana_reaction_plan_exposes_the_r_stun() -> None:

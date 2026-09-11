@@ -353,9 +353,7 @@ class NasusCog(ChampionCog):
                 f"nasus_w_attack_speed_reduction_{second + 1}",
                 150 + second * 1000,
                 min(1150 + second * 1000, context.duration_ms),
-                Decimal(1)
-                - Decimal("0.75")
-                * (Decimal("0.35") + Decimal("0.03") * second),
+                Decimal(1) - Decimal("0.75") * (Decimal("0.35") + Decimal("0.03") * second),
                 "NASUS_W_WITHER",
             )
             for second in range(5)
@@ -373,9 +371,7 @@ class NasusCog(ChampionCog):
                     self._resistance_multiplier(
                         context.snapshot.armor,
                         Decimal(55),
-                        percent_penetration=(
-                            context.opponent_snapshot.percent_armor_penetration
-                        ),
+                        percent_penetration=(context.opponent_snapshot.percent_armor_penetration),
                         flat_penetration=context.opponent_snapshot.flat_armor_penetration,
                     ),
                 ),
@@ -388,9 +384,7 @@ class NasusCog(ChampionCog):
                     self._resistance_multiplier(
                         context.snapshot.magic_resistance,
                         Decimal(55),
-                        percent_penetration=(
-                            context.opponent_snapshot.percent_magic_penetration
-                        ),
+                        percent_penetration=(context.opponent_snapshot.percent_magic_penetration),
                         flat_penetration=context.opponent_snapshot.flat_magic_penetration,
                     ),
                 ),

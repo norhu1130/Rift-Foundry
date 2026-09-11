@@ -12,12 +12,6 @@ execution. The supported command for local and CI verification is:
 uv run pytest && uv run ruff check . && uv run ruff format --check .
 ```
 
-> **Enforcement status (2026-09-11):** `ruff format --check .` is part of the
-> decided command but is not yet enforced — 151 files currently fail it. Until
-> a single formatting-only commit lands, the working gate is
-> `uv run pytest && uv run ruff check .` (see `README.md`). The formatting
-> commit must not be mixed with behavior changes.
-
 JSON Schema uses draft 2020-12 and the Python `jsonschema` implementation.
 `pytest` is the test runner and `ruff` is the formatter and static lint gate.
 
