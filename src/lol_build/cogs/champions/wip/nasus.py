@@ -88,14 +88,21 @@ class NasusCog(ChampionCog):
     def engagement_speed_multiplier(self, context: ParticipantContext) -> Decimal:
         """Keep self movement unchanged because Wither slows the opponent.
 
-        The current engagement contract has no opponent-speed channel, so the
-        cast's pursuit value is exposed as a blocker instead of being converted
-        into invented self movement speed.
-
         :param context: Role-bound Nasus combat context.
         :return: Neutral self movement-speed multiplier.
         """
         return Decimal(1)
+
+    def engagement_target_slow_fraction(self, context: ParticipantContext) -> Decimal:
+        """Slow a retreating opponent with Wither's opening ``SlowBase``.
+
+        Wither's slow grows each tick (``SlowPerTick``); only the locked 35%
+        opening value is credited, and the growth stays a blocker.
+
+        :param context: Role-bound Nasus combat context.
+        :return: Wither's opening slow fraction.
+        """
+        return Decimal("0.35")
 
     def item_candidate_blocker(self, item: dict[str, object]) -> str | None:
         """Reject item channels absent from the fixed Nasus policy.

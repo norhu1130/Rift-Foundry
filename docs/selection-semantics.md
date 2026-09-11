@@ -36,13 +36,19 @@ target-HP kill check.
   minimum mixed-effective-health ratio against the no-item baseline at every
   core) and `ALL_CORE_ITEM_PASSIVES_READY`. **The gate is not a weighted
   combination of damage and defense: candidates that pass are still ranked by
-  `DAMAGE_TOTAL_8S`**, then `MIXED_EFFECTIVE_HEALTH` as a tie-break (P1-068;
-  this branch previously ranked by survival metrics instead, which was a
-  divergence from this same rule — fixed, not a design change). If no
-  candidate meets the chassis gate at all, every legal candidate becomes
-  eligible instead of none.
+  `DAMAGE_TOTAL_8S`**, then `OPPONENT_KILL_MARGIN_MS_8S`, then
+  `MIXED_EFFECTIVE_HEALTH` as a tie-break (P1-068; this branch previously
+  ranked by survival metrics instead, which was a divergence from this same
+  rule — fixed, not a design change). If no candidate meets the chassis gate
+  at all, every legal candidate becomes eligible instead of none.
 - `OFFENSE`: the unconstrained damage branch — no chassis or defense gate,
-  ranked by `DAMAGE_TOTAL_8S` then `ENGAGE_COMBAT_UPTIME_FRACTION`.
+  ranked by `DAMAGE_TOTAL_8S`, then `OPPONENT_KILL_MARGIN_MS_8S`, then
+  `ENGAGE_COMBAT_UPTIME_FRACTION`.
+- `OPPONENT_KILL_MARGIN_MS_8S` is the time left in the encounter when the
+  primary opponent dies, after delaying the kill by the pursuit approach
+  (`(1 − uptime) × duration`); zero if it survives. `DAMAGE_TOTAL_8S`
+  saturates at the opponent's health once several builds kill inside the
+  window, so without this key a two-second kill and a seven-second kill tie.
 - `DEFENSE`: gated on the same chassis readiness as `DEFAULT`, plus
   `defense_candidate_is_feasible` — `DAMAGE_TOTAL_8S` within a configured
   relative loss fraction of the best damage among chassis-ready candidates.
@@ -125,7 +131,13 @@ not added to duel damage or EHP.
 Engagement uses a straight-line pursuit fixture with initial distance, attack
 range, movement-speed soft caps, target retreat speed, item slows, item movement
 actives, momentum, and forward dashes. It returns distance closed, contact
-state, contact time, and the remaining combat-window fraction. Summoner spells
+state, contact time, and the remaining combat-window fraction. The pursuit
+window equals the encounter duration, so a champion who needs four seconds to
+close the gap still fights for the remaining four instead of being scored as
+never reaching a three-second window. A champion Cog contributes its own kit
+through `engagement_speed_multiplier`, `engagement_dash_distance` (dashes and
+pulls), and `engagement_target_slow_fraction` (kit slows, combined
+multiplicatively with item slows). Summoner spells
 are either modeled explicitly or excluded with a blocker; their effects are
 never silently assumed.
 

@@ -25,6 +25,7 @@ const metricLabels = {
   DORMANT_CORE_PASSIVE_TIME_MS: "패시브 비활성 시간",
   OPPONENT_HEALING_RECEIVED_8S: "상대 회복량",
   ACTOR_HEALING_PREVENTED_8S: "내 치유 감소로 막은 회복량",
+  OPPONENT_KILL_MARGIN_MS_8S: "처치 후 남은 시간(ms)",
 };
 const antiHealStatusLabels = {
   NO_OPPONENT_HEALING: "상대가 이 교전에서 회복하지 않아 치유 감소가 효과를 낼 대상이 없습니다",
@@ -360,6 +361,15 @@ function renderExplanation(branch) {
   return `<details class="explanation"><summary>왜 이 빌드인가?</summary><div class="explanation-body"><ul class="reason-list">${reasons}</ul><div class="constraint-list">${constraints}</div><h4>아이템별 역할</h4><div class="item-reasons">${contributions}</div>${renderAntiHealReview(explanation.anti_heal_review)}${reference}${comparisons ? `<div class="comparison-list">${comparisons}</div>` : ""}<code>${escapeHtml(explanation.policy_id)}</code></div></details>`;
 }
 
+function levelModelWarning(data) {
+  const unsupported = collectBlockers(data)
+    .filter((blocker) => blocker.includes("_MODEL_LEVEL_UNSUPPORTED:"))
+    .map((blocker) => blocker.split("_MODEL_LEVEL_UNSUPPORTED:")[0]);
+  if (!unsupported.length) return "";
+  const names = [...new Set(unsupported)].map((key) => escapeHtml(key)).join(", ");
+  return `<aside class="assumption-notice level-warning"><b>레벨 13 전용 모델이 다른 레벨로 계산됐습니다.</b><span>${names}의 스킬 로테이션은 레벨 13 스킬 순서(예: Q5/W1/E5/R2) 기준입니다. 이 레벨에서는 실제로 불가능한 스킬 랭크 수치가 섞여 있으니 결과를 참고용으로만 보세요.</span></aside>`;
+}
+
 function renderRecommendation(data) {
   const recommendation = data.recommendation;
   if (!recommendation) throw new Error("이 챔피언의 추천 모델이 아직 등록되지 않았습니다.");
@@ -378,7 +388,7 @@ function renderRecommendation(data) {
   const assumption = recommendation.assumptions?.game_state === "NOT_MODELED"
     ? `<aside class="assumption-notice"><b>게임 상태는 계산하지 않았습니다.</b><span>양측 레벨 ${escapeHtml(String(recommendation.assumptions.level_assumption || "").replace("EQUAL_LEVEL_", ""))}을 가정합니다. 현재 골드·경험치 격차가 있다면 방어 분기를 포함해 다시 검토하세요.</span></aside>`
     : "";
-  $("#resultBody").innerHTML = `${assumption}<div class="branch-grid">${definitions.map(([id, title, kicker, primary]) => {
+  $("#resultBody").innerHTML = `${levelModelWarning(data)}${assumption}<div class="branch-grid">${definitions.map(([id, title, kicker, primary]) => {
     const branch = branches[id];
     if (!branch) return "";
     return `<article class="branch-card branch-${id.toLowerCase()} ${primary ? "primary" : ""}"><span class="branch-kicker">${kicker}</span><h3>${title}</h3><div class="build-path">${buildPath(branch.item_ids || [])}</div><div class="metric-list">${metricRows(branch.metrics)}</div>${renderExplanation(branch)}</article>`;
@@ -393,7 +403,7 @@ function renderEvaluation(data) {
   const scale = Math.max(actorLost, opponentLost, 1);
   $("#resultTitle").textContent = `${actor} vs ${opponent}`;
   $("#resultStatus").textContent = data.timeline?.target_dead_at_horizon ? "KILL THRESHOLD MET" : "SIMULATED";
-  $("#resultBody").innerHTML = `<article class="duel-card panel"><div class="duel-score"><div class="duel-side"><span class="branch-kicker">${escapeHtml(actor)}</span><h3>받은 피해</h3><div class="damage-number actor-damage">${number(actorLost)}</div><progress class="bar actor-damage" max="${scale}" value="${actorLost}"></progress><p class="model-line">${escapeHtml(data.actor_action_model)}</p></div><div class="duel-vs">VS</div><div class="duel-side"><span class="branch-kicker">${escapeHtml(opponent)}</span><h3>받은 피해</h3><div class="damage-number opponent-damage">${number(opponentLost)}</div><progress class="bar opponent-damage" max="${scale}" value="${opponentLost}"></progress><p class="model-line">${escapeHtml(data.opponent_action_model)}</p></div></div><div class="timeline-summary"><div class="summary-cell"><span>초반 상대 피해</span><b>${number(data.timeline?.damage_to_target_first_horizon)}</b></div><div class="summary-cell"><span>전체 상대 피해</span><b>${number(data.timeline?.damage_to_target_total)}</b></div><div class="summary-cell"><span>처리 이벤트</span><b>${number(data.timeline?.log?.length, 0)}</b></div></div></article>`;
+  $("#resultBody").innerHTML = `${levelModelWarning(data)}<article class="duel-card panel"><div class="duel-score"><div class="duel-side"><span class="branch-kicker">${escapeHtml(actor)}</span><h3>받은 피해</h3><div class="damage-number actor-damage">${number(actorLost)}</div><progress class="bar actor-damage" max="${scale}" value="${actorLost}"></progress><p class="model-line">${escapeHtml(data.actor_action_model)}</p></div><div class="duel-vs">VS</div><div class="duel-side"><span class="branch-kicker">${escapeHtml(opponent)}</span><h3>받은 피해</h3><div class="damage-number opponent-damage">${number(opponentLost)}</div><progress class="bar opponent-damage" max="${scale}" value="${opponentLost}"></progress><p class="model-line">${escapeHtml(data.opponent_action_model)}</p></div></div><div class="timeline-summary"><div class="summary-cell"><span>초반 상대 피해</span><b>${number(data.timeline?.damage_to_target_first_horizon)}</b></div><div class="summary-cell"><span>전체 상대 피해</span><b>${number(data.timeline?.damage_to_target_total)}</b></div><div class="summary-cell"><span>처리 이벤트</span><b>${number(data.timeline?.log?.length, 0)}</b></div></div></article>`;
 }
 
 function renderBlockers(blockers) {

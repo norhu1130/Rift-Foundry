@@ -82,7 +82,7 @@ class SkarnerCog(ChampionCog):
                     ),
                     damage(
                         context.opponent_entity,
-                        Decimal(110) + Decimal("0.8") * ap,
+                        Decimal(130) + Decimal("0.8") * ap,
                         DamageType.MAGIC,
                     ),
                     crowd_control(

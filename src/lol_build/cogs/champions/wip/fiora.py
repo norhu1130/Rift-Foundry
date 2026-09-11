@@ -128,7 +128,7 @@ class FioraCog(ChampionCog):
         :return: Haste-sensitive Lunge events through the benchmark.
         """
         interval_ms = self._haste_adjusted_ms(3000, context.snapshot.ability_haste)
-        raw_damage = Decimal(120) + Decimal("1.15") * context.snapshot.bonus_attack_damage
+        raw_damage = Decimal(110) + Decimal("1.10") * context.snapshot.bonus_attack_damage
         base = self._sequence_base(context) + 100
         events: list[ActionEvent] = []
         at_ms = 200

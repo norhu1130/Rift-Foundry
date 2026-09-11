@@ -41,6 +41,14 @@ class ShacoCog(ChampionCog):
     _E_SLOW_MS = 3000
     _PASSIVE_SLOW_MS = 2000
 
+    def engagement_dash_distance(self, context: ParticipantContext) -> Decimal:
+        """Expose Deceive's blink as approach displacement.
+
+        :param context: Role-bound Shaco encounter context.
+        :return: Data Dragon Deceive range in game units.
+        """
+        return Decimal(400)
+
     def build_action_plan(self, context: ParticipantContext) -> ActionPlan:
         """Build Shaco's deceive, poisoned-attack, and shiv rotation.
 

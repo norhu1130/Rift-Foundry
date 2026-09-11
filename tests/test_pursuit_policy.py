@@ -90,7 +90,9 @@ def test_a_melee_mirror_reaches_contact_without_movement_items() -> None:
 
     Against an equally fast melee opponent that always flees, a build with no
     movement source never makes contact, so its damage scores zero however
-    strong it is. Reach-aware pursuit lets the fight happen.
+    strong it is. Reach-aware pursuit lets the fight happen. Yorick is used
+    because his Cog credits no gap-closer, dash, or pursuit slow — a champion
+    with one (Darius's Apprehend) reaches contact even against a fleeing target.
     """
     engine = MatchupEngine(ROOT)
     tank = (3143, 3083, 3742)
@@ -102,7 +104,7 @@ def test_a_melee_mirror_reaches_contact_without_movement_items() -> None:
         :return: Combat uptime fraction.
         """
         request = MatchupRequest(
-            "Darius",
+            "Yorick",
             "Garen",
             opponent_item_ids=(3071, 3053, 6333),
             pursuit_target_policy=policy,

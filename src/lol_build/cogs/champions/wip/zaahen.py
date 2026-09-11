@@ -66,9 +66,9 @@ class ZaahenCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(100)
+                        Decimal(120)
                         + Decimal("0.5") * bonus_ad
-                        + Decimal("0.055") * context.opponent_snapshot.max_hp,
+                        + Decimal("0.06") * context.opponent_snapshot.max_hp,
                         DamageType.PHYSICAL,
                     ),
                 ),
@@ -134,7 +134,7 @@ class ZaahenCog(ChampionCog):
                     outputs=(
                         damage(
                             context.opponent_entity,
-                            Decimal(250) + Decimal(2) * bonus_ad,
+                            Decimal(400) + Decimal(2) * bonus_ad,
                             DamageType.PHYSICAL,
                             percent_resistance_penetration=Decimal("0.2"),
                             source_heal_ratio=Decimal("0.33"),

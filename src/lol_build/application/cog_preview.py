@@ -12,7 +12,12 @@ from typing import Any
 from lol_build.application.item_combat import duplicate_group_blockers, item_engagement_modifiers
 from lol_build.application.progress import ProgressCallback, report_progress
 from lol_build.cogs import ParticipantContext
-from lol_build.core.timeline import DamageOutput, EntityId
+from lol_build.core.timeline import (
+    CurrentHealthDamageOutput,
+    DamageOutput,
+    EntityId,
+    MissingHealthDamageOutput,
+)
 from lol_build.items.progression import (
     simulate_engagement,
     simulate_heartsteel_progression,
@@ -37,9 +42,6 @@ from lol_build.recommendation.explanation import (
 from lol_build.recommendation.feasibility import defense_candidate_is_feasible
 from lol_build.recommendation.readiness import RecommendationScope, RecommendationStatus
 from lol_build.recommendation.selection import BranchId
-
-#: Pursuit benchmark length the engagement metrics are measured over.
-_PURSUIT_WINDOW_MS = 3000
 
 #: How the pursuit benchmark assumes the target behaves. Whether an opponent
 #: runs is a player decision the patch data does not record, so the readings are
@@ -111,6 +113,7 @@ class _BeamState:
     total_gold: int
     opponent_healing_weighted: Decimal = Decimal(0)
     healing_prevented_weighted: Decimal = Decimal(0)
+    kill_margin_weighted: Decimal = Decimal(0)
 
 
 @dataclass(frozen=True)
@@ -130,6 +133,7 @@ class _StageRecord:
     heartsteel_proc_count: int
     opponent_healing: Decimal = Decimal(0)
     healing_prevented: Decimal = Decimal(0)
+    kill_margin_ms: Decimal = Decimal(0)
 
 
 def _prefix_cache_key(path: tuple[int, ...], core: int) -> tuple[tuple[int, ...], int, int]:
@@ -227,9 +231,31 @@ def _stage_record(
         heartsteel_count,
         evaluation.timeline.opposing_side_healing,
         evaluation.timeline.actor_healing_prevented,
+        _kill_margin_ms(evaluation.timeline, request.duration_ms, stage["uptime"]),
     )
     cache[key] = record
     return record
+
+
+def _kill_margin_ms(timeline: Any, duration_ms: int, uptime: Decimal) -> Decimal:
+    """Measure how early the primary opponent dies, after the approach delay.
+
+    ``DAMAGE_TOTAL_8S`` saturates at the opponent's health once several builds
+    kill inside the encounter, so it cannot say which kills sooner. The duel
+    timeline starts at contact; the pursuit benchmark's lost fraction of the
+    window is the approach delay, so the kill lands that much later.
+
+    :param timeline: Timeline result of the stage's duel.
+    :param duration_ms: Encounter duration in milliseconds.
+    :param uptime: Pursuit combat-uptime fraction for the stage.
+    :return: Milliseconds left in the encounter when the opponent dies, or zero
+        if it survives.
+    """
+    if EntityId.TARGET not in timeline.death_ms_by_entity:
+        return Decimal(0)
+    approach_ms = (Decimal(1) - uptime) * Decimal(duration_ms)
+    death_ms = Decimal(timeline.death_ms_by_entity[EntityId.TARGET]) + approach_ms
+    return max(Decimal(0), Decimal(duration_ms) - death_ms)
 
 
 _WORKER: dict[str, Any] = {}
@@ -457,6 +483,7 @@ def _evaluate_ordered_path_state(
             running_gold,
             state.opponent_healing_weighted + record.opponent_healing * weight,
             state.healing_prevented_weighted + record.healing_prevented * weight,
+            state.kill_margin_weighted + record.kill_margin_ms * weight,
         )
     return state
 
@@ -580,6 +607,7 @@ def _beam_metrics(state: _BeamState, denominator: Decimal) -> dict[str, Decimal]
         "HEARTSTEEL_PROC_COUNT": Decimal(state.heartsteel_proc_count),
         "OPPONENT_HEALING_RECEIVED_8S": state.opponent_healing_weighted / denominator,
         "ACTOR_HEALING_PREVENTED_8S": state.healing_prevented_weighted / denominator,
+        "OPPONENT_KILL_MARGIN_MS_8S": state.kill_margin_weighted / denominator,
         "TOTAL_GOLD": Decimal(state.total_gold),
         "OCCUPIED_SLOTS": Decimal(3),
     }
@@ -762,6 +790,7 @@ def generic_cog_build_preview(
                         total_gold,
                         state.opponent_healing_weighted + record.opponent_healing * weight,
                         state.healing_prevented_weighted + record.healing_prevented * weight,
+                        state.kill_margin_weighted + record.kill_margin_ms * weight,
                     )
                 )
                 evaluated += 1
@@ -778,9 +807,11 @@ def generic_cog_build_preview(
     metric_by_path = {state.item_ids: _beam_metrics(state, denominator) for state in states}
     best_damage = max(value["DAMAGE_TOTAL_8S"] for value in metric_by_path.values())
 
+    # Damage saturates at the opponent's health once builds kill; the kill
+    # margin then separates a two-second kill from a seven-second one.
     offense = _choose_state(
         states,
-        ("DAMAGE_TOTAL_8S", "ENGAGE_COMBAT_UPTIME_FRACTION"),
+        ("DAMAGE_TOTAL_8S", "OPPONENT_KILL_MARGIN_MS_8S", "ENGAGE_COMBAT_UPTIME_FRACTION"),
         metric_by_path,
     )
     chassis_states = [
@@ -826,7 +857,7 @@ def generic_cog_build_preview(
     # defense, so surviving candidates are not further optimized for survival.
     default = _choose_state(
         default_pool,
-        ("DAMAGE_TOTAL_8S", "MIXED_EFFECTIVE_HEALTH"),
+        ("DAMAGE_TOTAL_8S", "OPPONENT_KILL_MARGIN_MS_8S", "MIXED_EFFECTIVE_HEALTH"),
         metric_by_path,
     )
     # Mirrors DEFAULT's own fallback: a branch that can vanish outright instead
@@ -857,8 +888,16 @@ def generic_cog_build_preview(
         BranchId.DEFENSE: defense_pool,
     }
     branch_priorities = {
-        BranchId.DEFAULT: ("DAMAGE_TOTAL_8S", "MIXED_EFFECTIVE_HEALTH"),
-        BranchId.OFFENSE: ("DAMAGE_TOTAL_8S", "ENGAGE_COMBAT_UPTIME_FRACTION"),
+        BranchId.DEFAULT: (
+            "DAMAGE_TOTAL_8S",
+            "OPPONENT_KILL_MARGIN_MS_8S",
+            "MIXED_EFFECTIVE_HEALTH",
+        ),
+        BranchId.OFFENSE: (
+            "DAMAGE_TOTAL_8S",
+            "OPPONENT_KILL_MARGIN_MS_8S",
+            "ENGAGE_COMBAT_UPTIME_FRACTION",
+        ),
         BranchId.DEFENSE: (
             "ACTOR_SURVIVAL_MS_8S",
             "MIXED_EFFECTIVE_HEALTH",
@@ -1142,6 +1181,11 @@ def generic_cog_build_preview(
                 "GENERIC_ENGAGEMENT_SCENARIO_UNVERIFIED",
                 "GENERIC_LANE_SUSTAIN_SCENARIO_UNVERIFIED",
                 "GENERIC_HEARTSTEEL_CADENCE_UNVERIFIED",
+                # Neither side's summoner spells (Ignite's Grievous Wounds,
+                # Flash's reach) nor runes (Conqueror's healing) are modeled;
+                # docs/selection-semantics.md requires a blocker, not silence.
+                "SUMMONER_SPELLS_NOT_MODELED",
+                "RUNES_NOT_MODELED",
             }
         )
     )
@@ -1313,14 +1357,14 @@ def _stage_noncombat_metrics(
         actor_items,
         actor_context,
         actives_available=True,
-        window_ms=_PURSUIT_WINDOW_MS,
+        window_ms=request.duration_ms,
         active_duty_policy=active_duty_policy,
     )
     opponent_move = item_engagement_modifiers(
         opponent_items,
         opponent_context,
         actives_available=False,
-        window_ms=_PURSUIT_WINDOW_MS,
+        window_ms=request.duration_ms,
         active_duty_policy=active_duty_policy,
     )
     engagement = simulate_engagement(
@@ -1334,10 +1378,12 @@ def _stage_noncombat_metrics(
             * (Decimal(1) + opponent_move.move_speed_percent),
             pursuit_target_policy,
         ),
-        window_ms=_PURSUIT_WINDOW_MS,
+        window_ms=request.duration_ms,
         actor_speed_multiplier=actor_cog.engagement_speed_multiplier(actor_context)
         * (Decimal(1) + actor_move.move_speed_percent),
-        target_slow_fraction=actor_move.target_slow_fraction,
+        target_slow_fraction=Decimal(1)
+        - (Decimal(1) - actor_move.target_slow_fraction)
+        * (Decimal(1) - actor_cog.engagement_target_slow_fraction(actor_context)),
         actor_dash_distance=actor_move.dash_distance
         + actor_cog.engagement_dash_distance(actor_context),
     )
@@ -1366,10 +1412,22 @@ def _stage_noncombat_metrics(
     lane_recovered = min(actor.max_hp * Decimal("0.5"), lane.recovered_health + champion_lane_extra)
     opponent_plan = opponent_cog.build_action_plan(opponent_context)
     raw_by_type = {"PHYSICAL": Decimal(0), "MAGIC": Decimal(0), "TRUE": Decimal(0)}
+    # Percent-health outputs are read at the start of the fight, the only point
+    # their size is known without the timeline: current-health damage is its
+    # ratio of full health (capped), and missing-health damage is its base.
     for event in opponent_plan.events:
         for output in event.outputs:
-            if isinstance(output, DamageOutput) and output.recipient is EntityId.ACTOR:
+            if getattr(output, "recipient", None) is not EntityId.ACTOR:
+                continue
+            if isinstance(output, DamageOutput):
                 raw_by_type[output.damage_type.value] += output.amount
+            elif isinstance(output, CurrentHealthDamageOutput):
+                amount = output.ratio * actor.max_hp
+                if output.cap is not None:
+                    amount = min(amount, output.cap)
+                raw_by_type[output.damage_type.value] += amount
+            elif isinstance(output, MissingHealthDamageOutput):
+                raw_by_type[output.damage_type.value] += output.base_amount
     raw_total = sum(raw_by_type.values(), Decimal(0))
     if raw_total:
         physical_mix = raw_by_type["PHYSICAL"] / raw_total

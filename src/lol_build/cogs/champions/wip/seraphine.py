@@ -111,7 +111,7 @@ class SeraphineCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(150) + Decimal("0.4") * ap,
+                        Decimal(200) + Decimal("0.4") * ap,
                         DamageType.MAGIC,
                     ),
                 ),

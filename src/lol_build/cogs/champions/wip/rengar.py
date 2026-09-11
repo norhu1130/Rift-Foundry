@@ -90,7 +90,7 @@ class RengarCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(190) + Decimal("0.8") * context.snapshot.bonus_attack_damage,
+                        Decimal(235) + Decimal("0.8") * context.snapshot.bonus_attack_damage,
                         DamageType.PHYSICAL,
                     ),
                     crowd_control(

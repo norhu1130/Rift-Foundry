@@ -119,7 +119,7 @@ class ViegoCog(ChampionCog):
                     damage(
                         context.opponent_entity,
                         Decimal("1.2") * snapshot.bonus_attack_damage
-                        + (Decimal(12) + Decimal("0.05") * snapshot.bonus_attack_damage)
+                        + (Decimal(16) + Decimal("0.05") * snapshot.bonus_attack_damage)
                         / Decimal(100)
                         * context.opponent_snapshot.max_hp,
                         DamageType.PHYSICAL,

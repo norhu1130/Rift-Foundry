@@ -1,6 +1,10 @@
 from decimal import Decimal
 from pathlib import Path
+from typing import Any
 
+import pytest
+
+from lol_build.application import cog_preview
 from lol_build.application.cog_preview import (
     _heartsteel_bonus_health,
     _stage_noncombat_metrics,
@@ -15,6 +19,7 @@ from lol_build.cogs import (
 )
 from lol_build.cogs.manifest import CHAMPION_COG_BY_KEY
 from lol_build.core.timeline import DamageOutput, EntityId, MissingHealthDamageOutput
+from lol_build.items.progression import EngagementResult
 from lol_build.recommendation.selection import BranchId
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -221,26 +226,38 @@ def test_generic_preview_is_deterministic_for_arbitrary_role_order() -> None:
     assert first.opponent_cog == "champion:Garen"
 
 
-def test_generic_preview_falls_back_instead_of_dropping_an_infeasible_defense_branch() -> None:
+def test_generic_preview_falls_back_instead_of_dropping_an_infeasible_defense_branch(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """DEFENSE degrades like DEFAULT rather than vanishing when no candidate clears its floor.
 
     Dropping the branch outright is a worse failure than ranking without a
     gate the search proved unreachable — the same reasoning DEFAULT already
     applies when no candidate meets its own chassis gate. The two gates
     (chassis readiness, then the damage-loss floor) fall back independently,
-    so this covers both: Aatrox-versus-Ahri fails chassis readiness outright
-    (a melee actor cannot reliably reach a kiting target under the default
-    ``uncorrelated`` active-duty policy), while Darius-versus-Garen clears
-    chassis but, forced to a zero-loss damage floor, clears no candidate on
-    that second gate.
+    so this covers both. The chassis tier is forced deterministically by
+    making the pursuit benchmark report no contact for every build, instead of
+    relying on a matchup whose reach happens to fail (such scenarios move
+    whenever pursuit modeling improves). The damage-floor tier uses
+    Darius-versus-Garen forced to a zero-loss floor.
     """
     engine = MatchupEngine(ROOT)
 
-    no_chassis = generic_cog_build_preview(
-        engine,
-        MatchupRequest("Aatrox", "Ahri"),
-        defense_max_primary_loss_fraction=Decimal(0),
-    )
+    def never_contacts(**_: object) -> EngagementResult:
+        """Report a pursuit that never reaches the target.
+
+        :return: Zero distance, no contact, and zero combat uptime.
+        """
+        return EngagementResult(Decimal(0), False, None, Decimal(0))
+
+    with monkeypatch.context() as patch:
+        patch.setattr(cog_preview, "simulate_engagement", never_contacts)
+        no_chassis = generic_cog_build_preview(
+            engine,
+            MatchupRequest("Aatrox", "Ahri"),
+            workers=1,
+            defense_max_primary_loss_fraction=Decimal(0),
+        )
     assert BranchId.DEFENSE in no_chassis.branches
     assert no_chassis.branches[BranchId.DEFENSE].explanation.reason_codes == (
         "DEFENSE_FALLBACK_NO_FULL_CHASSIS",
@@ -265,30 +282,51 @@ def test_generic_preview_falls_back_instead_of_dropping_an_infeasible_defense_br
     assert "NO_CANDIDATE_MEETS_DEFENSE_DAMAGE_FLOOR" in no_damage_floor.blockers
 
 
-def test_slot_runner_up_names_the_best_gate_failing_alternative_and_why() -> None:
+def test_slot_runner_up_names_the_best_gate_failing_alternative_and_why(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """A slot with no gate-passing runner-up still names its closest miss.
 
-    Dead Man's Plate's DEFENSE slot in the Darius-versus-Garen matchup has no
-    legal, gate-passing alternative (``alternative_count == 0``), but Warmog's
-    Armor is the single best legal item that failed the gate — its passive
-    never activates within the fixed-length duel, which the reason code names
-    explicitly instead of leaving the UI with a bare "no alternative".
+    Contact is forced to depend on owning Dead Man's Plate, so every build
+    that swaps it out fails the DEFAULT branch's engage-readiness gate. The
+    Dead Man's Plate slot then has legal alternatives but no gate-passing one
+    (``alternative_count == 0``), and the explanation must name the closest
+    miss and the exact gate it failed rather than leave the UI with a bare
+    "no alternative".
     """
     engine = MatchupEngine(ROOT)
-    preview = generic_cog_build_preview(engine, MatchupRequest("Darius", "Garen"))
+    original = cog_preview._stage_noncombat_metrics
 
-    defense = preview.branches[BranchId.DEFENSE]
+    def contact_needs_plate(*args: Any, **kwargs: Any) -> dict[str, Any]:
+        """Keep a stage's real metrics but deny contact to plate-less prefixes.
+
+        :return: The original stage metrics, with contact removed when the
+            actor prefix does not contain Dead Man's Plate.
+        """
+        stage = original(*args, **kwargs)
+        actor_ids = args[2] if len(args) > 2 else kwargs["actor_ids"]
+        if 3742 in actor_ids:
+            return stage
+        return {**stage, "contact": False, "uptime": Decimal(0)}
+
+    with monkeypatch.context() as patch:
+        patch.setattr(cog_preview, "_stage_noncombat_metrics", contact_needs_plate)
+        preview = generic_cog_build_preview(engine, MatchupRequest("Darius", "Garen"), workers=1)
+
+    default = preview.branches[BranchId.DEFAULT]
+    assert default.explanation.reason_codes == ("BALANCED_CHASSIS_GATED_DAMAGE_PRIORITY",)
+    assert default.item_ids[0] == 3742
     dead_mans_plate = next(
         contribution
-        for contribution in defense.explanation.item_contributions
+        for contribution in default.explanation.item_contributions
         if contribution.item_id == 3742
     )
     runner_up = dead_mans_plate.slot_runner_up
     assert runner_up.item_id is None
     assert runner_up.alternative_count == 0
     assert runner_up.legal_alternative_count > 0
-    assert runner_up.excluded_item_id == 3083  # Warmog's Armor
-    assert runner_up.excluded_reason_codes == ("ALL_CORE_ITEM_PASSIVES_READY_NOT_MET",)
+    assert runner_up.excluded_item_id is not None
+    assert "ALL_CORE_ENGAGE_READY_NOT_MET" in runner_up.excluded_reason_codes
     assert runner_up.excluded_metric_comparisons
 
 

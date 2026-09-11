@@ -84,7 +84,7 @@ def test_fiora_rotation_is_deterministic_and_uses_locked_formulas() -> None:
     assert first.model_id == "fiora_q5_w1_e5_r2_level13_locked_v1"
     assert fiora.engagement_dash_distance(context) == Decimal(400)
     assert fiora.engagement_speed_multiplier(context) == Decimal("1.40")
-    assert q.outputs[0].amount == Decimal(235)
+    assert q.outputs[0].amount == Decimal(220)
     assert q.outputs[1].damage_type is DamageType.TRUE
     assert q.outputs[1].amount == context.opponent_snapshot.max_hp * Decimal("0.07")
     assert isinstance(q.outputs[2], HealOutput)

@@ -69,7 +69,7 @@ class RyzeCog(ChampionCog):
                     outputs=(
                         damage(
                             context.opponent_entity,
-                            Decimal(150) + Decimal("0.5") * ap,
+                            Decimal(180) + Decimal("0.5") * ap,
                             DamageType.MAGIC,
                         ),
                     ),

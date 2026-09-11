@@ -88,7 +88,7 @@ class UdyrCog(ChampionCog):
         claw_bonus = Decimal(30) + Decimal("0.2") * snapshot.bonus_attack_damage
         claw_health_ratio = Decimal("0.07") + Decimal("0.00035") * snapshot.bonus_attack_damage
         shield = (
-            Decimal(45)
+            Decimal(65)
             + Decimal("0.023") * snapshot.max_hp
             + Decimal("0.4") * snapshot.ability_power
         )

@@ -217,9 +217,12 @@ class RivenCog(ChampionCog):
         )
 
     def engagement_dash_distance(self, context: ParticipantContext) -> Decimal:
-        """Expose Broken Wings' locked cast range as a closing-distance benchmark.
+        """Expose the rotation's dashes as a closing-distance benchmark.
+
+        The rotation casts Broken Wings three times and Valor once, so all four
+        dashes are credited at their Data Dragon ranges.
 
         :param context: Concrete participant context.
-        :return: Dash distance in game units.
+        :return: Three Broken Wings ranges plus one Valor range, in game units.
         """
-        return Decimal(275)
+        return Decimal(275) * 3 + Decimal(250)

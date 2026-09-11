@@ -82,7 +82,7 @@ class BraumCog(ChampionCog):
         :param stat: ``ARMOR`` or ``MAGIC_RESISTANCE``.
         :return: Locked base grant plus thirty-six percent of bonus resistance.
         """
-        return Decimal(15) + Decimal("0.36") * self._bonus_resistance(context, stat)
+        return Decimal(20) + Decimal("0.36") * self._bonus_resistance(context, stat)
 
     def engagement_speed_multiplier(self, context: ParticipantContext) -> Decimal:
         """Expose rank-five Unbreakable's movement-speed increase.

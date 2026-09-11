@@ -44,6 +44,14 @@ class RumbleCog(ChampionCog):
     _R_AT_MS = 4200
     _R_BURN_MS = 5000
 
+    def engagement_target_slow_fraction(self, context: ParticipantContext) -> Decimal:
+        """Slow a retreating opponent with a rank-five Electro Harpoon.
+
+        :param context: Role-bound Rumble encounter context.
+        :return: Locked rank-five ``BaseSlowAmount`` as a fraction.
+        """
+        return Decimal("0.35")
+
     def build_action_plan(self, context: ParticipantContext) -> ActionPlan:
         """Build Rumble's harpoon, flame-channel, and zone-burn rotation.
 

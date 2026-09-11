@@ -310,7 +310,7 @@ class GwenCog(ChampionCog):
         :return: Incoming-damage modifiers and opponent movement blocks.
         """
         mist_end = min(self._W_END_MS, context.duration_ms)
-        mist_bonus = Decimal(20) + Decimal("0.07") * context.snapshot.ability_power
+        mist_bonus = Decimal(22) + Decimal("0.07") * context.snapshot.ability_power
         damage_windows: tuple[DamageModifierWindow, ...] = ()
         if mist_end > self._W_START_MS:
             damage_windows = (

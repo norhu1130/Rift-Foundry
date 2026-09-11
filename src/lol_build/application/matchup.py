@@ -1103,6 +1103,9 @@ class MatchupEngine:
         if ally_side:
             blockers.add("ALLY_CONTRIBUTION_EXCLUDED_FROM_BUILD_RANKING")
         blockers.update(policy_blockers(multi_participant=bool(ally_side or opposing_side[1:])))
+        # Summoner spells and runes are outside every Cog's event model; the
+        # selection contract requires naming the exclusion rather than silence.
+        blockers.update({"SUMMONER_SPELLS_NOT_MODELED", "RUNES_NOT_MODELED"})
         if ally_side or opposing_side[1:]:
             blockers.add("PRIMARY_OPPONENT_PINNED_TO_ACTOR")
         if not converged:

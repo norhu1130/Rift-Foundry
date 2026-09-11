@@ -1391,6 +1391,38 @@ P0-042..043 ─┘                    └─ P0-052..054
 - 한계: 회복 수치는 잠긴 원본 기준 `UNVERIFIED`이며, 8초 결투 창 밖의
   라인 유지력(포션·라인 체력 재생 누적)은 기존 sustain 지표에만 반영된다.
 
+### P1-072 — 추격 창 정렬, 킷 추격 보정, 랭크 인덱스 오류 수정
+
+- 상태: `DONE_NON_RELEASE`
+- 우선순위: `P1`
+- 선행: P1-071
+- 배경: `reports/improvement-review.md`의 심층 점검에서 추천 결과를 틀리게
+  만드는 두 문제를 찾았다.
+- 추격(1번 항목):
+  - 추천 경로의 추격 창이 3초(`_PURSUIT_WINDOW_MS`)로 8초 결투와 어긋나,
+    Q 가속으로 약 4초면 닿는 Garen도 원거리 상대 86명에게 uptime 0을
+    받아 모든 빌드의 `DAMAGE_TOTAL_8S`가 0이 됐다. 추격 창을
+    `request.duration_ms`로 맞췄다(팀 교전 도착 계산과 일치).
+  - `ChampionCog.engagement_target_slow_fraction` hook을 추가해 킷 슬로우를
+    아이템 슬로우와 곱연산으로 합친다. Darius E 끌어오기 550, Nasus W 35%,
+    Shaco Q 400, Rumble E 35%, Riven Q×3+E를 잠긴 원본 값으로 반영했다.
+  - 추격 창에 기대던 시나리오 테스트 2개를 확정적 트리거(monkeypatch,
+    `workers=1`)로 재작성했다.
+- 랭크 인덱스(2번 항목): 인덱스 = 랭크 규칙을 Data Dragon 쿨타임으로
+  확정하고, 스킬 레벨 순서 blocker 기반 감사로 한 칸 밀린 수치 22건을
+  고쳤다(Jhin, Rengar, Skarner, Smolder, Sylas, Zaahen, Seraphine, Viego,
+  Fiora, Braum, Gwen, Udyr, Ryze). 목록은 보고서 "3차 수정" 참고.
+- 피해 포화: 추격 수정 후 여러 빌드가 8초 안에 처치해 `DAMAGE_TOTAL_8S`가
+  상대 체력에서 포화되는 것을 확인하고, 처치 시점 여유
+  `OPPONENT_KILL_MARGIN_MS_8S`를 DEFAULT·OFFENSE의 두 번째 순위 기준으로
+  추가했다.
+- 계약·가시화: 소환사 주문·룬 blocker를 추천과 평가에 붙이고, 레벨 13 전용
+  모델이 다른 레벨로 계산되면 UI가 경고한다. 상대 피해 유형 비율에 체력
+  비례 피해를 포함했다.
+- 남은 과제: 추격 실패 챔피언(Rammus 가속, Evelynn 은신, Vi 충전 등)의
+  킷 보정, 킷 슬로우 69개 노출(사거리·지속 시간 규칙), 랭크 감사의 상설
+  테스트화, 원본을 읽는 수치 헬퍼, 치료 감소 하위 부품 평가, 점화·정복자.
+
 ### D-001 — 통계 플러그인
 
 - 상태: `DEFERRED`

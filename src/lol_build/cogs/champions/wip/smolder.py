@@ -87,7 +87,7 @@ class SmolderCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(90) + Decimal("0.6") * bonus_ad,
+                        Decimal(100) + Decimal("0.6") * bonus_ad,
                         DamageType.PHYSICAL,
                     ),
                     damage(

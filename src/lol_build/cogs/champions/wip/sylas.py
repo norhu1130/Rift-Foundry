@@ -97,7 +97,7 @@ class SylasCog(ChampionCog):
                 channel=ActionChannel.ABILITY,
                 outputs=(
                     damage(
-                        context.opponent_entity, Decimal(80) + Decimal("0.8") * ap, DamageType.MAGIC
+                        context.opponent_entity, Decimal(50) + Decimal("0.8") * ap, DamageType.MAGIC
                     ),
                     crowd_control(
                         context.opponent_entity, "AIRBORNE", duration_ms=self._E2_KNOCKUP_MS
@@ -113,7 +113,7 @@ class SylasCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(100) + Decimal("0.4") * ap,
+                        Decimal(120) + Decimal("0.4") * ap,
                         DamageType.MAGIC,
                     ),
                     crowd_control(
@@ -133,7 +133,7 @@ class SylasCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(225) + Decimal("0.8") * ap,
+                        Decimal(280) + Decimal("0.8") * ap,
                         DamageType.MAGIC,
                     ),
                 ),
@@ -147,7 +147,7 @@ class SylasCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(180) + Decimal("0.6") * ap,
+                        Decimal(215) + Decimal("0.6") * ap,
                         DamageType.MAGIC,
                     ),
                     # Up to double healing, read linearly down to 40% health.

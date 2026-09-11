@@ -647,6 +647,17 @@ class ChampionCog:
         """
         return Decimal(0)
 
+    def engagement_target_slow_fraction(self, context: ParticipantContext) -> Decimal:
+        """Return the slow this kit applies to a retreating opponent.
+
+        Combined multiplicatively with item slows in the pursuit benchmark, so a
+        kit slow closes distance without being disguised as self movement speed.
+
+        :param context: Concrete participant context.
+        :return: Slow fraction in ``[0, 1)``.
+        """
+        return Decimal(0)
+
     def lane_sustain_extra_health(
         self,
         context: ParticipantContext,
