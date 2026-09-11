@@ -17,10 +17,12 @@ from lol_build.application.threat import (
     policy_blockers,
 )
 from lol_build.cogs import (
+    ActionPlan,
     AttackCadenceModifierWindow,
     CastBlockWindow,
     ChampionCog,
     ChampionCogRegistry,
+    ChampionSnapshot,
     ControlImmunityWindow,
     ControlType,
     OpponentView,
@@ -29,6 +31,7 @@ from lol_build.cogs import (
 )
 from lol_build.cogs.base import CogCapability
 from lol_build.core.canonical import dumps
+from lol_build.core.combat import DamageType
 from lol_build.core.expression import EvaluationContext, evaluate
 from lol_build.core.timeline import (
     ALLY_ENTITIES,
@@ -36,6 +39,7 @@ from lol_build.core.timeline import (
     ActionChannel,
     ActionEvent,
     Combatant,
+    DamageOutput,
     EntityId,
     StatusOutput,
     TimelineResult,
@@ -245,32 +249,59 @@ def _apply_cast_blocks(
 ) -> tuple[ActionEvent, ...]:
     """Mark actions that occur inside an opponent control window.
 
+    Control that blocks casting stops new casts only. A continuation of an
+    already-cast spell (``origin_event_id``) — a returning boomerang, a later
+    damage tick — still resolves unless its origin cast was itself cancelled,
+    in which case it never happens either.
+
     :param events: Original immutable action schedule.
     :param windows: Active control windows emitted by the opponent Cog.
     :return: A new schedule whose blocked actions carry causal cancellation details.
     """
-    return tuple(
-        replace(
-            event,
-            cancelled=True,
-            cancellation_reason=f"OPPONENT_CAST_BLOCK:{window.id}",
+
+    def blocking_window(event: ActionEvent) -> CastBlockWindow | None:
+        """Find the control window that blocks casting this event.
+
+        :param event: Candidate action.
+        :return: The first matching window, or ``None``.
+        """
+        return next(
+            (
+                value
+                for value in windows
+                if value.start_ms <= event.at_ms < value.end_ms
+                and event.channel in value.blocked_channels
+            ),
+            None,
         )
-        if (
-            window := next(
-                (
-                    value
-                    for value in windows
-                    if value.start_ms <= event.at_ms < value.end_ms
-                    and event.channel in value.blocked_channels
-                ),
-                None,
-            )
+
+    casts = {
+        event.id: (
+            replace(event, cancelled=True, cancellation_reason=f"OPPONENT_CAST_BLOCK:{window.id}")
+            if event.origin_event_id is None
+            and not event.cancelled
+            and (window := blocking_window(event)) is not None
+            else event
         )
-        is not None
-        and not event.cancelled
-        else event
         for event in events
-    )
+    }
+    resolved = []
+    for event in events:
+        if event.origin_event_id is None:
+            resolved.append(casts[event.id])
+            continue
+        origin = casts.get(event.origin_event_id)
+        if origin is not None and origin.cancelled and not event.cancelled:
+            resolved.append(
+                replace(
+                    event,
+                    cancelled=True,
+                    cancellation_reason=f"ORIGIN_CAST_CANCELLED:{origin.id}",
+                )
+            )
+        else:
+            resolved.append(event)
+    return tuple(resolved)
 
 
 def _active_cast_windows(
@@ -381,6 +412,54 @@ def _cadence_adjusted_timestamp(
         progress += available
         actual_cursor = boundary
     return actual_cursor + int((required - progress).to_integral_value(rounding=ROUND_CEILING))
+
+
+def _with_expected_critical_strikes(
+    plan: ActionPlan,
+    snapshot: ChampionSnapshot,
+    entity: EntityId,
+) -> ActionPlan:
+    """Scale plain basic attacks by their expected critical-strike damage.
+
+    A plain attack is a basic-attack event whose physical damage output equals
+    the attacker's attack damage exactly; a Cog that already folds critical
+    strikes into an attack's amount changes that amount and is left alone, so
+    nothing is counted twice. Expected damage is ``1 + chance × (critical
+    damage − 1)``: the client rolls critical strikes pseudo-randomly, which a
+    deterministic timeline replaces with the average.
+
+    :param plan: Participant's action plan.
+    :param snapshot: Participant snapshot supplying chance and critical damage.
+    :param entity: Participant whose basic attacks are scaled.
+    :return: The plan with plain attacks scaled, or the original plan if none.
+    """
+    chance = min(Decimal(1), snapshot.critical_strike_chance)
+    if chance <= 0:
+        return plan
+    multiplier = Decimal(1) + chance * (snapshot.critical_strike_damage - Decimal(1))
+    events = []
+    changed = False
+    for event in plan.events:
+        if event.channel is ActionChannel.BASIC_ATTACK and event.source is entity:
+            outputs = list(event.outputs)
+            for index, output in enumerate(outputs):
+                if (
+                    isinstance(output, DamageOutput)
+                    and output.damage_type is DamageType.PHYSICAL
+                    and output.amount == snapshot.attack_damage
+                ):
+                    outputs[index] = replace(output, amount=output.amount * multiplier)
+                    changed = True
+                    break
+            event = replace(event, outputs=tuple(outputs))
+        events.append(event)
+    if not changed:
+        return plan
+    return replace(
+        plan,
+        events=tuple(events),
+        blockers=(*plan.blockers, "EXPECTED_CRITICAL_STRIKE_VALUE_USED"),
+    )
 
 
 def _apply_attack_cadence(
@@ -833,6 +912,17 @@ class MatchupEngine:
         opponent_reaction_plans = [
             cog.build_reaction_plan(context)
             for cog, context in zip(opponent_cogs, opponent_contexts, strict=True)
+        ]
+        actor_actions = _with_expected_critical_strikes(
+            actor_actions, actor_snapshot, EntityId.ACTOR
+        )
+        ally_action_plans = [
+            _with_expected_critical_strikes(plan, view.snapshot, view.entity)
+            for view, plan in zip(ally_side, ally_action_plans, strict=True)
+        ]
+        opponent_action_plans = [
+            _with_expected_critical_strikes(plan, view.snapshot, view.entity)
+            for view, plan in zip(opposing_side, opponent_action_plans, strict=True)
         ]
         opponent_actions = opponent_action_plans[0]
         opponent_reactions = opponent_reaction_plans[0]

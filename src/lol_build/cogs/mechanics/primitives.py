@@ -30,6 +30,7 @@ def action(
     channel: ActionChannel,
     outputs: tuple[EventOutput, ...],
     requires_living_opponent: bool = True,
+    origin_event_id: str | None = None,
 ) -> ActionEvent:
     """Assemble atomic mechanic outputs into one deterministic action.
 
@@ -40,6 +41,8 @@ def action(
     :param channel: Action category used by control cancellation rules.
     :param outputs: Atomic effects resolved together at the timestamp.
     :param requires_living_opponent: Whether opponent death cancels the action.
+    :param origin_event_id: Cast this event continues; cast-blocking control
+        cancels a continuation only when it cancels the origin cast.
     :return: Immutable event accepted by the shared timeline simulator.
     """
     if at_ms < 0:
@@ -56,6 +59,7 @@ def action(
         channel,
         outputs,
         requires_living_opponent=requires_living_opponent,
+        origin_event_id=origin_event_id,
     )
 
 

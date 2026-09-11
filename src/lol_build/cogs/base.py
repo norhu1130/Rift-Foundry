@@ -125,6 +125,7 @@ class ChampionSnapshot:
     life_steal: Decimal = Decimal(0)
     omnivamp: Decimal = Decimal(0)
     health_regen_per_second: Decimal = Decimal(0)
+    critical_strike_damage: Decimal = Decimal(2)
 
 
 @dataclass(frozen=True)
@@ -435,7 +436,7 @@ class ChampionCog:
     ) -> ChampionSnapshot:
         """Build an immutable champion snapshot for one item state.
 
-        :param level: Champion level used for growth and lethality scaling.
+        :param level: Champion level used for stat growth.
         :param item_stats: Normalized aggregate item modifiers.
         :return: Combat-ready champion snapshot.
         """
@@ -500,8 +501,9 @@ class ChampionCog:
             items.get("AP", Decimal(0)),
             items.get("AD", Decimal(0)),
             items.get("PERCENT_ARMOR_PENETRATION", Decimal(0)),
-            items.get("FLAT_ARMOR_PENETRATION", Decimal(0))
-            * (Decimal("0.60") + Decimal("0.40") * Decimal(level) / Decimal(18)),
+            # Lethality converts 1:1 to flat armor penetration at every level
+            # since V14.1; the older 60% + 40% x level / 18 scaling is gone.
+            items.get("FLAT_ARMOR_PENETRATION", Decimal(0)),
             items.get("PERCENT_MAGIC_PENETRATION", Decimal(0)),
             items.get("FLAT_MAGIC_PENETRATION", Decimal(0)),
             items.get("TENACITY", Decimal(0)),
@@ -516,6 +518,11 @@ class ChampionCog:
             )
             / Decimal(5)
             * (Decimal(1) + items.get("BASE_HEALTH_REGEN_PERCENT", Decimal(0))),
+            # A critical strike deals the champion's locked ``critDamageMultiplier``
+            # (2.0 for every champion except Ashe's 1.0) plus item bonuses such
+            # as Infinity Edge's ``mFlatCritDamageMod``.
+            critical_strike_damage=Decimal(str(detail.get("critDamageMultiplier", 2)))
+            + items.get("CRITICAL_STRIKE_DAMAGE", Decimal(0)),
         )
 
     @staticmethod

@@ -84,6 +84,7 @@ class SivirCog(ChampionCog):
                 source=context.self_entity,
                 channel=ActionChannel.ABILITY,
                 outputs=(damage(context.opponent_entity, blade, DamageType.PHYSICAL),),
+                origin_event_id="SIVIR_Q_BOOMERANG_BLADE_OUT",
             ),
         ]
         interval = self._attack_interval_ms(snapshot.attack_speed)

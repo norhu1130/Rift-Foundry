@@ -19,6 +19,7 @@ _STAT_FIELDS = {
     "mPercentMovementSpeedMod": "MOVE_SPEED_PERCENT",
     "mPercentTenacityItemMod": "TENACITY",
     "mFlatCritChanceMod": "CRITICAL_STRIKE_CHANCE",
+    "mFlatCritDamageMod": "CRITICAL_STRIKE_DAMAGE",
     "flatMPPoolMod": "MANA",
     "mPercentLifeStealMod": "LIFESTEAL",
     "PercentOmnivampMod": "OMNIVAMP",

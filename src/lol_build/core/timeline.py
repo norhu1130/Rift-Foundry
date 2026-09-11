@@ -293,6 +293,10 @@ class ActionEvent:
     cancelled: bool = False
     cancellation_reason: str | None = None
     requires_source_alive: bool = True
+    #: Event this one continues (a returning blade, a later tick, a detonation).
+    #: Control that blocks new casts does not stop an already-cast spell, so a
+    #: continuation is cancelled only when its origin cast is.
+    origin_event_id: str | None = None
 
 
 @dataclass(frozen=True)
