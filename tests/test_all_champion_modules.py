@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+import ast
 import json
-import re
 from pathlib import Path
 
 from lol_build.cogs.base import ChampionCog, CogCapability, CogMaturity
@@ -49,18 +49,34 @@ _MATURITY_FOLDER = {
     CogMaturity.SCAFFOLDED: "todo",
     CogMaturity.VERIFIED: "curated",
 }
-_BLOCKER_TUPLE_RE = re.compile(r"blockers=\((.*?)\),?\n", re.S)
 
 
 def _has_champion_scoped_mechanism_gap(module_path: Path) -> bool:
     """Detect a champion Cog that documents an excluded or assumed mechanism.
 
+    The module is parsed rather than scanned with a regular expression: an
+    earlier non-greedy ``blockers=(...)`` pattern stopped at the first
+    ``*self.verification_blockers(),`` line and missed every literal blocker
+    listed after it, misfiling gap-carrying Cogs as ``modeled_unverified``.
+
     :param module_path: Physical path of the champion's Cog module.
-    :return: True if any ``blockers=(...)`` block carries a literal string
-        beyond the standard ``*self.verification_blockers()`` unpacking.
+    :return: True if any ``blockers=(...)`` tuple carries a literal string or
+        f-string beyond the standard ``*self.verification_blockers()`` unpacking.
     """
-    text = module_path.read_text(encoding="utf-8")
-    return any(re.search(r'["\']', block) for block in _BLOCKER_TUPLE_RE.findall(text))
+    tree = ast.parse(module_path.read_text(encoding="utf-8"))
+    for node in ast.walk(tree):
+        if not (
+            isinstance(node, ast.keyword)
+            and node.arg == "blockers"
+            and isinstance(node.value, ast.Tuple)
+        ):
+            continue
+        for element in node.value.elts:
+            if isinstance(element, ast.JoinedStr) or (
+                isinstance(element, ast.Constant) and isinstance(element.value, str)
+            ):
+                return True
+    return False
 
 
 def test_champion_module_folder_matches_manifest_maturity() -> None:

@@ -821,7 +821,7 @@ P0-042..043 ─┘                    └─ P0-052..054
     구현하고 결정성·역할 반전 회귀 테스트를 통과한다.
   - 미구현 또는 미검증 메커니즘은 champion-scoped blocker로 남긴다.
 - 현재 요약 (2026-09-11 기준, 아래 "진행 기록"의 중간 수치보다 우선):
-  - 폴더 기준 todo 0 · wip 104 · modeled_unverified 69 · curated 0.
+  - 폴더 기준 todo 0 · wip 168 · modeled_unverified 5 · curated 0.
     manifest 기준 `MODELED_UNVERIFIED` 173 · `SCAFFOLDED` 0 · `VERIFIED` 0.
   - 마지막 31개(Sylas, Rengar, Udyr, Yorick, Viego, TahmKench, Zac, Rakan,
     Senna, Seraphine, Yuumi, Shyvana, Smolder, Zaahen, Samira, Thresh, Quinn,
@@ -831,12 +831,15 @@ P0-042..043 ─┘                    └─ P0-052..054
     남겼다. Sivir E는 새 엔진 지원(`SPELL_SHIELD_HEAL`: 주문 방어막이 실제로
     적 스킬을 막을 때만 회복)으로 구현했다.
   - `MULTI_TARGET` 선언 Cog 4개(Amumu, Annie, Karthus, Leona).
-  - 알려진 한계: `tests/test_all_champion_modules.py`의 폴더 분류 정규식
-    `blockers=\((.*?)\),?\n`이 `*self.verification_blockers(),\n` 줄에서
-    끝나 버려, 그 뒤에 나열된 literal gap blocker를 보지 못한다. 이 배치의
-    신규 Cog는 이 규칙에 따라 `modeled_unverified/`로 분류됐지만 실제로는
-    `wip/` 성격의 제외 blocker를 여럿 가진다. 정규식을 괄호 균형 파싱으로
-    바꾸면 다수가 `wip/`로 재분류될 것이다(후속 과제).
+  - 폴더 분류 오류 수정: `tests/test_all_champion_modules.py`의 분류
+    정규식 `blockers=\((.*?)\),?\n`이 `*self.verification_blockers(),\n`
+    줄에서 끝나 그 뒤에 나열된 literal gap blocker를 보지 못했다. 이 때문에
+    제외 blocker를 가진 Cog 64개가 `modeled_unverified/`로 잘못 분류돼
+    있었다. 분류기를 AST 파싱(`blockers=` 튜플 안의 문자열·f-string 리터럴
+    검사)으로 교체하고 64개를 `wip/`로 옮겼다. 분류 기준 자체(표준 외
+    리터럴 blocker가 하나라도 있으면 `wip/`)는 `docs/overview.md` 6절
+    그대로다. `modeled_unverified/`에는 Aatrox, Ahri, Darius, Garen,
+    Tryndamere 5개가 남는다.
 - 진행 기록 (시간순 누적, 중간 수치는 당시 값):
   - 전용 모듈 173/173, 상세 원본 3종 173/173, patch lock 538파일.
   - 계산 원본 인덱스 173명·865 슬롯. Q/W/E/R BIN source ref 누락 0건.
