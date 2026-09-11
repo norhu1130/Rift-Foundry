@@ -221,5 +221,5 @@ def test_braum_item_policy_accepts_modeled_and_rejects_omitted_stats() -> None:
     )
     assert (
         braum.item_candidate_blocker({"id": 2, "stats": {"HEAL_SHIELD_POWER": {}, "MANA": {}}})
-        == "BRAUM_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA"
+        == "BRAUM_ITEM_STAT_NOT_MODELED:2:MANA"
     )

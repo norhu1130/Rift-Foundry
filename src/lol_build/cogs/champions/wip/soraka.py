@@ -75,7 +75,6 @@ class SorakaCog(ChampionCog):
         unsupported = {
             "ABILITY_HASTE",
             "CRITICAL_STRIKE_CHANCE",
-            "HEAL_SHIELD_POWER",
             "MANA",
             "MANA_REGEN",
         } & stats.keys()

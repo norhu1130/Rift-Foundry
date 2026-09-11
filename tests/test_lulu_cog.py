@@ -96,5 +96,5 @@ def test_lulu_control_role_reversal_and_item_policy_are_honest() -> None:
     )
     assert (
         cog.item_candidate_blocker({"id": 2, "stats": {"HEAL_SHIELD_POWER": {}, "MANA": {}}})
-        == "LULU_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA"
+        == "LULU_ITEM_STAT_NOT_MODELED:2:MANA"
     )

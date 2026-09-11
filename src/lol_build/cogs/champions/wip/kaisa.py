@@ -136,7 +136,6 @@ class KaisaCog(ChampionCog):
         assert isinstance(stats, dict)
         unsupported = {
             "ABILITY_HASTE",
-            "HEAL_SHIELD_POWER",
             "MANA",
             "MANA_REGEN",
         } & stats.keys()

@@ -237,5 +237,5 @@ def test_amumu_item_policy_accepts_live_stats_and_rejects_model_gaps() -> None:
         amumu.item_candidate_blocker(
             {"id": 2, "stats": {"HEAL_SHIELD_POWER": {}, "MANA": {}, "OMNIVAMP": {}}}
         )
-        == "AMUMU_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA"
+        == "AMUMU_ITEM_STAT_NOT_MODELED:2:MANA"
     )

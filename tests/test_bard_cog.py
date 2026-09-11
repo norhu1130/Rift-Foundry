@@ -229,7 +229,7 @@ def test_bard_engagement_item_and_lane_policies_preserve_boundaries() -> None:
     )
     assert (
         bard.item_candidate_blocker({"id": 2, "stats": {"HEAL_SHIELD_POWER": {}, "MANA": {}}})
-        == "BARD_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA"
+        == "BARD_ITEM_STAT_NOT_MODELED:2:MANA"
     )
     amount, blockers = bard.lane_sustain_extra_health(
         context,

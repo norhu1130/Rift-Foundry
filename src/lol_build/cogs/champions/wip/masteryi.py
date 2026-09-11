@@ -183,7 +183,6 @@ class MasterYiCog(ChampionCog):
         stats = item["stats"]
         assert isinstance(stats, dict)
         unsupported = {
-            "HEAL_SHIELD_POWER",
             "MANA",
             "MANA_REGEN",
         } & stats.keys()

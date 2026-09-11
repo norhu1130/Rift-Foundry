@@ -101,7 +101,7 @@ class GarenCog(ChampionCog):
         """
         stats = item["stats"]
         assert isinstance(stats, dict)
-        unsupported = {"AP", "MANA", "HEAL_SHIELD_POWER"} & stats.keys()
+        unsupported = {"AP", "MANA"} & stats.keys()
         if unsupported:
             return f"GAREN_ITEM_STAT_NOT_MODELED:{item['id']}:{','.join(sorted(unsupported))}"
         return None

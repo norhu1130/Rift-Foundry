@@ -240,6 +240,7 @@ def _opponent_combatant(view: OpponentView) -> Combatant:
         life_steal=snapshot.life_steal,
         omnivamp=snapshot.omnivamp,
         health_regen_per_second=snapshot.health_regen_per_second,
+        heal_shield_power=snapshot.heal_shield_power,
     )
 
 
@@ -1162,6 +1163,7 @@ class MatchupEngine:
                 life_steal=actor_snapshot.life_steal,
                 omnivamp=actor_snapshot.omnivamp,
                 health_regen_per_second=actor_snapshot.health_regen_per_second,
+                heal_shield_power=actor_snapshot.heal_shield_power,
             ),
             target=_opponent_combatant(opposing_side[0]),
             additional_allies=tuple(_opponent_combatant(view) for view in ally_side),

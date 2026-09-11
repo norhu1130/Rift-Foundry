@@ -195,7 +195,7 @@ def test_soraka_item_and_lane_policies_keep_unsupported_healing_explicit() -> No
         soraka.item_candidate_blocker(
             {"id": 2, "stats": {"ABILITY_HASTE": {}, "HEAL_SHIELD_POWER": {}, "MANA": {}}}
         )
-        == "SORAKA_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,HEAL_SHIELD_POWER,MANA"
+        == "SORAKA_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,MANA"
     )
     amount, blockers = soraka.lane_sustain_extra_health(
         _context(),

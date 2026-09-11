@@ -207,5 +207,5 @@ def test_elise_item_policy_accepts_rotation_stats_and_rejects_gaps() -> None:
     )
     assert (
         elise.item_candidate_blocker({"id": 2, "stats": {"HEAL_SHIELD_POWER": {}, "MANA": {}}})
-        == "ELISE_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA"
+        == "ELISE_ITEM_STAT_NOT_MODELED:2:MANA"
     )

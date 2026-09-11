@@ -126,6 +126,7 @@ class ChampionSnapshot:
     omnivamp: Decimal = Decimal(0)
     health_regen_per_second: Decimal = Decimal(0)
     critical_strike_damage: Decimal = Decimal(2)
+    heal_shield_power: Decimal = Decimal(0)
 
 
 @dataclass(frozen=True)
@@ -523,6 +524,7 @@ class ChampionCog:
             # as Infinity Edge's ``mFlatCritDamageMod``.
             critical_strike_damage=Decimal(str(detail.get("critDamageMultiplier", 2)))
             + items.get("CRITICAL_STRIKE_DAMAGE", Decimal(0)),
+            heal_shield_power=items.get("HEAL_SHIELD_POWER", Decimal(0)),
         )
 
     @staticmethod

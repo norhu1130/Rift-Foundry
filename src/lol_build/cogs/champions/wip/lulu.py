@@ -124,7 +124,6 @@ class LuluCog(ChampionCog):
         assert isinstance(stats, dict)
         unsupported = {
             "CRITICAL_STRIKE_CHANCE",
-            "HEAL_SHIELD_POWER",
             "MANA",
             "MANA_REGEN",
         } & stats.keys()
@@ -224,7 +223,6 @@ class LuluCog(ChampionCog):
                 "LULU_W_POLYMORPH_AND_E_ENEMY_DAMAGE_NOT_COMBINED_WITH_SELF_VARIANTS",
                 "LULU_Q_BOTH_BOLTS_HIT_SAME_TARGET_ASSUMED",
                 "LULU_PIX_PROJECTILE_BLOCKING_AND_TARGET_DISTANCE_NOT_MODELED",
-                "LULU_HEAL_SHIELD_POWER_ITEM_STAT_NOT_APPLIED_BY_SNAPSHOT",
                 "LULU_RESOURCE_COSTS_NOT_MODELED",
             ),
         )

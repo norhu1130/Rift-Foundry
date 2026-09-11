@@ -11,6 +11,7 @@ from lol_build.core.timeline import (
     EntityId,
     HealOutput,
     MissingHealthHealOutput,
+    ShieldOutput,
     StatusOutput,
     simulate_timeline,
 )
@@ -336,3 +337,107 @@ def test_spell_shield_heal_applies_only_when_an_ability_is_blocked() -> None:
 
     assert blocked.actor_at_end.current_hp == Decimal(580)
     assert unblocked.actor_at_end.current_hp == Decimal(400)
+
+
+def _self_heal(at_ms: int, sequence: int, amount: str) -> ActionEvent:
+    return ActionEvent(
+        f"self_heal_{sequence}",
+        at_ms,
+        sequence,
+        EntityId.ACTOR,
+        ActionChannel.ABILITY,
+        (HealOutput(EntityId.ACTOR, Decimal(amount)),),
+    )
+
+
+def test_heal_and_shield_power_amplifies_cast_heals() -> None:
+    """A 20% heal and shield power turns a 100-point self heal into 120."""
+    actor = Combatant(
+        EntityId.ACTOR,
+        max_hp=Decimal(1000),
+        current_hp=Decimal(500),
+        armor=Decimal(0),
+        magic_resistance=Decimal(0),
+        heal_shield_power=Decimal("0.20"),
+    )
+    result = simulate_timeline(
+        duration_ms=1000,
+        horizon_ms=1000,
+        actor=actor,
+        target=_combatant(EntityId.TARGET),
+        events=(_self_heal(0, 1, "100"),),
+    )
+
+    assert result.actor_at_end.current_hp == Decimal(620)
+
+
+def test_heal_and_shield_power_does_not_amplify_vamp() -> None:
+    """Omnivamp heals from damage dealt; heal and shield power leaves it alone."""
+    actor = Combatant(
+        EntityId.ACTOR,
+        max_hp=Decimal(1000),
+        current_hp=Decimal(500),
+        armor=Decimal(0),
+        magic_resistance=Decimal(0),
+        omnivamp=Decimal("0.10"),
+        heal_shield_power=Decimal("0.20"),
+    )
+    result = simulate_timeline(
+        duration_ms=1000,
+        horizon_ms=1000,
+        actor=actor,
+        target=_combatant(EntityId.TARGET),
+        events=(_hit("hit", 0, 1, ActionChannel.ABILITY),),
+    )
+
+    assert result.actor_at_end.current_hp == Decimal(510)
+
+
+def test_heal_and_shield_power_multiplies_with_grievous_wounds() -> None:
+    """Amplification and 40% Grievous Wounds combine multiplicatively: 100 x 1.2 x 0.6."""
+    actor = Combatant(
+        EntityId.ACTOR,
+        max_hp=Decimal(1000),
+        current_hp=Decimal(500),
+        armor=Decimal(0),
+        magic_resistance=Decimal(0),
+        heal_shield_power=Decimal("0.20"),
+    )
+    result = simulate_timeline(
+        duration_ms=1000,
+        horizon_ms=1000,
+        actor=actor,
+        target=_combatant(EntityId.TARGET),
+        events=(_grievous(0, 1, "0.40", EntityId.TARGET), _self_heal(100, 2, "100")),
+    )
+
+    assert result.actor_at_end.current_hp == Decimal(572)
+
+
+def test_heal_and_shield_power_amplifies_cast_shields() -> None:
+    """A 20% heal and shield power turns a 100-point self shield into 120."""
+    actor = Combatant(
+        EntityId.ACTOR,
+        max_hp=Decimal(1000),
+        current_hp=Decimal(1000),
+        armor=Decimal(0),
+        magic_resistance=Decimal(0),
+        heal_shield_power=Decimal("0.20"),
+    )
+    shield = ActionEvent(
+        "self_shield",
+        0,
+        1,
+        EntityId.ACTOR,
+        ActionChannel.ABILITY,
+        (ShieldOutput(EntityId.ACTOR, Decimal(100)),),
+    )
+    result = simulate_timeline(
+        duration_ms=1000,
+        horizon_ms=1000,
+        actor=actor,
+        target=_combatant(EntityId.TARGET),
+        events=(shield,),
+    )
+
+    assert result.actor_at_end.shield == Decimal(120)

@@ -85,6 +85,7 @@ class Combatant:
     life_steal: Decimal = Decimal(0)
     omnivamp: Decimal = Decimal(0)
     health_regen_per_second: Decimal = Decimal(0)
+    heal_shield_power: Decimal = Decimal(0)
 
 
 @dataclass(frozen=True)
@@ -487,6 +488,7 @@ class _MutableCombatant:
     life_steal: Decimal = Decimal(0)
     omnivamp: Decimal = Decimal(0)
     health_regen_per_second: Decimal = Decimal(0)
+    heal_shield_power: Decimal = Decimal(0)
     regen_accrued_ms: int = 0
     status_sources: dict[str, EntityId] = field(default_factory=dict)
 
@@ -1123,6 +1125,7 @@ def simulate_timeline(
             life_steal=combatant.life_steal,
             omnivamp=combatant.omnivamp,
             health_regen_per_second=combatant.health_regen_per_second,
+            heal_shield_power=combatant.heal_shield_power,
         )
 
     states = {
@@ -1685,6 +1688,10 @@ def simulate_timeline(
                     + output.missing_health_ratio
                     * max(Decimal(0), recipient.max_hp - recipient.current_hp)
                 )
+                # Heal and shield power amplifies the heals a champion casts,
+                # multiplying with the recipient's healing received modifiers;
+                # vamp and regeneration never pass through this branch.
+                requested *= Decimal(1) + source.heal_shield_power
                 outcome = recipient.receive_healing(requested)
                 record_healing(output.recipient, outcome)
                 healing = outcome[0]
@@ -1711,7 +1718,11 @@ def simulate_timeline(
                 received_increase = recipient.stat_modifier_total(
                     "SHIELD_RECEIVED_INCREASE_PERCENT"
                 )
-                shield_amount = output.amount * (Decimal(1) + received_increase)
+                shield_amount = (
+                    output.amount
+                    * (Decimal(1) + received_increase)
+                    * (Decimal(1) + source.heal_shield_power)
+                )
                 if output.duration_ms is None:
                     recipient.shield += shield_amount
                 else:

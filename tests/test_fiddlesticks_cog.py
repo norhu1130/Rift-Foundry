@@ -274,7 +274,7 @@ def test_fiddlesticks_item_policy_sustain_and_engagement_are_state_honest() -> N
         fiddlesticks.item_candidate_blocker(
             {"id": 2, "stats": {"HEAL_SHIELD_POWER": {}, "MANA": {}, "OMNIVAMP": {}}}
         )
-        == "FIDDLESTICKS_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA"
+        == "FIDDLESTICKS_ITEM_STAT_NOT_MODELED:2:MANA"
     )
     amount, blockers = fiddlesticks.lane_sustain_extra_health(
         context,

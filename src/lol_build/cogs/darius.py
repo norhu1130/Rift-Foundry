@@ -52,7 +52,7 @@ class DariusCog(ChampionCog):
         """
         stats = item["stats"]
         assert isinstance(stats, dict)
-        unsupported = {"AP", "HEAL_SHIELD_POWER", "CRITICAL_STRIKE_CHANCE"} & stats.keys()
+        unsupported = {"AP", "CRITICAL_STRIKE_CHANCE"} & stats.keys()
         if unsupported:
             return f"DARIUS_ITEM_STAT_NOT_MODELED:{item['id']}:{','.join(sorted(unsupported))}"
         return None

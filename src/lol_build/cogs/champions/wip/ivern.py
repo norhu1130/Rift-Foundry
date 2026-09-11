@@ -63,8 +63,8 @@ class IvernCog(ChampionCog):
         """Reject item stats unused by Ivern's fixed duel schedule.
 
         AP affects every represented spell channel, and AD and attack speed
-        affect ordinary attacks. Heal and shield power remains unsupported by
-        champion snapshots even though Triggerseed emits a shield.
+        affect ordinary attacks. Heal and shield power amplifies Triggerseed's
+        shield through the shared timeline.
 
         :param item: Normalized candidate from the locked item catalog.
         :return: Ivern-scoped blocker, or ``None`` for represented channels.
@@ -74,7 +74,6 @@ class IvernCog(ChampionCog):
         unsupported = {
             "ABILITY_HASTE",
             "CRITICAL_STRIKE_CHANCE",
-            "HEAL_SHIELD_POWER",
             "MANA",
             "MANA_REGEN",
         } & stats.keys()

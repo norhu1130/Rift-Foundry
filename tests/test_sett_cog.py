@@ -162,5 +162,5 @@ def test_sett_item_policy_accepts_chassis_stats_and_rejects_fixed_policy_gaps() 
         sett.item_candidate_blocker(
             {"id": 2, "stats": {"ABILITY_HASTE": {}, "HEAL_SHIELD_POWER": {}}}
         )
-        == "SETT_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,HEAL_SHIELD_POWER"
+        == "SETT_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE"
     )

@@ -203,7 +203,6 @@ class DravenCog(ChampionCog):
         assert isinstance(stats, dict)
         unsupported = {
             "AP",
-            "HEAL_SHIELD_POWER",
             "MANA",
             "MANA_REGEN",
         } & stats.keys()

@@ -200,5 +200,5 @@ def test_ivern_item_policy_accepts_live_stats_and_rejects_model_gaps() -> None:
                 },
             }
         )
-        == "IVERN_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,HEAL_SHIELD_POWER,MANA"
+        == "IVERN_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,MANA"
     )

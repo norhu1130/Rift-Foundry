@@ -24,6 +24,7 @@ _STAT_FIELDS = {
     "mPercentLifeStealMod": "LIFESTEAL",
     "PercentOmnivampMod": "OMNIVAMP",
     "mPercentBaseHPRegenMod": "BASE_HEALTH_REGEN_PERCENT",
+    "mPercentHealingAmountMod": "HEAL_SHIELD_POWER",
 }
 
 _PURCHASE_EXCLUSIVE_GROUPS = {

@@ -243,7 +243,14 @@
     12개는 근접 사거리이거나 슬롯을 특정 못함. 추가 보류 사유: Data Dragon
     사거리가 비정상인 경우(Janna W 4294967295)가 섞여 있고, 궁극기 슬로우는
     접촉 전 사용 여부를 챔피언별로 판단해야 한다.
-- 발견 (게임 규칙: 치유·보호막 강화, 수정 진행 중): 잠긴 CommunityDragon
+- 12차 수정 (게임 규칙: 치유·보호막 강화): 아래 발견대로 고쳤다 — 카탈로그
+  `mPercentHealingAmountMod → HEAL_SHIELD_POWER`, 스냅샷·`Combatant`에
+  `heal_shield_power`, 타임라인이 시전자 강화를 회복(`HealOutput`, 잃은 체력
+  비례 회복)과 보호막에 곱하고 흡혈·재생은 제외. 107개 Cog(Darius·Garen·
+  Aatrox 포함)의 거절 목록에서 이 스탯을 빼고 Lulu의 미적용 blocker와 낡은
+  docstring 3곳(Vayne, Ivern, Cassiopeia)을 고쳤다. 엔진 테스트 4개(회복 증폭,
+  흡혈 비증폭, 치료 감소와 곱연산 100×1.2×0.6=72, 보호막 증폭)를 추가했다.
+- 발견 (게임 규칙: 치유·보호막 강화): 잠긴 CommunityDragon
   아이템 데이터의 `mPercentHealingAmountMod`(불타는 향로·흐르는 물의 지팡이·
   구원 0.10, 미카엘의 축복 0.12)가 카탈로그에 매핑되지 않아 서포터 아이템의
   핵심 스탯이 사라지고, 엔진도 이 스탯을 회복·보호막에 적용하지 않는다.

@@ -237,5 +237,5 @@ def test_aurora_item_policy_accepts_only_represented_channels() -> None:
     )
     assert (
         aurora.item_candidate_blocker({"id": 2, "stats": {"HEAL_SHIELD_POWER": {}, "MANA": {}}})
-        == "AURORA_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA"
+        == "AURORA_ITEM_STAT_NOT_MODELED:2:MANA"
     )

@@ -216,7 +216,7 @@ def test_mordekaiser_item_policy_and_lane_sustain_are_state_honest() -> None:
         mordekaiser.item_candidate_blocker(
             {"id": 2, "stats": {"ABILITY_HASTE": {}, "HEAL_SHIELD_POWER": {}}}
         )
-        == "MORDEKAISER_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE,HEAL_SHIELD_POWER"
+        == "MORDEKAISER_ITEM_STAT_NOT_MODELED:2:ABILITY_HASTE"
     )
     amount, blockers = mordekaiser.lane_sustain_extra_health(
         _context(),

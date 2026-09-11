@@ -111,5 +111,5 @@ def test_galio_item_policy_rejects_unrepresented_resource_stats() -> None:
     )
     assert (
         galio.item_candidate_blocker({"id": 2, "stats": {"MANA": {}, "HEAL_SHIELD_POWER": {}}})
-        == "GALIO_ITEM_STAT_NOT_MODELED:2:HEAL_SHIELD_POWER,MANA"
+        == "GALIO_ITEM_STAT_NOT_MODELED:2:MANA"
     )
