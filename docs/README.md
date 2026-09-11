@@ -17,8 +17,14 @@ Rift Foundry의 설계 근거와 계산 규칙을 담은 문서 색인입니다.
 | [`provenance-contract.md`](provenance-contract.md) | MEASURED/CALCULATED/UNVERIFIED 계약 |
 | [`pipeline-readiness.md`](pipeline-readiness.md) | 추천 게이트 3축과 오프라인 실행 |
 | [`web-ui.md`](web-ui.md) | Web UI 사용법과 JSON 엔드포인트 |
-| [`champion-profile-jax-v1.md`](champion-profile-jax-v1.md) | 첫 챔피언 프로필 사례 — 지속형 근접 온히트 벤치마크 |
-| [`rotation-preview.md`](rotation-preview.md) | 계산됐지만 미검증인 Jax 로테이션 프리뷰 |
+| [`architecture/champion-cog-runtime.md`](architecture/champion-cog-runtime.md) | Cog 평가 흐름, 강인함 경계, 확장 계약 |
+| [`evidence/champion-cog-sources.md`](evidence/champion-cog-sources.md) | 챔피언 Cog 근거 경계와 승격 규칙 |
+| [`evidence/volibear-build-hypotheses.md`](evidence/volibear-build-hypotheses.md) | 숙련자 빌드 영상을 가설로 분리한 선례 |
+| [`verification/cc-blind-16.17.1.md`](verification/cc-blind-16.17.1.md) | 실명 상호작용 실측 프로토콜(B0–B6) |
+| [`verification/cc-blind-16.17.1-ko-runbook.md`](verification/cc-blind-16.17.1-ko-runbook.md) | 위 프로토콜의 한국어 실행표 |
+| [`scenarios/duel_jax_l13_8s_vs_teemo_blind_v1.md`](scenarios/duel_jax_l13_8s_vs_teemo_blind_v1.md) | 첫 시나리오 fixture(Jax vs Teemo 실명) |
+| [`champion-profile-jax-v1.md`](champion-profile-jax-v1.md) | 첫 챔피언 프로필 사례 — 지속형 근접 온히트 벤치마크(비-릴리즈 프로토타입 경로) |
+| [`rotation-preview.md`](rotation-preview.md) | 계산됐지만 미검증인 Jax 로테이션 프리뷰(비-릴리즈 프로토타입 경로) |
 | [`adr/0001-runtime-and-testing.md`](adr/0001-runtime-and-testing.md) | ADR-0001: 런타임·테스트 컨벤션 |
 | [`adr/0002-restricted-numeric-expression.md`](adr/0002-restricted-numeric-expression.md) | ADR-0002: 제한된 수치 표현식 트리 |
 | [`adr/0003-role-neutral-champion-cogs.md`](adr/0003-role-neutral-champion-cogs.md) | ADR-0003: 역할 중립 챔피언 Cog 설계 |

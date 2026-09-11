@@ -21,7 +21,9 @@ uv run python -m lol_build.application.web
 
 - **최적화가 아니라 제약 만족 문제로 다룹니다.** 골드는 예산이 아니라
   타임라인(대부분 3~4코어에서 게임이 끝남)이고, DPS는 목적함수가 아니라
-  생존과 곱셈으로 엮여 있으며, 폭딜은 가중합이 아니라 문턱 게이트입니다.
+  생존과 곱셈으로 엮여 있으며, 폭딜은 가중합이 아니라 문턱 게이트로 다뤄야
+  합니다(단, 현재 범용 엔진에는 처치 문턱 게이트가 없고 교전 진입·체급·패시브
+  준비도 게이트만 있습니다 — `docs/selection-semantics.md`).
 - **숫자를 LLM이 만들면 구조적으로 틀리고 검증이 불가능해집니다.** 그래서
   추천은 계산 엔진이 하고, LLM이 관여하더라도 빌드 타임 지식 베이스
   구축뿐이며 그 지식도 사람이 검증합니다.
@@ -69,7 +71,8 @@ src/lol_build/
 ## 시작하기
 
 ```console
-# 전체 검증 (pytest, ruff check는 통과; ruff format --check는 아직 미적용)
+# 전체 검증 (pytest, ruff check는 통과; ruff format --check는 아직 미적용 —
+# ADR-0001 참고)
 uv run pytest && uv run ruff check .
 
 # 로컬 Web UI

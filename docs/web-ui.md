@@ -8,7 +8,7 @@ snapshot and covered by `patch.lock.json` hashes.
 Start it from the repository root:
 
 ```bash
-.venv/bin/python -m lol_build.application.web
+uv run python -m lol_build.application.web
 ```
 
 Open `http://127.0.0.1:8765`. The server binds to loopback by default. A different local port

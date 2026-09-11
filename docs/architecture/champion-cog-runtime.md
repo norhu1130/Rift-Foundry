@@ -15,8 +15,9 @@ binds it to `ACTOR` or `TARGET` only for one request.
 5. `item_combat` converts each owner's declarative item programs into triggers
    derived from the surviving champion and opponent actions.
 6. `timeline` replays the merged immutable events and returns an audit log.
-7. `cog_preview` evaluates legal one-, two-, and three-core prefixes and retains
-   independent damage, survival, engagement, sustain, and chassis frontiers.
+7. `cog_preview` exhaustively evaluates every legal one-, two-, and three-core
+   ordered prefix (no pruning between cores, P1-067) and keeps damage,
+   survival, engagement, sustain, and chassis metrics separate.
 
 Permanent item tenacity shortens only explicitly reducible statuses and cast
 windows. Airborne remains unchanged. Slow resistance changes slow magnitude,
@@ -45,11 +46,12 @@ repository-wide contract is enforced by `tests/test_api_documentation.py`.
 
 ## Selection boundary
 
-The generic beam does not collapse every metric into one invented scalar.
-Independent axis frontiers are retained at each core. Hard readiness gates cover
-contact, chassis growth, conditional item availability, unique groups, boots,
-and cumulative budgets. Branch selection is deterministic and tie-breaks by
-completion cost, total gold, and item IDs.
+The generic search does not collapse every metric into one invented scalar.
+Hard legality filters cover unique groups, boots, and cumulative budgets;
+branch gates cover contact, chassis growth, and conditional item availability.
+Branch selection is deterministic and tie-breaks by weighted completion gold,
+total gold, and item IDs. The exact gates and rankings per branch are defined
+in `docs/selection-semantics.md`.
 
 All current generic previews remain `INSUFFICIENT_EVIDENCE` and
 `release_eligible=false` while any champion formula, hit timing, or connected

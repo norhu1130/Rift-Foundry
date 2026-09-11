@@ -25,7 +25,7 @@ gold or experience merely because both participants use the same benchmark level
 Run the current gate offline with:
 
 ```console
-.venv/bin/python -m lol_build.recommendation.readiness --root .
+uv run python -m lol_build.recommendation.readiness --root .
 ```
 
 The output is canonical JSON. The command reads only locked and curated local

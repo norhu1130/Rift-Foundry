@@ -82,7 +82,7 @@
 `COMPLETED`로 변경한다. 그 다음 아래 명령을 실행한다.
 
 ```console
-.venv/bin/python -m lol_build.scenarios.measurement \
+uv run python -m lol_build.scenarios.measurement \
   fixtures/measurements/cc_blind_16.17.1.pending.json --root .
 ```
 

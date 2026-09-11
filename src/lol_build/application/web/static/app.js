@@ -57,13 +57,6 @@ const reasonLabels = {
   DEFENSE_DURABILITY_WITH_DAMAGE_FLOOR: "피해량 하한을 통과한 후보 중 혼합 유효 체력을 우선했습니다.",
   DEFENSE_FALLBACK_NO_FULL_CHASSIS: "모든 체급 조건을 만족한 후보가 없어 전체 후보 중 생존 지표를 우선했습니다.",
   DEFENSE_FALLBACK_NO_DAMAGE_FLOOR_MET: "체급 조건을 통과했지만 피해량 하한을 넘긴 후보가 없어 하한 없이 생존 지표를 우선했습니다.",
-  KILL_GATE_AND_CHASSIS_PASSED: "처치 문턱과 전 코어 체급·진입 조건을 함께 통과했습니다.",
-  CHASSIS_PASSED_KILL_FALLBACK: "처치 문턱을 넘긴 후보가 없어 전 코어 체급 조건을 통과한 후보를 골랐습니다.",
-  KILL_GATE_PASSED_CHASSIS_FALLBACK: "체급 조건을 모두 만족하지 못했지만 처치 문턱을 통과한 후보를 골랐습니다.",
-  DAMAGE_FALLBACK_NO_KILL_OR_CHASSIS: "처치·체급 조건을 모두 통과한 후보가 없어 초반 피해량 기준으로 선택했습니다.",
-  KILL_THRESHOLD_DAMAGE_PRIORITY: "처치 문턱을 통과한 후보 중 8초 피해량이 가장 높았습니다.",
-  EARLY_DAMAGE_KILL_FALLBACK: "처치 문턱을 넘긴 후보가 없어 초반 3초 피해량을 우선했습니다.",
-  DEFENSE_WITH_PRIMARY_DAMAGE_LOSS_LIMIT: "허용된 공격력 손실 안에서 체급·유지력·진입 능력을 우선했습니다.",
 };
 const slotExclusionLabels = {
   ALL_CORE_ENGAGE_READY_NOT_MET: "이 아이템으로 바꾸면 일부 코어에서 교전 진입 조건을 만족하지 못합니다",
@@ -76,10 +69,6 @@ const constraintLabels = {
   ALL_CORE_CHASSIS_READY: "1~3코어 모두 최소 체급 충족",
   ALL_CORE_ITEM_PASSIVES_READY: "1~3코어 모두 핵심 패시브 활성",
   PRIMARY_DAMAGE_FLOOR_PASSED: "분기 피해량 하한 통과",
-  PRIMARY_DAMAGE_LOSS_LIMIT_PASSED: "허용 피해 손실 한도 통과",
-  NO_DORMANT_CORE_PASSIVE: "완성 시점부터 핵심 패시브 활성",
-  KILL_THRESHOLD_PASSED: "처치 문턱 통과",
-  KILL_THRESHOLD_NOT_MET: "처치 문턱 미달 · fallback 적용",
 };
 const roleLabels = {
   DAMAGE_OUTPUT: "공격력", DAMAGE_EFFECT: "추가 피해", ATTACK_CADENCE: "평타 빈도",

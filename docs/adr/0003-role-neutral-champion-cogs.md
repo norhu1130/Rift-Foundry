@@ -53,14 +53,16 @@ its maturity and capabilities independently:
   item-policy, or recommendation capabilities;
 - `VERIFIED` is reserved for models whose evidence chain has been completed.
 
-The locked roster currently contains 173 dedicated modules. Aatrox, Ahri,
-Darius, and Garen are modeled but unverified; the other 169 are explicit
-scaffolds. Shared event constructors live in `cogs/mechanics` so champion
+The locked roster currently contains 173 dedicated modules. Their maturity is
+encoded by folder under `cogs/champions/` (`todo/`, `wip/`,
+`modeled_unverified/`, `curated/`) and enforced by
+`tests/test_all_champion_modules.py`; current counts live in `README.md`
+rather than here, so this ADR does not go stale. Shared event constructors live in `cogs/mechanics` so champion
 modules compose damage, healing, shielding, movement, and control without
 copying timeline infrastructure.
 
 The fallback is structural, not a release recommendation. Every registered Cog
-can invoke the bounded generic preview, but an uncurated Cog still emits these
+can invoke the generic preview, but an uncurated Cog still emits these
 blockers instead of pretending its spell behavior is known:
 
 - `ROTATION_UNCURATED:<champion>`
@@ -91,10 +93,11 @@ silence/pull cannot still apply its airborne/charm window.
 Cogs must explicitly declare the `RECOMMENDATION` capability before the
 dispatcher runs any preview. A legacy model-name attribute or a physical module
 does not grant that capability. Every actor, with no exception, is ranked by
-the same bounded three-core beam. It separately
-retains damage, survival, engagement, chassis, feasible-damage and
-feasible-chassis extremes; it never invents one blended score. Each prefix is
-evaluated at its own completion budget. The preview exposes pursuit uptime,
+the same exhaustive three-core search: every legal ordered path is evaluated
+with no pruning between cores (P1-067 replaced the earlier bounded beam, which
+provably missed optimal paths). Metrics stay separate; the search never
+invents one blended score. Each prefix is evaluated at its own completion
+budget. The preview exposes pursuit uptime,
 mixed-damage EHP, 30-second lane recovery, weighted completion gold, Warmog
 readiness, and Heartsteel purchase-time stacks. Default and defense first use
 candidates meeting every-core engagement, item-readiness, and chassis floors;
@@ -123,7 +126,7 @@ python -m lol_build.application.matchup Garen Aatrox \
   --actor-items 6631 --opponent-items 3071
 ```
 
-Adding `--recommend` dispatches to the actor Cog through the same bounded
+Adding `--recommend` dispatches to the actor Cog through the same exhaustive
 generic preview for every pair, with no matchup-specific exception; it
 discloses `ROTATION_UNCURATED` or mechanic-specific blockers when a Cog lacks
 enough evidence. Reversing the two command arguments reverses roles; it does

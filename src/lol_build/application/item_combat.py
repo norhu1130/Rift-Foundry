@@ -176,7 +176,7 @@ def item_engagement_modifiers(
     *,
     actives_available: bool,
     window_ms: int = 3000,
-    active_duty_policy: str = "per_engagement",
+    active_duty_policy: str = "uncorrelated",
 ) -> ItemEngagementModifiers:
     """Project declarative movement operations onto the pursuit benchmark.
 
