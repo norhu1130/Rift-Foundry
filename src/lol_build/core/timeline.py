@@ -715,15 +715,22 @@ class _MutableCombatant:
     def effective_tenacity(self) -> Decimal:
         """Return the bounded aggregate used by the deterministic v1 CC model.
 
-        :return: Multiplicatively combined permanent and temporary tenacity.
+        Tenacity stacks multiplicatively within a group and additively across
+        groups (LoL wiki, Tenacity). Item tenacity — static item stats and item
+        effects — forms one group and champion abilities another; runes are not
+        modeled.
+
+        :return: Combined tenacity, bounded to ``[0, 0.99]``.
         """
-        remaining_duration = Decimal(1) - self.tenacity
-        for amount, _ in self.stat_modifiers.get("TENACITY_PERCENT", {}).values():
-            remaining_duration *= Decimal(1) - amount
-        return min(
-            Decimal("0.99"),
-            max(Decimal(0), Decimal(1) - remaining_duration),
-        )
+        item_remaining = Decimal(1) - self.tenacity
+        ability_remaining = Decimal(1)
+        for key, (amount, _) in self.stat_modifiers.get("TENACITY_PERCENT", {}).items():
+            if key.startswith("ITEM|"):
+                item_remaining *= Decimal(1) - amount
+            else:
+                ability_remaining *= Decimal(1) - amount
+        combined = (Decimal(1) - item_remaining) + (Decimal(1) - ability_remaining)
+        return min(Decimal("0.99"), max(Decimal(0), combined))
 
     def update_shields(self, at_ms: int) -> None:
         """Expire and decay timed shields to the current timestamp.
@@ -1764,7 +1771,11 @@ def simulate_timeline(
                 end_ms = (
                     event.at_ms + output.duration_ms if output.duration_ms is not None else None
                 )
-                recipient.stat_modifiers.setdefault(output.stat, {})[event.id] = (
+                # Keys are identity only; the prefix records whether an item or a
+                # champion ability granted the modifier, which tenacity stacking
+                # needs (groups add, members of one group multiply).
+                group = "ITEM" if event.channel is ActionChannel.ITEM_ACTIVE else "ABILITY"
+                recipient.stat_modifiers.setdefault(output.stat, {})[f"{group}|{event.id}"] = (
                     output.amount,
                     end_ms,
                 )

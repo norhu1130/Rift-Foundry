@@ -15,7 +15,7 @@ from lol_build.cogs.base import (
     ReactionPlan,
 )
 from lol_build.cogs.mechanics import action, crowd_control, damage
-from lol_build.core.combat import DamageType
+from lol_build.core.combat import ATTACK_SPEED_CAP, DamageType
 from lol_build.core.timeline import ActionChannel, ActionEvent, StatusOutput
 
 
@@ -185,7 +185,7 @@ class AsheCog(ChampionCog):
                     )
                 )
                 q_attack_speed = min(
-                    Decimal("2.5"),
+                    ATTACK_SPEED_CAP,
                     context.snapshot.attack_speed + Decimal("0.658") * Decimal("0.50"),
                 )
                 q_interval = self._attack_interval_ms(q_attack_speed)

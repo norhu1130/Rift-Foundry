@@ -112,6 +112,11 @@ def _require_finite_decimal(value: Decimal, *, name: str) -> None:
         raise CombatMathError(f"{name} must be finite")
 
 
+#: Maximum attacks per second (LoL wiki, Attack speed: "precisely 3.003").
+#: Champion- or rune-specific cap removals are not modeled.
+ATTACK_SPEED_CAP = Decimal("3.003")
+
+
 def resistance_multiplier(resistance: Decimal) -> Decimal:
     """Return the damage multiplier for positive, zero, or negative resistance.
 

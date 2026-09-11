@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from decimal import ROUND_HALF_EVEN, Decimal
 from enum import StrEnum
 
-from lol_build.core.combat import DamageType, apply_ability_haste
+from lol_build.core.combat import ATTACK_SPEED_CAP, DamageType, apply_ability_haste
 from lol_build.core.timeline import (
     ActionChannel,
     ActionEvent,
@@ -56,7 +56,7 @@ class SustainedOnHitSpec:
     nth_ap_ratio: Decimal
     on_hit_magic_base_damage: Decimal = Decimal(0)
     on_hit_ap_ratio: Decimal = Decimal(0)
-    attack_speed_cap: Decimal = Decimal("2.5")
+    attack_speed_cap: Decimal = ATTACK_SPEED_CAP
 
 
 @dataclass(frozen=True)

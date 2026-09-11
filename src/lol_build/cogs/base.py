@@ -14,7 +14,7 @@ from decimal import ROUND_HALF_EVEN, Decimal
 from enum import StrEnum
 from typing import Any
 
-from lol_build.core.combat import DamageType
+from lol_build.core.combat import ATTACK_SPEED_CAP, DamageType
 from lol_build.core.timeline import (
     ActionChannel,
     ActionEvent,
@@ -478,6 +478,7 @@ class ChampionCog:
                 + items.get("ATTACK_SPEED", Decimal(0))
             )
         ) * items.get("ATTACK_SPEED_MULTIPLIER", Decimal(1))
+        attack_speed = min(attack_speed, ATTACK_SPEED_CAP)
         return ChampionSnapshot(
             self.champion_id,
             self.champion_key,
