@@ -86,7 +86,9 @@ class SylasCog(ChampionCog):
         base = self._sequence_base(context)
         ap = context.snapshot.ability_power
         w_heal = (
-            Decimal(100) + Decimal("0.3") * ap + Decimal("0.05") * context.snapshot.bonus_health
+            self.rank_value("SylasW", "Healing", context, Decimal(100))
+            + Decimal("0.3") * ap
+            + Decimal("0.05") * context.snapshot.bonus_health
         )
         fixed = [
             action(
@@ -97,7 +99,10 @@ class SylasCog(ChampionCog):
                 channel=ActionChannel.ABILITY,
                 outputs=(
                     damage(
-                        context.opponent_entity, Decimal(50) + Decimal("0.8") * ap, DamageType.MAGIC
+                        context.opponent_entity,
+                        self.rank_value("SylasE2", "BaseDamage", context, Decimal(50))
+                        + Decimal("0.8") * ap,
+                        DamageType.MAGIC,
                     ),
                     crowd_control(
                         context.opponent_entity, "AIRBORNE", duration_ms=self._E2_KNOCKUP_MS
@@ -113,14 +118,15 @@ class SylasCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(120) + Decimal("0.4") * ap,
+                        self.rank_value("SylasQ", "BaseDamage", context, Decimal(120))
+                        + Decimal("0.4") * ap,
                         DamageType.MAGIC,
                     ),
                     crowd_control(
                         context.opponent_entity,
                         "SLOW",
                         duration_ms=self._Q_SLOW_MS,
-                        magnitude=Decimal("0.35"),
+                        magnitude=self.rank_value("SylasQ", "SlowAmount", context, Decimal("0.35")),
                     ),
                 ),
             ),
@@ -134,7 +140,8 @@ class SylasCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(280) + Decimal("0.8") * ap,
+                        self.rank_value("SylasQ", "ExplosionBaseDamage", context, Decimal(280))
+                        + Decimal("0.8") * ap,
                         DamageType.MAGIC,
                     ),
                 ),
@@ -148,7 +155,8 @@ class SylasCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(215) + Decimal("0.6") * ap,
+                        self.rank_value("SylasW", "Damage", context, Decimal(215))
+                        + Decimal("0.6") * ap,
                         DamageType.MAGIC,
                     ),
                     # Up to double healing, read linearly down to 40% health.

@@ -176,7 +176,10 @@ class FiddlesticksCog(ChampionCog):
         :return: Channel start plus in-horizon Crowstorm damage events.
         """
         sequence = self._sequence_base(context) + 10
-        tick_damage = (Decimal(250) + Decimal("0.50") * context.snapshot.ability_power) / Decimal(4)
+        tick_damage = (
+            self.rank_value("FiddleSticksR", "DamagePerSecond", context, Decimal(250))
+            + Decimal("0.50") * context.snapshot.ability_power
+        ) / Decimal(4)
         events = [
             action(
                 "FIDDLESTICKS_R_CROWSTORM_CHANNEL_START",
@@ -225,7 +228,10 @@ class FiddlesticksCog(ChampionCog):
         :param context: Role-bound snapshot supplying AP and ability haste.
         :return: One or more magic-damage, slow, and silence events.
         """
-        amount = Decimal(70) + Decimal("0.50") * context.snapshot.ability_power
+        amount = (
+            self.rank_value("FiddleSticksE", "BaseDamage", context, Decimal(70))
+            + Decimal("0.50") * context.snapshot.ability_power
+        )
         cooldown_ms = self._cooldown_ms(Decimal(10), context.snapshot.ability_haste)
         sequence = self._sequence_base(context) + 100
         events: list[ActionEvent] = []
@@ -271,7 +277,10 @@ class FiddlesticksCog(ChampionCog):
         :return: Channel marker and eight drain tick events.
         """
         sequence = self._sequence_base(context) + 200
-        tick_damage = (Decimal(180) + Decimal("0.45") * context.snapshot.ability_power) / Decimal(4)
+        tick_damage = (
+            self.rank_value("FiddleSticksW", "DamagePerSecond", context, Decimal(180))
+            + Decimal("0.45") * context.snapshot.ability_power
+        ) / Decimal(4)
         events = [
             action(
                 "FIDDLESTICKS_W_BOUNTIFUL_HARVEST_START",
@@ -302,7 +311,9 @@ class FiddlesticksCog(ChampionCog):
                     MissingHealthDamageOutput(
                         context.opponent_entity,
                         Decimal(0),
-                        Decimal("0.22"),
+                        self.rank_value(
+                            "FiddleSticksW", "PercentMultiplier", context, Decimal("0.22")
+                        ),
                         DamageType.MAGIC,
                     )
                 )
@@ -325,8 +336,9 @@ class FiddlesticksCog(ChampionCog):
         :return: Deterministic spells, drain sustain, attacks, and blockers.
         """
         base = self._sequence_base(context)
-        q_ratio = Decimal(2) * (
-            Decimal("0.06") + Decimal("0.0003") * context.snapshot.ability_power
+        q_ratio = self.rank_value("FiddleSticksQ", "FearDuration", context, Decimal(2)) * (
+            self.rank_value("FiddleSticksQ", "MaxHealthDamage", context, Decimal("0.06"))
+            + Decimal("0.0003") * context.snapshot.ability_power
         )
         q = action(
             "FIDDLESTICKS_Q_TERRIFY_RECENTLY_FEARED",

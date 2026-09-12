@@ -66,7 +66,8 @@ class RenataCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(260) + Decimal("0.8") * ap,
+                        self.rank_value("RenataQ", "Damage", context, Decimal(260))
+                        + Decimal("0.8") * ap,
                         DamageType.MAGIC,
                     ),
                     crowd_control(context.opponent_entity, "ROOT", duration_ms=self._Q_ROOT_MS),
@@ -81,7 +82,8 @@ class RenataCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(185) + Decimal("0.55") * ap,
+                        self.rank_value("RenataE", "Damage", context, Decimal(185))
+                        + Decimal("0.55") * ap,
                         DamageType.MAGIC,
                     ),
                     crowd_control(

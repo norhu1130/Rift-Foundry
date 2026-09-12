@@ -87,7 +87,11 @@ class RellCog(ChampionCog):
         e_cap = Decimal(150) + Decimal(150) * Decimal(snapshot.level - 1) / Decimal(17)
         e_damage = min(
             e_cap,
-            (Decimal("0.05") + Decimal("0.0003") * ap) * context.opponent_snapshot.max_hp,
+            (
+                self.rank_value("RellE", "PercentHealthDamage", context, Decimal("0.05"))
+                + Decimal("0.0003") * ap
+            )
+            * context.opponent_snapshot.max_hp,
         )
         events: list[ActionEvent] = [
             action(
@@ -139,7 +143,8 @@ class RellCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(220) + Decimal("0.6") * ap,
+                        self.rank_value("RellQ", "BaseDamage", context, Decimal(220))
+                        + Decimal("0.6") * ap,
                         DamageType.MAGIC,
                     ),
                     crowd_control(context.opponent_entity, "STUN", duration_ms=self._Q_STUN_MS),
@@ -159,7 +164,14 @@ class RellCog(ChampionCog):
                 ),
             ),
         ]
-        tick = (Decimal(125) + Decimal("0.55") * ap) * Decimal(self._R_TICK_MS) / Decimal(1000)
+        tick = (
+            (
+                self.rank_value("RellR", "BaseDamagePerSecond", context, Decimal(125))
+                + Decimal("0.55") * ap
+            )
+            * Decimal(self._R_TICK_MS)
+            / Decimal(1000)
+        )
         for index in range(self._R_DURATION_MS // self._R_TICK_MS):
             at_ms = self._R_AT_MS + (index + 1) * self._R_TICK_MS
             if at_ms > context.duration_ms:

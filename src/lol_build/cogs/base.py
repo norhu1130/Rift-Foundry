@@ -8,6 +8,9 @@ each matchup request.
 
 from __future__ import annotations
 
+import inspect
+import re
+import sys
 from collections.abc import Callable
 from dataclasses import dataclass
 from decimal import ROUND_HALF_EVEN, Decimal
@@ -50,6 +53,11 @@ class CogCapability(StrEnum):
 #: one champion. ``Location``, ``LocationClamped``, ``Direction`` and the
 #: terrain variants are deliberately excluded: a point or line cast may still
 #: resolve on a single champion, and the locked data does not say which.
+#: Declared level-13 skill order, e.g. ``..._LEVEL13_Q5_E5_W1_R2_POLICY...``.
+_SKILL_POLICY = re.compile(r"_LEVEL13_([QWER]\d(?:_[QWER]\d){3})_POLICY")
+#: Ability slot of a CommunityDragon spell record path.
+_SPELL_SLOT = re.compile(r"/Spells/[A-Za-z_]*?([QWER])(?:_[A-Za-z]+)?Ability/")
+
 AREA_TARGETING_TYPES: frozenset[str] = frozenset({"SelfAoe", "Area", "AreaClamped", "Cone"})
 
 #: Ability slots in the order the locked character record lists them.
@@ -265,6 +273,7 @@ class ChampionCog:
         self.document = champion_document
         self.detail_root = detail_root
         self.detail_document = detail_document
+        self._skill_order_cache: tuple[str, ...] | None = None
         self._kit_slow_cache: dict[int, Decimal] = {}
         self.champion_id = int(champion_document["key"])
         self.champion_key = str(champion_document["id"])
@@ -642,6 +651,99 @@ class ChampionCog:
                 *self.verification_blockers(),
             ),
         )
+
+    def skill_ranks(self, level: int) -> dict[str, int]:
+        """Derive each ability slot's rank at a level from the declared order.
+
+        The Cog's level-13 order blocker (``*_LEVEL13_Q5_E5_W1_R2_POLICY_*``)
+        fixes which basic ability is maxed first; standard leveling then puts R
+        at levels 6, 11, and 16, one point in each basic ability by level three,
+        and the remaining points into the primary, secondary, then tertiary
+        ability up to rank five.
+
+        :param level: Champion level.
+        :return: Rank per slot letter, or an empty mapping without a policy.
+        """
+        order = self._skill_order()
+        if not order:
+            return {}
+        ult = 0 if level < 6 else 1 if level < 11 else 2 if level < 16 else 3
+        points = level - ult
+        ranks = dict.fromkeys(order, 0)
+        opening = min(points, 3)
+        for slot in order[:opening]:
+            ranks[slot] += 1
+        points -= opening
+        for slot in order:
+            added = min(points, 5 - ranks[slot])
+            ranks[slot] += added
+            points -= added
+        ranks["R"] = ult
+        return ranks
+
+    def _skill_order(self) -> tuple[str, ...]:
+        """Read the basic-ability max order from the level-13 policy blocker.
+
+        :return: Basic slots from primary to tertiary, or empty without a policy.
+        """
+        if self._skill_order_cache is not None:
+            return self._skill_order_cache
+        # The policy blocker is a literal in the Cog's own module. Reading it from
+        # source (rather than building a plan) keeps rank_value, which plans
+        # call, from recursing back into plan construction.
+        order: tuple[str, ...] = ()
+        module = sys.modules.get(type(self).__module__)
+        try:
+            source = inspect.getsource(module) if module is not None else ""
+        except (OSError, TypeError):
+            source = ""
+        match = _SKILL_POLICY.search(source)
+        if match:
+            declared = [(part[0], int(part[1])) for part in match.group(1).split("_")]
+            basics = [slot for slot, _ in declared if slot != "R"]
+            ranks = dict(declared)
+            order = tuple(sorted(basics, key=lambda slot: (-ranks[slot], basics.index(slot))))
+        self._skill_order_cache = order
+        return order
+
+    def rank_value(
+        self, spell: str, name: str, context: ParticipantContext, fallback: Decimal
+    ) -> Decimal:
+        """Read one spell DataValue at the rank its slot has at this level.
+
+        :param spell: Spell record name, such as ``"JhinQ"``.
+        :param name: DataValue name within that record.
+        :param context: Participant context supplying the level.
+        :param fallback: The level-13 value this replaced, returned when the
+            locked record, slot rank, or DataValue is unavailable (a Cog built
+            without its CommunityDragon record, or a Cog without a policy).
+        :return: The locked value at that rank, normalized to six decimals.
+        """
+        document = self.detail_document or {}
+        found = next(
+            (
+                (key, value)
+                for key, value in document.items()
+                if key.endswith(f"/{spell}") and isinstance(value, dict) and value.get("mSpell")
+            ),
+            None,
+        )
+        if found is None:
+            return fallback
+        key, record = found
+        slot = _SPELL_SLOT.search(key)
+        rank = self.skill_ranks(context.snapshot.level).get(slot.group(1)) if slot else None
+        values = next(
+            (
+                entry["values"]
+                for entry in record["mSpell"].get("DataValues") or []
+                if isinstance(entry, dict) and entry.get("name") == name
+            ),
+            None,
+        )
+        if rank is None or values is None or rank >= len(values):
+            return fallback
+        return Decimal(str(round(values[rank], 6))).normalize()
 
     def engagement_speed_multiplier(self, context: ParticipantContext) -> Decimal:
         """Return a curated champion-kit pursuit multiplier for the benchmark.

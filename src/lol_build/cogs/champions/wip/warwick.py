@@ -169,7 +169,8 @@ class WarwickCog(ChampionCog):
         base = self._sequence_base(context) + 100
         passive_damage = self._passive_damage(context)
         spell_damage = (
-            Decimal(350) + Decimal("1.67") * context.snapshot.bonus_attack_damage
+            self.rank_value("WarwickR", "RBaseDamage", context, Decimal(350))
+            + Decimal("1.67") * context.snapshot.bonus_attack_damage
         ) / Decimal(3)
         events: list[ActionEvent] = []
         for index, at_ms in enumerate((300, 800, 1300), start=1):

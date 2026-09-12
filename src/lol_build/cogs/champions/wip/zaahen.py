@@ -66,9 +66,10 @@ class ZaahenCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(120)
+                        self.rank_value("ZaahenE", "Damage_Base", context, Decimal(120))
                         + Decimal("0.5") * bonus_ad
-                        + Decimal("0.06") * context.opponent_snapshot.max_hp,
+                        + self.rank_value("ZaahenE", "PercentHPDamage", context, Decimal("0.06"))
+                        * context.opponent_snapshot.max_hp,
                         DamageType.PHYSICAL,
                     ),
                 ),
@@ -82,7 +83,8 @@ class ZaahenCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(40) + Decimal("0.5") * bonus_ad,
+                        self.rank_value("ZaahenW", "InitialBaseDamage", context, Decimal(40))
+                        + Decimal("0.5") * bonus_ad,
                         DamageType.PHYSICAL,
                     ),
                 ),
@@ -97,7 +99,8 @@ class ZaahenCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(30) + Decimal("0.3") * bonus_ad,
+                        self.rank_value("ZaahenW", "SecondaryBaseDamage", context, Decimal(30))
+                        + Decimal("0.3") * bonus_ad,
                         DamageType.PHYSICAL,
                     ),
                 ),
@@ -112,12 +115,14 @@ class ZaahenCog(ChampionCog):
                     damage(context.opponent_entity, snapshot.attack_damage, DamageType.PHYSICAL),
                     damage(
                         context.opponent_entity,
-                        Decimal(75) + Decimal("0.4") * bonus_ad,
+                        self.rank_value("ZaahenQ", "Q1BaseDamage", context, Decimal(75))
+                        + self.rank_value("ZaahenQ", "QCoeff", context, Decimal("0.4")) * bonus_ad,
                         DamageType.PHYSICAL,
                     ),
                     damage(
                         context.opponent_entity,
-                        Decimal(125) + Decimal("0.4") * bonus_ad,
+                        self.rank_value("ZaahenQ", "Q2BaseDamage", context, Decimal(125))
+                        + self.rank_value("ZaahenQ", "QCoeff", context, Decimal("0.4")) * bonus_ad,
                         DamageType.PHYSICAL,
                     ),
                 ),
@@ -135,9 +140,12 @@ class ZaahenCog(ChampionCog):
                     outputs=(
                         damage(
                             context.opponent_entity,
-                            Decimal(400) + Decimal(2) * bonus_ad,
+                            self.rank_value("ZaahenR", "EndDamage", context, Decimal(400))
+                            + Decimal(2) * bonus_ad,
                             DamageType.PHYSICAL,
-                            percent_resistance_penetration=Decimal("0.2"),
+                            percent_resistance_penetration=self.rank_value(
+                                "ZaahenR", "ArmorPen", context, Decimal("0.2")
+                            ),
                             source_heal_ratio=Decimal("0.33"),
                         ),
                     ),

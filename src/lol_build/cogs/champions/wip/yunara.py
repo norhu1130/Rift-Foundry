@@ -54,7 +54,11 @@ class YunaraCog(ChampionCog):
         base = self._sequence_base(context)
         snapshot = context.snapshot
         ap = snapshot.ability_power
-        laser = Decimal(320) + Decimal("1.2") * snapshot.bonus_attack_damage + Decimal("0.75") * ap
+        laser = (
+            self.rank_value("YunaraR", "RW_Damage_Base", context, Decimal(320))
+            + Decimal("1.2") * snapshot.bonus_attack_damage
+            + Decimal("0.75") * ap
+        )
         on_hit = Decimal(25) + Decimal("0.2") * ap
         events: list[ActionEvent] = []
         for index, at_ms in enumerate(

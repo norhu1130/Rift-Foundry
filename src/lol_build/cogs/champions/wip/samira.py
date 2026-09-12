@@ -80,7 +80,8 @@ class SamiraCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(90) + Decimal("0.2") * bonus_ad,
+                        self.rank_value("SamiraE", "BaseDamage", context, Decimal(90))
+                        + Decimal("0.2") * bonus_ad,
                         DamageType.MAGIC,
                     ),
                 ),

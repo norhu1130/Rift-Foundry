@@ -98,7 +98,7 @@ class TryndamereCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(240)
+                        self.rank_value("TryndamereE", "Damage", context, Decimal(240))
                         + context.snapshot.bonus_attack_damage
                         + Decimal("0.80") * context.snapshot.ability_power,
                         DamageType.PHYSICAL,

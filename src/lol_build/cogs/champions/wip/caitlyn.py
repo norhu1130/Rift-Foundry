@@ -147,7 +147,8 @@ class CaitlynCog(ChampionCog):
                     outputs=(
                         damage(
                             context.opponent_entity,
-                            Decimal(80) + Decimal("0.80") * context.snapshot.ability_power,
+                            self.rank_value("CaitlynE", "Damage", context, Decimal(80))
+                            + Decimal("0.80") * context.snapshot.ability_power,
                             DamageType.MAGIC,
                         ),
                         crowd_control(
@@ -180,7 +181,9 @@ class CaitlynCog(ChampionCog):
                     outputs=(
                         damage(
                             context.opponent_entity,
-                            Decimal(210) + Decimal("2.05") * context.snapshot.attack_damage,
+                            self.rank_value("CaitlynQ", "BaseDamage", context, Decimal(210))
+                            + self.rank_value("CaitlynQ", "tADRatio", context, Decimal("2.05"))
+                            * context.snapshot.attack_damage,
                             DamageType.PHYSICAL,
                         ),
                     ),
@@ -206,7 +209,7 @@ class CaitlynCog(ChampionCog):
         if context.duration_ms >= 2750:
             trap_bonus = (
                 self._headshot_bonus(context)
-                + Decimal(215)
+                + self.rank_value("CaitlynW", "BaseDamage", context, Decimal(215))
                 + Decimal("0.30") * context.snapshot.bonus_attack_damage
             )
             events.append(
@@ -257,7 +260,11 @@ class CaitlynCog(ChampionCog):
                     outputs=(
                         damage(
                             context.opponent_entity,
-                            (Decimal(475) + context.snapshot.bonus_attack_damage) * critical_scale,
+                            (
+                                self.rank_value("CaitlynR", "RBaseDamage", context, Decimal(475))
+                                + context.snapshot.bonus_attack_damage
+                            )
+                            * critical_scale,
                             DamageType.PHYSICAL,
                         ),
                     ),

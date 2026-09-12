@@ -102,7 +102,7 @@ class NasusCog(ChampionCog):
         :param context: Role-bound Nasus combat context.
         :return: Wither's opening slow fraction.
         """
-        return Decimal("0.35")
+        return self.rank_value("NasusR", "SizeIncreasePercent", context, Decimal("0.35"))
 
     def item_candidate_blocker(self, item: dict[str, object]) -> str | None:
         """Reject item channels absent from the fixed Nasus policy.
@@ -170,7 +170,11 @@ class NasusCog(ChampionCog):
         :param context: Role-bound snapshots used for Q damage and duration.
         :return: Q reset attacks carrying total AD, rank damage, and the fixture.
         """
-        q_damage = context.snapshot.attack_damage + Decimal(120) + self.q_stack_fixture
+        q_damage = (
+            context.snapshot.attack_damage
+            + self.rank_value("NasusQ", "BonusDamage", context, Decimal(120))
+            + self.q_stack_fixture
+        )
         base = self._sequence_base(context) + 200
         events: list[ActionEvent] = []
         at_ms = 450
@@ -215,7 +219,8 @@ class NasusCog(ChampionCog):
             outputs=(
                 damage(
                     context.opponent_entity,
-                    Decimal(170) + Decimal("0.60") * ap,
+                    self.rank_value("NasusE", "InitialHitDamage", context, Decimal(170))
+                    + Decimal("0.60") * ap,
                     DamageType.MAGIC,
                 ),
                 ResistanceReductionOutput(
@@ -228,7 +233,9 @@ class NasusCog(ChampionCog):
                 ),
             ),
         )
-        tick_damage = Decimal(34) + Decimal("0.12") * ap
+        tick_damage = (
+            self.rank_value("NasusE", "DamagePerTick", context, Decimal(34)) + Decimal("0.12") * ap
+        )
         ticks = tuple(
             action(
                 f"NASUS_E_SPIRIT_FIRE_TICK_{index}",
@@ -266,7 +273,8 @@ class NasusCog(ChampionCog):
             requires_living_opponent=False,
         )
         damage_per_second = context.opponent_snapshot.max_hp * (
-            Decimal("0.04") + Decimal("0.0001") * context.snapshot.ability_power
+            self.rank_value("NasusR", "AOEDamagePercent", context, Decimal("0.04"))
+            + Decimal("0.0001") * context.snapshot.ability_power
         )
         ticks = tuple(
             action(
@@ -305,7 +313,9 @@ class NasusCog(ChampionCog):
                     context.opponent_entity,
                     "SLOW",
                     duration_ms=5000,
-                    magnitude=Decimal("0.35"),
+                    magnitude=self.rank_value(
+                        "NasusR", "SizeIncreasePercent", context, Decimal("0.35")
+                    ),
                 ),
             ),
         )
@@ -371,7 +381,12 @@ class NasusCog(ChampionCog):
                 f"nasus_w_attack_speed_reduction_{second + 1}",
                 150 + second * 1000,
                 min(1150 + second * 1000, context.duration_ms),
-                Decimal(1) - Decimal("0.75") * (Decimal("0.35") + Decimal("0.03") * second),
+                Decimal(1)
+                - Decimal("0.75")
+                * (
+                    self.rank_value("NasusR", "SizeIncreasePercent", context, Decimal("0.35"))
+                    + Decimal("0.03") * second
+                ),
                 "NASUS_W_WITHER",
             )
             for second in range(5)
@@ -388,7 +403,7 @@ class NasusCog(ChampionCog):
                     (DamageType.PHYSICAL,),
                     self._resistance_multiplier(
                         context.snapshot.armor,
-                        Decimal(55),
+                        self.rank_value("NasusR", "InitialResistGain", context, Decimal(55)),
                         percent_penetration=(context.opponent_snapshot.percent_armor_penetration),
                         flat_penetration=context.opponent_snapshot.flat_armor_penetration,
                     ),
@@ -401,7 +416,7 @@ class NasusCog(ChampionCog):
                     (DamageType.MAGIC,),
                     self._resistance_multiplier(
                         context.snapshot.magic_resistance,
-                        Decimal(55),
+                        self.rank_value("NasusR", "InitialResistGain", context, Decimal(55)),
                         percent_penetration=(context.opponent_snapshot.percent_magic_penetration),
                         flat_penetration=context.opponent_snapshot.flat_magic_penetration,
                     ),

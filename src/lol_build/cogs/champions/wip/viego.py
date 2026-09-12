@@ -89,7 +89,8 @@ class ViegoCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(80) + snapshot.ability_power,
+                        self.rank_value("ViegoW", "Damage", context, Decimal(80))
+                        + snapshot.ability_power,
                         DamageType.MAGIC,
                     ),
                     crowd_control(context.opponent_entity, "STUN", duration_ms=self._W_STUN_MS),
@@ -104,7 +105,8 @@ class ViegoCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(85) + Decimal("0.7") * snapshot.attack_damage,
+                        self.rank_value("ViegoQ", "Damage", context, Decimal(85))
+                        + Decimal("0.7") * snapshot.attack_damage,
                         DamageType.PHYSICAL,
                     ),
                 ),
@@ -119,7 +121,10 @@ class ViegoCog(ChampionCog):
                     damage(
                         context.opponent_entity,
                         Decimal("1.2") * snapshot.bonus_attack_damage
-                        + (Decimal(16) + Decimal("0.05") * snapshot.bonus_attack_damage)
+                        + (
+                            self.rank_value("ViegoR", "MaxHealthDamage", context, Decimal(16))
+                            + Decimal("0.05") * snapshot.bonus_attack_damage
+                        )
                         / Decimal(100)
                         * context.opponent_snapshot.max_hp,
                         DamageType.PHYSICAL,

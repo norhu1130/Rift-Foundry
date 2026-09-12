@@ -143,14 +143,17 @@ class SorakaCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(225) + Decimal("0.35") * ap,
+                        self.rank_value("SorakaQ", "BaseDamage", context, Decimal(225))
+                        + Decimal("0.35") * ap,
                         DamageType.MAGIC,
                     ),
                     crowd_control(
                         context.opponent_entity,
                         "SLOW",
                         duration_ms=1500,
-                        magnitude=Decimal("0.30"),
+                        magnitude=self.rank_value(
+                            "SorakaQ", "MoveSpeedHaste", context, Decimal("0.30")
+                        ),
                     ),
                     StatusOutput(
                         context.self_entity,
@@ -159,7 +162,8 @@ class SorakaCog(ChampionCog):
                     ),
                     movement_speed(
                         context.self_entity,
-                        context.snapshot.move_speed * Decimal("0.30"),
+                        context.snapshot.move_speed
+                        * self.rank_value("SorakaQ", "MoveSpeedHaste", context, Decimal("0.30")),
                         duration_ms=self._Q_HOT_DURATION_MS,
                     ),
                 ),
@@ -173,7 +177,9 @@ class SorakaCog(ChampionCog):
                 outputs=(
                     healing(
                         context.self_entity,
-                        Decimal(120) + Decimal("0.30") * ap,
+                        self.rank_value("SorakaQ", "BaseHoT", context, Decimal(120))
+                        + self.rank_value("SorakaQ", "MoveSpeedHaste", context, Decimal("0.30"))
+                        * ap,
                     ),
                 ),
                 requires_living_opponent=False,
@@ -193,7 +199,9 @@ class SorakaCog(ChampionCog):
         """
         base = self._sequence_base(context)
         ap = context.snapshot.ability_power
-        e_damage = Decimal(70) + Decimal("0.40") * ap
+        e_damage = (
+            self.rank_value("SorakaE", "BaseDamage", context, Decimal(70)) + Decimal("0.40") * ap
+        )
         starcalls = (
             *self._starcall_events(
                 context,
@@ -247,7 +255,8 @@ class SorakaCog(ChampionCog):
                 outputs=(
                     healing(
                         context.self_entity,
-                        Decimal(250) + Decimal("0.50") * ap,
+                        self.rank_value("SorakaR", "BaseHeal", context, Decimal(250))
+                        + Decimal("0.50") * ap,
                     ),
                 ),
                 requires_living_opponent=False,

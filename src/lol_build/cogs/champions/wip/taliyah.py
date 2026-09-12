@@ -66,7 +66,8 @@ class TaliyahCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(240) + Decimal("0.6") * ap,
+                        self.rank_value("TaliyahE", "BaseDamage", context, Decimal(240))
+                        + Decimal("0.6") * ap,
                         DamageType.MAGIC,
                     ),
                     crowd_control(
@@ -85,7 +86,10 @@ class TaliyahCog(ChampionCog):
                 channel=ActionChannel.ABILITY,
                 outputs=(
                     damage(
-                        context.opponent_entity, Decimal(85) + Decimal("0.3") * ap, DamageType.MAGIC
+                        context.opponent_entity,
+                        self.rank_value("TaliyahE", "BaseDetonationDamage", context, Decimal(85))
+                        + Decimal("0.3") * ap,
+                        DamageType.MAGIC,
                     ),
                     crowd_control(context.opponent_entity, "STUN", duration_ms=self._STUN_MS),
                 ),
@@ -99,7 +103,11 @@ class TaliyahCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal("2.6") * (Decimal(125) + Decimal("0.5") * ap),
+                        Decimal("2.6")
+                        * (
+                            self.rank_value("TaliyahQ", "BaseDamage", context, Decimal(125))
+                            + Decimal("0.5") * ap
+                        ),
                         DamageType.MAGIC,
                     ),
                 ),

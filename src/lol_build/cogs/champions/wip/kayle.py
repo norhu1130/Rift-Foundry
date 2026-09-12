@@ -82,7 +82,8 @@ class KayleCog(ChampionCog):
                     ),
                     damage(
                         context.opponent_entity,
-                        Decimal(35) + Decimal("0.20") * context.snapshot.ability_power,
+                        self.rank_value("KayleE", "PassiveDamage", context, Decimal(35))
+                        + Decimal("0.20") * context.snapshot.ability_power,
                         DamageType.MAGIC,
                     ),
                 ),
@@ -125,7 +126,11 @@ class KayleCog(ChampionCog):
                 outputs=(
                     movement_speed(context.self_entity, Decimal("40"), duration_ms=2000),
                     # Rank-one TotalHeal: Heal plus 25% ability power.
-                    healing(context.self_entity, Decimal(55) + Decimal("0.25") * ap),
+                    healing(
+                        context.self_entity,
+                        self.rank_value("KayleW", "Heal", context, Decimal(55))
+                        + Decimal("0.25") * ap,
+                    ),
                 ),
                 requires_living_opponent=False,
             ),

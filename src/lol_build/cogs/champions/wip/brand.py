@@ -120,10 +120,19 @@ class BrandCog(ChampionCog):
         base = self._sequence_base(context)
         ap = context.snapshot.ability_power
         opponent_hp = context.opponent_snapshot.max_hp
-        e_damage = Decimal(55) + Decimal("0.60") * ap
-        q_damage = Decimal(190) + Decimal("0.65") * ap
-        w_damage = (Decimal(255) + Decimal("0.70") * ap) * Decimal("1.25")
-        r_damage = Decimal(175) + Decimal("0.30") * ap
+        e_damage = (
+            self.rank_value("BrandE", "BaseDamage", context, Decimal(55)) + Decimal("0.60") * ap
+        )
+        q_damage = (
+            self.rank_value("BrandQ", "SpellBaseDamage", context, Decimal(190))
+            + Decimal("0.65") * ap
+        )
+        w_damage = (
+            self.rank_value("BrandW", "BaseDamage", context, Decimal(255)) + Decimal("0.70") * ap
+        ) * Decimal("1.25")
+        r_damage = (
+            self.rank_value("BrandR", "BaseDamage", context, Decimal(175)) + Decimal("0.30") * ap
+        )
         blaze_tick = opponent_hp * Decimal("0.02") * Decimal(3) / Decimal(4)
         explosion = opponent_hp * self._explosion_ratio(context.snapshot.level, ap)
         spell_events = (

@@ -62,7 +62,8 @@ class SeraphineCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(190) + Decimal("0.5") * ap,
+                        self.rank_value("SeraphineE", "BaseDamage", context, Decimal(190))
+                        + Decimal("0.5") * ap,
                         DamageType.MAGIC,
                     ),
                     crowd_control(
@@ -82,7 +83,8 @@ class SeraphineCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(160) + Decimal("0.4") * ap,
+                        self.rank_value("SeraphineQ", "BaseDamage", context, Decimal(160))
+                        + Decimal("0.4") * ap,
                         DamageType.MAGIC,
                     ),
                 ),
@@ -96,7 +98,8 @@ class SeraphineCog(ChampionCog):
                 outputs=(
                     shielding(
                         context.self_entity,
-                        Decimal(60) + Decimal("0.2") * ap,
+                        self.rank_value("SeraphineW", "ShieldStrength", context, Decimal(60))
+                        + Decimal("0.2") * ap,
                         duration_ms=self._W_SHIELD_MS,
                     ),
                 ),
@@ -111,7 +114,8 @@ class SeraphineCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(200) + Decimal("0.4") * ap,
+                        self.rank_value("SeraphineR", "R1BaseDamage", context, Decimal(200))
+                        + Decimal("0.4") * ap,
                         DamageType.MAGIC,
                     ),
                 ),

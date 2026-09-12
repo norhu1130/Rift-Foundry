@@ -64,7 +64,8 @@ class ZyraCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(200) + Decimal("0.6") * ap,
+                        self.rank_value("ZyraE", "BaseDamage", context, Decimal(200))
+                        + Decimal("0.6") * ap,
                         DamageType.MAGIC,
                     ),
                     crowd_control(context.opponent_entity, "ROOT", duration_ms=self._E_ROOT_MS),
@@ -79,7 +80,8 @@ class ZyraCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(220) + Decimal("0.65") * ap,
+                        self.rank_value("ZyraQ", "BaseDamage", context, Decimal(220))
+                        + Decimal("0.65") * ap,
                         DamageType.MAGIC,
                     ),
                 ),
@@ -93,7 +95,8 @@ class ZyraCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(300) + Decimal("0.7") * ap,
+                        self.rank_value("ZyraR", "BaseDamage", context, Decimal(300))
+                        + Decimal("0.7") * ap,
                         DamageType.MAGIC,
                     ),
                 ),

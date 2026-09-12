@@ -67,9 +67,18 @@ class ZacCog(ChampionCog):
         snapshot = context.snapshot
         ap = snapshot.ability_power
         target_hp = context.opponent_snapshot.max_hp
-        w_damage = Decimal(80) + (Decimal("0.08") + Decimal("0.0003") * ap) * target_hp
-        q_damage = Decimal(60) + Decimal("0.3") * ap + Decimal("0.03") * snapshot.bonus_health
-        r_first = Decimal(190) + Decimal("0.4") * ap
+        w_damage = (
+            self.rank_value("ZacW", "BaseDamage", context, Decimal(80))
+            + (Decimal("0.08") + Decimal("0.0003") * ap) * target_hp
+        )
+        q_damage = (
+            self.rank_value("ZacQ", "BaseDamage", context, Decimal(60))
+            + Decimal("0.3") * ap
+            + Decimal("0.03") * snapshot.bonus_health
+        )
+        r_first = (
+            self.rank_value("ZacR", "BaseDamageBounce", context, Decimal(190)) + Decimal("0.4") * ap
+        )
         hits: list[tuple[int, str, tuple]] = [
             (
                 self._E_LANDING_MS,
@@ -78,7 +87,8 @@ class ZacCog(ChampionCog):
                     health_cost(context.self_entity, current_health_ratio=Decimal("0.04")),
                     damage(
                         context.opponent_entity,
-                        Decimal(240) + Decimal("0.8") * ap,
+                        self.rank_value("ZacE", "BaseDamage", context, Decimal(240))
+                        + Decimal("0.8") * ap,
                         DamageType.MAGIC,
                     ),
                     crowd_control(

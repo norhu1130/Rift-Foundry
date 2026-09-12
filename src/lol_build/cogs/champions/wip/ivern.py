@@ -88,7 +88,10 @@ class IvernCog(ChampionCog):
         :return: Chronological attacks with physical and W1 magic outputs.
         """
         interval_ms = self._attack_interval_ms(context.snapshot.attack_speed)
-        brush_damage = Decimal(20) + Decimal("0.20") * context.snapshot.ability_power
+        brush_damage = (
+            self.rank_value("IvernW", "BaseDamage", context, Decimal(20))
+            + Decimal("0.20") * context.snapshot.ability_power
+        )
         base = self._sequence_base(context) + 100
         events: list[ActionEvent] = []
         at_ms = self._ATTACK_FIRST_AT_MS
@@ -130,9 +133,15 @@ class IvernCog(ChampionCog):
         """
         base = self._sequence_base(context)
         ap = context.snapshot.ability_power
-        q_damage = Decimal(260) + Decimal("0.70") * ap
-        e_shield = Decimal(235) + Decimal("0.50") * ap
-        e_damage = Decimal(150) + Decimal("0.80") * ap
+        q_damage = (
+            self.rank_value("IvernQ", "BaseDamage", context, Decimal(260)) + Decimal("0.70") * ap
+        )
+        e_shield = (
+            self.rank_value("IvernE", "BaseShield", context, Decimal(235)) + Decimal("0.50") * ap
+        )
+        e_damage = (
+            self.rank_value("IvernE", "BaseDamage", context, Decimal(150)) + Decimal("0.80") * ap
+        )
         fixed_events = (
             action(
                 "IVERN_W_BRUSHMAKER_CREATE",
@@ -176,7 +185,7 @@ class IvernCog(ChampionCog):
                         context.opponent_entity,
                         "SLOW",
                         duration_ms=2000,
-                        magnitude=Decimal("0.60"),
+                        magnitude=self.rank_value("IvernE", "SlowAmount", context, Decimal("0.60")),
                     ),
                 ),
             ),

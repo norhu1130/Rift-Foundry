@@ -95,7 +95,8 @@ class GnarCog(ChampionCog):
                 1800,
                 "GNAR_MINI_E_HOP",
                 ActionChannel.ABILITY,
-                Decimal(50) + Decimal("0.06") * context.snapshot.max_hp,
+                self.rank_value("GnarE", "MiniDamage", context, Decimal(50))
+                + Decimal("0.06") * context.snapshot.max_hp,
                 DamageType.PHYSICAL,
             ),
         ]
@@ -125,7 +126,7 @@ class GnarCog(ChampionCog):
                         context.opponent_entity,
                         "SLOW",
                         duration_ms=2000,
-                        magnitude=Decimal("0.35"),
+                        magnitude=self.rank_value("GnarQ", "SlowAmount", context, Decimal("0.35")),
                     )
                 )
             elif event_id == "GNAR_MINI_E_HOP":
@@ -141,7 +142,7 @@ class GnarCog(ChampionCog):
                             context.self_entity,
                             "GNAR_MINI_E_ATTACK_SPEED",
                             6000,
-                            Decimal("0.40"),
+                            self.rank_value("GnarE", "MinibAS", context, Decimal("0.40")),
                         ),
                     )
                 )
@@ -149,9 +150,10 @@ class GnarCog(ChampionCog):
                 outputs.append(
                     damage(
                         context.opponent_entity,
-                        Decimal(40)
+                        self.rank_value("GnarW", "MiniBaseDamage", context, Decimal(40))
                         + context.snapshot.ability_power
-                        + Decimal("0.14") * context.opponent_snapshot.max_hp,
+                        + self.rank_value("GnarW", "MiniPercentHPDamage", context, Decimal("0.14"))
+                        * context.opponent_snapshot.max_hp,
                         DamageType.MAGIC,
                     )
                 )
@@ -186,7 +188,13 @@ class GnarCog(ChampionCog):
             requires_living_opponent=False,
         )
         specifications = (
-            (3100, "GNAR_MEGA_E_CRUNCH", Decimal(80) + Decimal("0.06") * mega_hp, None),
+            (
+                3100,
+                "GNAR_MEGA_E_CRUNCH",
+                self.rank_value("GnarE", "MegaDamage", context, Decimal(80))
+                + Decimal("0.06") * mega_hp,
+                None,
+            ),
             (
                 3500,
                 "GNAR_MEGA_Q_BOULDER",
@@ -202,7 +210,7 @@ class GnarCog(ChampionCog):
             (
                 5400,
                 "GNAR_MEGA_R_GNAR",
-                Decimal(300)
+                self.rank_value("GnarR", "RBaseDamage", context, Decimal(300))
                 + context.snapshot.ability_power
                 + Decimal("0.50") * context.snapshot.bonus_attack_damage,
                 ("SLOW", 1500, Decimal("0.45")),

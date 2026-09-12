@@ -169,7 +169,10 @@ class AlistarCog(ChampionCog):
         """
         base = self._sequence_base(context) + 100
         cooldown_ms = self._cooldown_ms(Decimal(12), context.snapshot.ability_haste)
-        total_damage = Decimal(80) + Decimal("0.70") * context.snapshot.ability_power
+        total_damage = (
+            self.rank_value("AlistarE", "TrampleDamage", context, Decimal(80))
+            + Decimal("0.70") * context.snapshot.ability_power
+        )
         pulse_damage = total_damage / Decimal(10)
         events: list[ActionEvent] = []
         cast_ms = self._E_FIRST_MS

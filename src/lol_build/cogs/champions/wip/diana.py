@@ -164,7 +164,10 @@ class DianaCog(ChampionCog):
         :return: One or more deterministic Crescent Strike damage events.
         """
         cooldown_ms = self._haste_cooldown_ms(6000, context.snapshot.ability_haste)
-        amount = Decimal(210) + Decimal("0.70") * context.snapshot.ability_power
+        amount = (
+            self.rank_value("DianaQ", "BaseDamage", context, Decimal(210))
+            + Decimal("0.70") * context.snapshot.ability_power
+        )
         base = self._sequence_base(context)
         events: list[ActionEvent] = []
         at_ms = self._Q_AT_MS
@@ -191,7 +194,9 @@ class DianaCog(ChampionCog):
         """
         base = self._sequence_base(context)
         ap = context.snapshot.ability_power
-        e_damage = Decimal(50) + Decimal("0.60") * ap
+        e_damage = (
+            self.rank_value("DianaR", "SlowTooltip", context, Decimal(50)) + Decimal("0.60") * ap
+        )
         orb_damage = Decimal(68) + Decimal("0.18") * ap
         shield = (
             Decimal(105) + Decimal("0.30") * ap + Decimal("0.11") * context.snapshot.bonus_health
@@ -260,7 +265,8 @@ class DianaCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(300) + Decimal("0.60") * ap,
+                        self.rank_value("DianaR", "Damage", context, Decimal(300))
+                        + Decimal("0.60") * ap,
                         DamageType.MAGIC,
                     ),
                 ),

@@ -73,7 +73,9 @@ class QuinnCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(205) + bonus_ad + Decimal("0.5") * snapshot.ability_power,
+                        self.rank_value("QuinnQ", "BaseDamage", context, Decimal(205))
+                        + bonus_ad
+                        + Decimal("0.5") * snapshot.ability_power,
                         DamageType.PHYSICAL,
                     ),
                 ),
@@ -87,7 +89,9 @@ class QuinnCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(140) + Decimal("0.2") * bonus_ad,
+                        self.rank_value("QuinnE", "BaseDamage", context, Decimal(140))
+                        + self.rank_value("QuinnW", "MovespeedAmount", context, Decimal("0.2"))
+                        * bonus_ad,
                         DamageType.PHYSICAL,
                     ),
                     crowd_control(

@@ -55,8 +55,14 @@ class XayahCog(ChampionCog):
         base = self._sequence_base(context)
         snapshot = context.snapshot
         bonus_ad = snapshot.bonus_attack_damage
-        dagger = Decimal(105) + Decimal("0.5") * bonus_ad
-        feather = Decimal(110) + Decimal("0.4") * bonus_ad
+        dagger = (
+            self.rank_value("XayahQ", "BaseDamage", context, Decimal(105))
+            + Decimal("0.5") * bonus_ad
+        )
+        feather = (
+            self.rank_value("XayahE", "BaseDamage", context, Decimal(110))
+            + Decimal("0.4") * bonus_ad
+        )
         feathers = 2 + self._PASSIVE_FEATHERS
         recall = feather * sum(
             (Decimal(1) - Decimal("0.05") * index for index in range(feathers)), Decimal(0)
@@ -120,7 +126,8 @@ class XayahCog(ChampionCog):
                         outputs=(
                             damage(
                                 context.opponent_entity,
-                                Decimal(300) + bonus_ad,
+                                self.rank_value("XayahR", "RBaseDamage", context, Decimal(300))
+                                + bonus_ad,
                                 DamageType.PHYSICAL,
                             ),
                         ),

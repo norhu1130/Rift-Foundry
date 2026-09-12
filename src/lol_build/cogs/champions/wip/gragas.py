@@ -152,7 +152,7 @@ class GragasCog(ChampionCog):
         """
         interval_ms = self._attack_interval_ms(context.snapshot.attack_speed)
         empowered_magic = (
-            Decimal(20)
+            self.rank_value("GragasW", "BaseDamage", context, Decimal(20))
             + Decimal("0.70") * context.snapshot.ability_power
             + Decimal("0.07") * context.opponent_snapshot.max_hp
         )
@@ -239,7 +239,8 @@ class GragasCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(260) + Decimal("0.60") * ap,
+                        self.rank_value("GragasE", "BaseDamage", context, Decimal(260))
+                        + Decimal("0.60") * ap,
                         DamageType.MAGIC,
                     ),
                     crowd_control(context.opponent_entity, "STUN", duration_ms=1000),
@@ -254,7 +255,8 @@ class GragasCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(300) + Decimal("0.80") * ap,
+                        self.rank_value("GragasR", "BaseDamage", context, Decimal(300))
+                        + Decimal("0.80") * ap,
                         DamageType.MAGIC,
                     ),
                     crowd_control(context.opponent_entity, "AIRBORNE", duration_ms=500),

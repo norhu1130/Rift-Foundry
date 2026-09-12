@@ -177,8 +177,12 @@ class GwenCog(ChampionCog):
         fourth_attack_ms = attacks[min(3, len(attacks) - 1)].at_ms
         q_at_ms = min(context.duration_ms, fourth_attack_ms + 200)
         spell_damage = (
-            Decimal(5) * (Decimal(26) + Decimal("0.05") * context.snapshot.ability_power)
-            + Decimal(160)
+            Decimal(5)
+            * (
+                self.rank_value("GwenQ", "MiniSwipeBaseDamage", context, Decimal(26))
+                + Decimal("0.05") * context.snapshot.ability_power
+            )
+            + self.rank_value("GwenQ", "SwipeDamageBase", context, Decimal(160))
             + Decimal("0.35") * context.snapshot.ability_power
         )
         return action(
@@ -200,7 +204,10 @@ class GwenCog(ChampionCog):
         :param context: Snapshot supplying Gwen AP and opponent maximum health.
         :return: In-horizon R2 volley events with passive applications and slows.
         """
-        per_needle = Decimal(50) + Decimal("0.10") * context.snapshot.ability_power
+        per_needle = (
+            self.rank_value("GwenR", "BaseDamage", context, Decimal(50))
+            + Decimal("0.10") * context.snapshot.ability_power
+        )
         base = self._sequence_base(context) + 20
         events: list[ActionEvent] = []
         for index, (at_ms, needles) in enumerate(
@@ -308,7 +315,10 @@ class GwenCog(ChampionCog):
         :return: Incoming-damage modifiers and opponent movement blocks.
         """
         mist_end = min(self._W_END_MS, context.duration_ms)
-        mist_bonus = Decimal(22) + Decimal("0.07") * context.snapshot.ability_power
+        mist_bonus = (
+            self.rank_value("GwenW", "BaseResists", context, Decimal(22))
+            + Decimal("0.07") * context.snapshot.ability_power
+        )
         damage_windows: tuple[DamageModifierWindow, ...] = ()
         if mist_end > self._W_START_MS:
             damage_windows = (

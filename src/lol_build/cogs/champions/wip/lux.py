@@ -161,8 +161,10 @@ class LuxCog(ChampionCog):
         illumination = self._illumination_damage(context.snapshot.level, ap)
         q_damage = Decimal(240) + Decimal("0.75") * ap
         e_damage = Decimal(265) + Decimal("0.80") * ap
-        r_damage = Decimal(400) + Decimal("1.20") * ap
-        w_shield = Decimal(40) + Decimal("0.40") * ap
+        r_damage = self.rank_value("LuxR", "Damage", context, Decimal(400)) + Decimal("1.20") * ap
+        w_shield = (
+            Decimal(40) + self.rank_value("LuxR", "ResetPercent", context, Decimal("0.40")) * ap
+        )
         fixed_events = (
             action(
                 "LUX_Q_LIGHT_BINDING",

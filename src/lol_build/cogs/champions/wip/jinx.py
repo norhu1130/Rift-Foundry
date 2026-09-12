@@ -159,7 +159,10 @@ class JinxCog(ChampionCog):
         """
         base = self._sequence_base(context) + 500
         cooldown_ms = self._cooldown_ms(4000, context)
-        raw_damage = Decimal(210) + Decimal("1.40") * context.snapshot.attack_damage
+        raw_damage = (
+            self.rank_value("JinxW", "Damage", context, Decimal(210))
+            + Decimal("1.40") * context.snapshot.attack_damage
+        )
         events: list[ActionEvent] = []
         at_ms = 100
         while at_ms <= context.duration_ms:
@@ -228,7 +231,8 @@ class JinxCog(ChampionCog):
                     outputs=(
                         damage(
                             context.opponent_entity,
-                            Decimal(90) + context.snapshot.ability_power,
+                            self.rank_value("JinxE", "Damage", context, Decimal(90))
+                            + context.snapshot.ability_power,
                             DamageType.MAGIC,
                         ),
                         crowd_control(context.opponent_entity, "ROOT", duration_ms=1500),
@@ -246,7 +250,8 @@ class JinxCog(ChampionCog):
                     outputs=(
                         MissingHealthDamageOutput(
                             context.opponent_entity,
-                            Decimal(350) + Decimal("1.20") * context.snapshot.bonus_attack_damage,
+                            self.rank_value("JinxR", "MaxDamage", context, Decimal(350))
+                            + Decimal("1.20") * context.snapshot.bonus_attack_damage,
                             Decimal("0.30"),
                             DamageType.PHYSICAL,
                         ),

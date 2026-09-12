@@ -130,7 +130,9 @@ class KarmaCog(ChampionCog):
         """
         base = self._sequence_base(context)
         ap = context.snapshot.ability_power
-        q_damage = Decimal(260) + Decimal("0.70") * ap
+        q_damage = (
+            self.rank_value("KarmaQ", "BaseDamage", context, Decimal(260)) + Decimal("0.70") * ap
+        )
         w_damage = Decimal(40) + Decimal("0.45") * ap
         rq_impact_bonus = Decimal(100) + Decimal("0.30") * ap
         rq_field_damage = Decimal(130) + Decimal("0.50") * ap

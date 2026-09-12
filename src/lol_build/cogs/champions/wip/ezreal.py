@@ -212,7 +212,9 @@ class EzrealCog(ChampionCog):
                 outputs.append(
                     damage(
                         context.opponent_entity,
-                        Decimal(550) + bonus_ad + Decimal("1.10") * ap,
+                        self.rank_value("EzrealR", "BaseDamage", context, Decimal(550))
+                        + bonus_ad
+                        + Decimal("1.10") * ap,
                         DamageType.MAGIC,
                     )
                 )
@@ -222,7 +224,9 @@ class EzrealCog(ChampionCog):
                     (
                         damage(
                             context.opponent_entity,
-                            Decimal(280) + Decimal("0.60") * bonus_ad + Decimal("0.75") * ap,
+                            self.rank_value("EzrealE", "BaseDamage", context, Decimal(280))
+                            + Decimal("0.60") * bonus_ad
+                            + Decimal("0.75") * ap,
                             DamageType.MAGIC,
                         ),
                         StatusOutput(context.self_entity, "EZREAL_E_BLINK_475", 1),
@@ -233,7 +237,7 @@ class EzrealCog(ChampionCog):
                 outputs.append(
                     damage(
                         context.opponent_entity,
-                        Decimal(120)
+                        self.rank_value("EzrealQ", "BaseDamage", context, Decimal(120))
                         + Decimal("1.30") * context.snapshot.attack_damage
                         + Decimal("0.40") * ap,
                         DamageType.PHYSICAL,
@@ -244,7 +248,9 @@ class EzrealCog(ChampionCog):
                 outputs.append(
                     damage(
                         context.opponent_entity,
-                        Decimal(80) + bonus_ad + Decimal("0.90") * ap,
+                        self.rank_value("EzrealW", "BaseDamage", context, Decimal(80))
+                        + bonus_ad
+                        + Decimal("0.90") * ap,
                         DamageType.MAGIC,
                     )
                 )

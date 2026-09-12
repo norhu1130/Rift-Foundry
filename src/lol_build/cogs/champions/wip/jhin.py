@@ -124,7 +124,9 @@ class JhinCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(144) + Decimal("0.74") * ad + Decimal("0.60") * ap,
+                        self.rank_value("JhinQ", "BaseDamage", context, Decimal(144))
+                        + self.rank_value("JhinQ", "ADRatio", context, Decimal("0.74")) * ad
+                        + Decimal("0.60") * ap,
                         DamageType.PHYSICAL,
                     ),
                 ),
@@ -138,7 +140,9 @@ class JhinCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(260) + Decimal("1.20") * ad + Decimal("1.00") * ap,
+                        self.rank_value("JhinE", "BaseDamage", context, Decimal(260))
+                        + Decimal("1.20") * ad
+                        + Decimal("1.00") * ap,
                         DamageType.MAGIC,
                     ),
                     crowd_control(
@@ -155,7 +159,8 @@ class JhinCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(70) + Decimal("0.50") * ad,
+                        self.rank_value("JhinW", "BaseDamage", context, Decimal(70))
+                        + Decimal("0.50") * ad,
                         DamageType.PHYSICAL,
                     ),
                     crowd_control(context.opponent_entity, "ROOT", duration_ms=1250),
@@ -170,7 +175,8 @@ class JhinCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(128) + Decimal("0.25") * ad,
+                        self.rank_value("JhinR", "Damage", context, Decimal(128))
+                        + Decimal("0.25") * ad,
                         DamageType.PHYSICAL,
                     ),
                 ),

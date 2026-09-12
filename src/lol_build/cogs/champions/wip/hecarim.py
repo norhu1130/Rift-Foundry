@@ -173,11 +173,15 @@ class HecarimCog(ChampionCog):
                 source=context.self_entity,
                 channel=ActionChannel.ABILITY,
                 outputs=(
-                    StatModifierOutput(context.self_entity, "ARMOR", Decimal(25)),
+                    StatModifierOutput(
+                        context.self_entity,
+                        "ARMOR",
+                        self.rank_value("HecarimW", "ResistAmount", context, Decimal(25)),
+                    ),
                     StatModifierOutput(
                         context.self_entity,
                         "MAGIC_RESISTANCE",
-                        Decimal(25),
+                        self.rank_value("HecarimW", "ResistAmount", context, Decimal(25)),
                     ),
                     StatusOutput(context.self_entity, "HECARIM_W_ZONE", self._W_END_MS),
                 ),

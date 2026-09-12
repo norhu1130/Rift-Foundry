@@ -64,7 +64,8 @@ class SennaCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(230) + Decimal("0.9") * bonus_ad,
+                        self.rank_value("SennaW", "BaseDamage", context, Decimal(230))
+                        + Decimal("0.9") * bonus_ad,
                         DamageType.PHYSICAL,
                     ),
                     crowd_control(context.opponent_entity, "ROOT", duration_ms=self._W_ROOT_MS),
@@ -79,7 +80,8 @@ class SennaCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(130) + Decimal("0.6") * bonus_ad,
+                        self.rank_value("SennaQ", "BaseDamage", context, Decimal(130))
+                        + Decimal("0.6") * bonus_ad,
                         DamageType.PHYSICAL,
                     ),
                     crowd_control(
@@ -99,7 +101,7 @@ class SennaCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(400)
+                        self.rank_value("SennaR", "Damage", context, Decimal(400))
                         + Decimal("0.7") * snapshot.ability_power
                         + Decimal("1.15") * bonus_ad,
                         DamageType.PHYSICAL,

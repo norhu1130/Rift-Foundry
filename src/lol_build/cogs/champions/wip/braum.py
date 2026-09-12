@@ -82,7 +82,9 @@ class BraumCog(ChampionCog):
         :param stat: ``ARMOR`` or ``MAGIC_RESISTANCE``.
         :return: Locked base grant plus thirty-six percent of bonus resistance.
         """
-        return Decimal(20) + Decimal("0.36") * self._bonus_resistance(context, stat)
+        return self.rank_value("BraumW", "BaseResists", context, Decimal(20)) + Decimal(
+            "0.36"
+        ) * self._bonus_resistance(context, stat)
 
     def engagement_speed_multiplier(self, context: ParticipantContext) -> Decimal:
         """Expose rank-five Unbreakable's movement-speed increase.
@@ -125,7 +127,10 @@ class BraumCog(ChampionCog):
         """
         base = self._sequence_base(context) + 100
         cooldown_ms = self._cooldown_ms(Decimal(6), context.snapshot.ability_haste)
-        raw_damage = Decimal(255) + Decimal("0.025") * context.snapshot.max_hp
+        raw_damage = (
+            self.rank_value("BraumQ", "BaseDamage", context, Decimal(255))
+            + Decimal("0.025") * context.snapshot.max_hp
+        )
         events: list[ActionEvent] = []
         at_ms = 100
         while at_ms <= context.duration_ms:

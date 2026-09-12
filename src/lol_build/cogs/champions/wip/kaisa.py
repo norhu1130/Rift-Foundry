@@ -124,7 +124,7 @@ class KaisaCog(ChampionCog):
         :param context: Role-bound Kai'Sa encounter context.
         :return: Maximum rank-two dash range in game units.
         """
-        return Decimal(2500)
+        return self.rank_value("KaisaR", "RRange", context, Decimal(2500))
 
     def item_candidate_blocker(self, item: dict[str, object]) -> str | None:
         """Reject item stat channels absent from Kai'Sa's fixed fixture.
@@ -216,7 +216,7 @@ class KaisaCog(ChampionCog):
         ap = context.snapshot.ability_power
         total_ad = context.snapshot.attack_damage
         q_missile = (
-            Decimal(100)
+            self.rank_value("KaisaQ", "BaseDamage", context, Decimal(100))
             + Decimal("0.55") * context.snapshot.bonus_attack_damage
             + Decimal("0.20") * ap
         )
@@ -245,7 +245,10 @@ class KaisaCog(ChampionCog):
                 outputs=(
                     shielding(
                         context.self_entity,
-                        Decimal(150) + Decimal("1.35") * total_ad + Decimal("1.20") * ap,
+                        self.rank_value("KaisaR", "RBaseValue", context, Decimal(150))
+                        + self.rank_value("KaisaR", "RTotalADRatio", context, Decimal("1.35"))
+                        * total_ad
+                        + Decimal("1.20") * ap,
                         duration_ms=2000,
                     ),
                 ),

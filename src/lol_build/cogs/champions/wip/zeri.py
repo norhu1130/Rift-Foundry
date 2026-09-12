@@ -56,9 +56,16 @@ class ZeriCog(ChampionCog):
         base = self._sequence_base(context)
         snapshot = context.snapshot
         ap = snapshot.ability_power
-        burst = Decimal(38) + Decimal("1.1") * snapshot.attack_damage
+        burst = (
+            self.rank_value("ZeriQ", "BaseDamage", context, Decimal(38))
+            + self.rank_value("ZeriQ", "ActiveADRatio", context, Decimal("1.1"))
+            * snapshot.attack_damage
+        )
         energized = Decimal(30) + Decimal("0.2") * ap
-        overcharged = Decimal(10) + Decimal("0.15") * ap
+        overcharged = (
+            self.rank_value("ZeriR", "BonusMagicDamage", context, Decimal(10))
+            + Decimal("0.15") * ap
+        )
         events: list[ActionEvent] = [
             action(
                 "ZERI_W_ULTRASHOCK_LASER",
@@ -76,7 +83,7 @@ class ZeriCog(ChampionCog):
                         context.opponent_entity,
                         "SLOW",
                         duration_ms=self._W_SLOW_MS,
-                        magnitude=Decimal("0.30"),
+                        magnitude=self.rank_value("ZeriW", "SlowPercent", context, Decimal("0.30")),
                     ),
                 ),
             ),
@@ -89,8 +96,8 @@ class ZeriCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(250)
-                        + Decimal("1.1") * ap
+                        self.rank_value("ZeriR", "ActiveDamage", context, Decimal(250))
+                        + self.rank_value("ZeriQ", "ActiveADRatio", context, Decimal("1.1")) * ap
                         + Decimal("0.6") * snapshot.bonus_attack_damage,
                         DamageType.MAGIC,
                     ),

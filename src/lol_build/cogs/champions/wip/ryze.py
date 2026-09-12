@@ -69,7 +69,8 @@ class RyzeCog(ChampionCog):
                     outputs=(
                         damage(
                             context.opponent_entity,
-                            Decimal(180) + Decimal("0.5") * ap,
+                            self.rank_value("RyzeE", "BaseDamage", context, Decimal(180))
+                            + Decimal("0.5") * ap,
                             DamageType.MAGIC,
                         ),
                     ),
@@ -85,7 +86,10 @@ class RyzeCog(ChampionCog):
                 channel=ActionChannel.ABILITY,
                 outputs=(
                     damage(
-                        context.opponent_entity, Decimal(60) + Decimal("0.6") * ap, DamageType.MAGIC
+                        context.opponent_entity,
+                        self.rank_value("RyzeW", "BaseDamage", context, Decimal(60))
+                        + Decimal("0.6") * ap,
+                        DamageType.MAGIC,
                     ),
                     crowd_control(context.opponent_entity, "ROOT", duration_ms=self._W_ROOT_MS),
                 ),

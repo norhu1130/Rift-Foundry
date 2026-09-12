@@ -68,7 +68,8 @@ class ThreshCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(300) + Decimal("0.9") * ap,
+                        self.rank_value("ThreshQ", "BaseDamage", context, Decimal(300))
+                        + Decimal("0.9") * ap,
                         DamageType.MAGIC,
                     ),
                     crowd_control(context.opponent_entity, "STUN", duration_ms=self._Q_BIND_MS),
@@ -83,7 +84,8 @@ class ThreshCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(245) + Decimal("0.6") * ap,
+                        self.rank_value("ThreshE", "ActiveBaseDamage", context, Decimal(245))
+                        + Decimal("0.6") * ap,
                         DamageType.MAGIC,
                     ),
                     crowd_control(
@@ -139,7 +141,9 @@ class ThreshCog(ChampionCog):
                         ),
                         damage(
                             context.opponent_entity,
-                            Decimal("2.10") * snapshot.attack_damage * charge,
+                            self.rank_value("ThreshE", "PassiveADRatioTT", context, Decimal("2.10"))
+                            * snapshot.attack_damage
+                            * charge,
                             DamageType.MAGIC,
                         ),
                     ),

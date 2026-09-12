@@ -60,7 +60,8 @@ class RekSaiCog(ChampionCog):
                 outputs.append(
                     damage(
                         context.opponent_entity,
-                        Decimal(25) + Decimal("0.45") * snapshot.attack_damage,
+                        self.rank_value("RekSaiQ", "UnburrowedBaseDamage", context, Decimal(25))
+                        + Decimal("0.45") * snapshot.attack_damage,
                         DamageType.PHYSICAL,
                     )
                 )
@@ -102,7 +103,8 @@ class RekSaiCog(ChampionCog):
                     outputs=(
                         MissingHealthDamageOutput(
                             context.opponent_entity,
-                            Decimal(300) + bonus_ad,
+                            self.rank_value("RekSaiRWrapper", "RBaseDamage", context, Decimal(300))
+                            + bonus_ad,
                             Decimal("0.30"),
                             DamageType.PHYSICAL,
                         ),

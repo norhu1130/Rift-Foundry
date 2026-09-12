@@ -92,7 +92,9 @@ class SmolderCog(ChampionCog):
                     ),
                     damage(
                         context.opponent_entity,
-                        Decimal(110) + Decimal("0.5") * bonus_ad + Decimal("0.8") * ap,
+                        self.rank_value("SmolderW", "ExplosionBaseDamage", context, Decimal(110))
+                        + Decimal("0.5") * bonus_ad
+                        + Decimal("0.8") * ap,
                         DamageType.MAGIC,
                     ),
                     crowd_control(
@@ -115,7 +117,8 @@ class SmolderCog(ChampionCog):
                     outputs=(
                         damage(
                             context.opponent_entity,
-                            Decimal(10) + Decimal("0.3") * snapshot.attack_damage,
+                            self.rank_value("SmolderE", "BaseDamage", context, Decimal(10))
+                            + Decimal("0.3") * snapshot.attack_damage,
                             DamageType.PHYSICAL,
                         ),
                     ),
@@ -133,7 +136,9 @@ class SmolderCog(ChampionCog):
                     outputs=(
                         damage(
                             context.opponent_entity,
-                            Decimal(250) + bonus_ad + ap,
+                            self.rank_value("SmolderR", "BaseDamage", context, Decimal(250))
+                            + bonus_ad
+                            + ap,
                             DamageType.MAGIC,
                         ),
                         crowd_control(
@@ -144,7 +149,9 @@ class SmolderCog(ChampionCog):
                         ),
                         healing(
                             context.self_entity,
-                            Decimal(135) + Decimal("0.5") * bonus_ad + Decimal("0.75") * ap,
+                            self.rank_value("SmolderR", "MomHeal", context, Decimal(135))
+                            + Decimal("0.5") * bonus_ad
+                            + Decimal("0.75") * ap,
                         ),
                     ),
                 )

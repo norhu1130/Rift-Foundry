@@ -207,15 +207,21 @@ class MordekaiserCog(ChampionCog):
         """
         base = self._sequence_base(context)
         realm_ad, realm_ap = self._realm_stats(context)
-        q_damage = Decimal("1.50") * (
-            Decimal(220)
+        q_damage = self.rank_value("MordekaiserQ", "IsolationScalar", context, Decimal("1.50")) * (
+            self.rank_value("MordekaiserQ", "QBaseDamage", context, Decimal(220))
             + self._q_level_bonus(context.snapshot.level)
             + Decimal("1.20") * realm_ad
             + Decimal("0.70") * realm_ap
         )
-        e_damage = Decimal(140) + Decimal("0.45") * realm_ap
+        e_damage = (
+            self.rank_value("MordekaiserE", "Damage", context, Decimal(140))
+            + Decimal("0.45") * realm_ap
+        )
         minimum_shield = Decimal("0.05") * context.snapshot.max_hp
-        minimum_shield_heal = Decimal("0.35") * minimum_shield
+        minimum_shield_heal = (
+            self.rank_value("MordekaiserW", "HealingPercent", context, Decimal("0.35"))
+            * minimum_shield
+        )
         fixed_events = (
             action(
                 "MORDEKAISER_R_REALM_OF_DEATH",

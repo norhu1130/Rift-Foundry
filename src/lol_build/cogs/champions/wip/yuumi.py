@@ -58,7 +58,10 @@ class YuumiCog(ChampionCog):
         base = self._sequence_base(context)
         snapshot = context.snapshot
         ap = snapshot.ability_power
-        wave = Decimal(125) + Decimal("0.25") * ap
+        wave = (
+            self.rank_value("YuumiR", "BaseMissileDamage", context, Decimal(125))
+            + Decimal("0.25") * ap
+        )
         passive_heal = (
             Decimal(20) + Decimal(90) * Decimal(snapshot.level - 1) / Decimal(17)
         ) + Decimal("0.3") * ap
@@ -72,7 +75,8 @@ class YuumiCog(ChampionCog):
                 outputs=(
                     shielding(
                         context.self_entity,
-                        Decimal(165) + Decimal("0.4") * ap,
+                        self.rank_value("YuumiE", "BaseShielding", context, Decimal(165))
+                        + Decimal("0.4") * ap,
                         duration_ms=self._E_SHIELD_MS,
                     ),
                 ),

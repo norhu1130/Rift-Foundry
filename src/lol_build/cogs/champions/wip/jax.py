@@ -110,7 +110,8 @@ class JaxCog(ChampionCog):
                 outputs.append(
                     damage(
                         context.opponent_entity,
-                        Decimal(190) + Decimal("0.60") * context.snapshot.ability_power,
+                        self.rank_value("JaxW", "Damage", context, Decimal(190))
+                        + Decimal("0.60") * context.snapshot.ability_power,
                         DamageType.MAGIC,
                     )
                 )
@@ -118,7 +119,8 @@ class JaxCog(ChampionCog):
                 outputs.append(
                     damage(
                         context.opponent_entity,
-                        Decimal(130) + Decimal("0.60") * context.snapshot.ability_power,
+                        self.rank_value("JaxR", "PassiveBaseDamage", context, Decimal(130))
+                        + Decimal("0.60") * context.snapshot.ability_power,
                         DamageType.MAGIC,
                     )
                 )
@@ -165,7 +167,7 @@ class JaxCog(ChampionCog):
             outputs=(
                 damage(
                     context.opponent_entity,
-                    Decimal(160)
+                    self.rank_value("JaxE", "BaseDamage", context, Decimal(160))
                     + Decimal("0.70") * context.snapshot.ability_power
                     + Decimal("0.04") * context.opponent_snapshot.max_hp,
                     DamageType.MAGIC,

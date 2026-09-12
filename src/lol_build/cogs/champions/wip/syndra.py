@@ -120,9 +120,16 @@ class SyndraCog(ChampionCog):
         base = self._sequence_base(context)
         ap = context.snapshot.ability_power
         q_damage = Decimal(230) + Decimal("0.70") * ap
-        w_magic_damage = Decimal(70) + Decimal("0.65") * ap
-        e_damage = Decimal(200) + Decimal("0.60") * ap
-        r_per_sphere = Decimal(120) + Decimal("0.20") * ap
+        w_magic_damage = (
+            self.rank_value("SyndraW", "BaseDamage", context, Decimal(70)) + Decimal("0.65") * ap
+        )
+        e_damage = (
+            self.rank_value("SyndraE", "BaseDamage", context, Decimal(200)) + Decimal("0.60") * ap
+        )
+        r_per_sphere = (
+            self.rank_value("SyndraR", "DamagePerSphere", context, Decimal(120))
+            + Decimal("0.20") * ap
+        )
         spell_events = (
             action(
                 "SYNDRA_Q_DARK_SPHERE_1",

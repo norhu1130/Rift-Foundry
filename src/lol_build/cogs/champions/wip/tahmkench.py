@@ -80,7 +80,8 @@ class TahmKenchCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(240) + Decimal("1.5") * snapshot.ability_power,
+                        self.rank_value("TahmKenchW", "BaseDamage", context, Decimal(240))
+                        + Decimal("1.5") * snapshot.ability_power,
                         DamageType.MAGIC,
                     ),
                     crowd_control(
@@ -100,7 +101,8 @@ class TahmKenchCog(ChampionCog):
                     outputs=(
                         damage(
                             context.opponent_entity,
-                            Decimal(255) + snapshot.ability_power,
+                            self.rank_value("TahmKenchQ", "BaseDamage", context, Decimal(255))
+                            + snapshot.ability_power,
                             DamageType.MAGIC,
                         ),
                         crowd_control(context.opponent_entity, "STUN", duration_ms=self._Q_STUN_MS),
@@ -108,10 +110,18 @@ class TahmKenchCog(ChampionCog):
                             context.opponent_entity,
                             "SLOW",
                             duration_ms=self._Q_SLOW_MS,
-                            magnitude=Decimal("0.50"),
+                            magnitude=self.rank_value(
+                                "TahmKenchW", "ChampRefund", context, Decimal("0.50")
+                            ),
                         ),
                         missing_health_healing(
-                            context.self_entity, Decimal("0.07"), base_amount=Decimal(30)
+                            context.self_entity,
+                            self.rank_value(
+                                "TahmKenchQ", "PercentHealthHealing", context, Decimal("0.07")
+                            ),
+                            base_amount=self.rank_value(
+                                "TahmKenchQ", "BaseHeal", context, Decimal(30)
+                            ),
                         ),
                     ),
                 )

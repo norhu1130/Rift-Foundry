@@ -158,7 +158,9 @@ class IllaoiCog(ChampionCog):
             + Decimal("1.10") * context.snapshot.attack_damage
             + Decimal("0.40") * context.snapshot.ability_power
         )
-        r_damage = Decimal(250) + Decimal("0.50") * (context.snapshot.bonus_attack_damage)
+        r_damage = self.rank_value("IllaoiR", "BaseDamage", context, Decimal(250)) + Decimal(
+            "0.50"
+        ) * (context.snapshot.bonus_attack_damage)
         fixed_events = (
             action(
                 "ILLAOI_R_LEAP_OF_FAITH",

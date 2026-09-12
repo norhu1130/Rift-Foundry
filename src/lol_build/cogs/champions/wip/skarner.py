@@ -63,7 +63,7 @@ class SkarnerCog(ChampionCog):
         snapshot = context.snapshot
         ap = snapshot.ability_power
         rock = (
-            Decimal(50)
+            self.rank_value("SkarnerQ", "BaseDamage", context, Decimal(50))
             + Decimal("0.9") * snapshot.bonus_attack_damage
             + Decimal("0.03") * snapshot.bonus_health
         )
@@ -82,7 +82,8 @@ class SkarnerCog(ChampionCog):
                     ),
                     damage(
                         context.opponent_entity,
-                        Decimal(130) + Decimal("0.8") * ap,
+                        self.rank_value("SkarnerW", "BaseDamage", context, Decimal(130))
+                        + Decimal("0.8") * ap,
                         DamageType.MAGIC,
                     ),
                     crowd_control(
@@ -100,7 +101,11 @@ class SkarnerCog(ChampionCog):
                 source=context.self_entity,
                 channel=ActionChannel.ABILITY,
                 outputs=(
-                    damage(context.opponent_entity, Decimal(250) + ap, DamageType.MAGIC),
+                    damage(
+                        context.opponent_entity,
+                        self.rank_value("SkarnerR", "BaseDamage", context, Decimal(250)) + ap,
+                        DamageType.MAGIC,
+                    ),
                     crowd_control(
                         context.opponent_entity, "SUPPRESSION", duration_ms=self._R_SUPPRESS_MS
                     ),

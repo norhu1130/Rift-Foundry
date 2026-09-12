@@ -134,8 +134,16 @@ class CassiopeiaCog(ChampionCog):
         outputs = []
         suffix = "UNPOISONED"
         if poisoned:
-            amount += Decimal(120) + Decimal("0.55") * ap
-            outputs.append(healing(context.self_entity, Decimal("0.16") * ap))
+            amount += (
+                self.rank_value("CassiopeiaE", "BonusDamage", context, Decimal(120))
+                + Decimal("0.55") * ap
+            )
+            outputs.append(
+                healing(
+                    context.self_entity,
+                    self.rank_value("CassiopeiaE", "HealRatio", context, Decimal("0.16")) * ap,
+                )
+            )
             suffix = "POISONED"
         outputs.insert(0, damage(context.opponent_entity, amount, DamageType.MAGIC))
         return action(
@@ -159,9 +167,18 @@ class CassiopeiaCog(ChampionCog):
         """
         base = self._sequence_base(context)
         ap = context.snapshot.ability_power
-        r_damage = Decimal(250) + Decimal("0.50") * ap
-        q_damage = Decimal(215) + Decimal("0.65") * ap
-        w_damage = Decimal(20) + Decimal("0.10") * ap
+        r_damage = (
+            self.rank_value("CassiopeiaR", "RBaseDamage", context, Decimal(250))
+            + Decimal("0.50") * ap
+        )
+        q_damage = (
+            self.rank_value("CassiopeiaQ", "BaseDamage", context, Decimal(215))
+            + Decimal("0.65") * ap
+        )
+        w_damage = (
+            self.rank_value("CassiopeiaW", "BaseDamage", context, Decimal(20))
+            + Decimal("0.10") * ap
+        )
         spell_events: list[ActionEvent] = [
             action(
                 "CASSIOPEIA_R_PETRIFYING_GAZE_FACING_STUN",

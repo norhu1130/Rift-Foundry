@@ -166,15 +166,19 @@ class SettCog(ChampionCog):
         :return: Damage, shield, and control events with audit blockers.
         """
         base = self._sequence_base(context)
-        max_grit = Decimal("0.50") * context.snapshot.max_hp
-        w_damage = Decimal(160) + max_grit * (
+        max_grit = (
+            self.rank_value("SettR", "MaxHealthDamage", context, Decimal("0.50"))
+            * context.snapshot.max_hp
+        )
+        w_damage = self.rank_value("SettW", "BaseDamage", context, Decimal(160)) + max_grit * (
             Decimal("0.25") + Decimal("0.0025") * context.snapshot.bonus_attack_damage
         )
         e_damage = Decimal(50) + Decimal("0.60") * context.snapshot.attack_damage
         r_damage = (
-            Decimal(300)
+            self.rank_value("SettR", "BaseDamage", context, Decimal(300))
             + Decimal("1.20") * context.snapshot.bonus_attack_damage
-            + Decimal("0.50") * context.opponent_snapshot.bonus_health
+            + self.rank_value("SettR", "MaxHealthDamage", context, Decimal("0.50"))
+            * context.opponent_snapshot.bonus_health
         )
         fixed_events = (
             action(

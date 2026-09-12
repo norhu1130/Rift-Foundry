@@ -61,7 +61,11 @@ class ShyvanaCog(ChampionCog):
                 source=context.self_entity,
                 channel=ActionChannel.ABILITY,
                 outputs=(
-                    shielding(context.self_entity, Decimal(140), duration_ms=self._W_SHIELD_MS),
+                    shielding(
+                        context.self_entity,
+                        self.rank_value("ShyvanaW", "Shield", context, Decimal(140)),
+                        duration_ms=self._W_SHIELD_MS,
+                    ),
                 ),
                 requires_living_opponent=False,
             ),
@@ -74,7 +78,8 @@ class ShyvanaCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(160) + Decimal("0.65") * ap,
+                        self.rank_value("ShyvanaW", "BaseDamage", context, Decimal(160))
+                        + Decimal("0.65") * ap,
                         DamageType.MAGIC,
                     ),
                 ),
@@ -89,7 +94,7 @@ class ShyvanaCog(ChampionCog):
                     damage(
                         context.opponent_entity,
                         Decimal(50)
-                        + Decimal("0.6") * ap
+                        + self.rank_value("ShyvanaE", "DamageAPRatio", context, Decimal("0.6")) * ap
                         + Decimal("0.05") * context.opponent_snapshot.max_hp,
                         DamageType.MAGIC,
                     ),
@@ -110,7 +115,9 @@ class ShyvanaCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(30) + Decimal("1.1") * snapshot.attack_damage + Decimal("0.3") * ap,
+                        self.rank_value("ShyvanaQ", "Base_Damage", context, Decimal(30))
+                        + Decimal("1.1") * snapshot.attack_damage
+                        + Decimal("0.3") * ap,
                         DamageType.PHYSICAL,
                     ),
                 ),

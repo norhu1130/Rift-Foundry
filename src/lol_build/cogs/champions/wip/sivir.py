@@ -51,11 +51,16 @@ class SivirCog(ChampionCog):
         base = self._sequence_base(context)
         snapshot = context.snapshot
         blade = (
-            Decimal(160)
+            self.rank_value("SivirQ", "BaseDamage", context, Decimal(160))
             + Decimal("0.7") * snapshot.bonus_attack_damage
-            + Decimal("0.6") * snapshot.ability_power
+            + self.rank_value("SivirE", "HealRatio", context, Decimal("0.6"))
+            * snapshot.ability_power
         )
-        heal = Decimal("0.6") * snapshot.attack_damage + Decimal("0.5") * snapshot.ability_power
+        heal = (
+            self.rank_value("SivirE", "HealRatio", context, Decimal("0.6")) * snapshot.attack_damage
+            + self.rank_value("SivirW", "BounceADRatio", context, Decimal("0.5"))
+            * snapshot.ability_power
+        )
         events: list[ActionEvent] = [
             action(
                 "SIVIR_E_SPELL_SHIELD",

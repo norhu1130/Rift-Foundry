@@ -135,8 +135,14 @@ class FizzCog(ChampionCog):
         attack_interval_ms = self._attack_interval_ms(context.snapshot.attack_speed)
         reset_interval_ms = self._cooldown_ms(3000, context.snapshot.ability_haste)
         ap = context.snapshot.ability_power
-        active_magic = Decimal(150) + Decimal("0.45") * ap
-        buff_magic = Decimal(40) + Decimal("0.30") * ap
+        active_magic = (
+            self.rank_value("FizzW", "ActiveBaseDamage", context, Decimal(150))
+            + Decimal("0.45") * ap
+        )
+        buff_magic = (
+            self.rank_value("FizzW", "OnHitBuffBaseDamage", context, Decimal(40))
+            + Decimal("0.30") * ap
+        )
         base = self._sequence_base(context) + 200
         events: list[ActionEvent] = []
         reset_at_ms = self._W_RESET_ATTACK_AT_MS
@@ -204,7 +210,10 @@ class FizzCog(ChampionCog):
         """
         if not attack_events:
             return ()
-        total_bleed = Decimal(90) + Decimal("0.25") * context.snapshot.ability_power
+        total_bleed = (
+            self.rank_value("FizzW", "DoTBaseDamage", context, Decimal(90))
+            + Decimal("0.25") * context.snapshot.ability_power
+        )
         tick_damage = total_bleed / Decimal(6)
         final_expiry = min(context.duration_ms, attack_events[-1].at_ms + self._BLEED_DURATION_MS)
         base = self._sequence_base(context) + 400
@@ -281,11 +290,15 @@ class FizzCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(280) + Decimal("0.95") * ap,
+                        self.rank_value("FizzE", "BaseDamage", context, Decimal(280))
+                        + Decimal("0.95") * ap,
                         DamageType.MAGIC,
                     ),
                     crowd_control(
-                        context.opponent_entity, "SLOW", duration_ms=2000, magnitude=Decimal("0.60")
+                        context.opponent_entity,
+                        "SLOW",
+                        duration_ms=2000,
+                        magnitude=self.rank_value("FizzE", "SlowAmount", context, Decimal("0.60")),
                     ),
                 ),
             ),

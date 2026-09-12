@@ -90,7 +90,8 @@ class RakanCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(270) + Decimal("0.8") * ap,
+                        self.rank_value("RakanW", "BaseDamage", context, Decimal(270))
+                        + Decimal("0.8") * ap,
                         DamageType.MAGIC,
                     ),
                     crowd_control(
@@ -107,7 +108,8 @@ class RakanCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(200) + Decimal("0.5") * ap,
+                        self.rank_value("RakanR", "BaseDamage", context, Decimal(200))
+                        + Decimal("0.5") * ap,
                         DamageType.MAGIC,
                     ),
                     crowd_control(context.opponent_entity, "CHARM", duration_ms=self._R_CHARM_MS),
@@ -122,7 +124,8 @@ class RakanCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(250) + Decimal("0.7") * ap,
+                        self.rank_value("RakanQ", "BaseDamage", context, Decimal(250))
+                        + Decimal("0.7") * ap,
                         DamageType.MAGIC,
                     ),
                 ),

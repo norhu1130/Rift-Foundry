@@ -75,7 +75,8 @@ class QiyanaCog(ChampionCog):
                 outputs=(
                     damage(
                         context.opponent_entity,
-                        Decimal(210) + Decimal("0.5") * bonus_ad,
+                        self.rank_value("QiyanaE", "BaseDamage", context, Decimal(210))
+                        + self.rank_value("QiyanaR", "Slow", context, Decimal("0.5")) * bonus_ad,
                         DamageType.PHYSICAL,
                     ),
                     damage(

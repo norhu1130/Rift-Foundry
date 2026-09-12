@@ -122,7 +122,7 @@ class EvelynnCog(ChampionCog):
                     ResistanceReductionOutput(
                         context.opponent_entity,
                         "MAGIC_RESISTANCE",
-                        Decimal("0.45"),
+                        self.rank_value("EvelynnW", "MRShred", context, Decimal("0.45")),
                         1,
                         4000,
                         f"EVELYNN_W_MR_SHRED_{context.self_entity.value}",
@@ -144,9 +144,18 @@ class EvelynnCog(ChampionCog):
         :return: Initial and recast magic-damage events within the benchmark.
         """
         ap = context.snapshot.ability_power
-        missile_damage = Decimal(45) + Decimal("0.25") * ap
-        marked_bonus = Decimal(55) + Decimal("0.25") * ap
-        cooldown_ms = self._cooldown_ms(Decimal(4), context.snapshot.ability_haste)
+        missile_damage = (
+            self.rank_value("EvelynnQ", "HateSpikeBaseDamage", context, Decimal(45))
+            + Decimal("0.25") * ap
+        )
+        marked_bonus = (
+            self.rank_value("EvelynnQ", "BonusDamageBase", context, Decimal(55))
+            + Decimal("0.25") * ap
+        )
+        cooldown_ms = self._cooldown_ms(
+            self.rank_value("EvelynnW", "MonsterCharm", context, Decimal(4)),
+            context.snapshot.ability_haste,
+        )
         base = self._sequence_base(context) + 100
         events: list[ActionEvent] = []
         cast_at_ms = self._W_TRIGGER_AT_MS + 1
@@ -225,7 +234,9 @@ class EvelynnCog(ChampionCog):
         ap = context.snapshot.ability_power
         base = self._sequence_base(context) + 200
         empowered_e_ratio = Decimal("0.04") + Decimal("0.00025") * ap
-        ultimate_damage = (Decimal(250) + Decimal("0.75") * ap) * Decimal("2.4")
+        ultimate_damage = (
+            self.rank_value("EvelynnR", "BaseDamage", context, Decimal(250)) + Decimal("0.75") * ap
+        ) * Decimal("2.4")
         fixed_events = (
             action(
                 "EVELYNN_E_EMPOWERED_WHIPLASH",
@@ -359,7 +370,7 @@ class EvelynnCog(ChampionCog):
         level = Decimal(context.snapshot.level)
         healing_per_second = Decimal(15) + Decimal(135) * (level - 1) / Decimal(17)
         threshold = (
-            Decimal(250)
+            self.rank_value("EvelynnR", "BaseDamage", context, Decimal(250))
             + Decimal(20) * (level - 1)
             + Decimal("2.5") * (context.snapshot.ability_power)
         )
